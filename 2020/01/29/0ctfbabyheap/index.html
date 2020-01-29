@@ -46,27 +46,39 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Coldshiel&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="0ctfbabyheap寒假肝堆得加紧了，还想刷pwnable来着 程序分析 程序主要分为四个功能：Allocate,Fill,Free,Dump Allocate： 依次按照下标分配，最多为16个chunk，首先判断是否为using chunk，输入size后最大为0x1000，使用calloc分配空间（相较于malloc函数，calloc函数会自动将内存初始化为0）然后更新记录结构体的FL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="0ctfbabyheap">
+<meta property="og:url" content="http://yoursite.com/2020/01/29/0ctfbabyheap/index.html">
 <meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:description" content="0ctfbabyheap寒假肝堆得加紧了，还想刷pwnable来着 程序分析 程序主要分为四个功能：Allocate,Fill,Free,Dump Allocate： 依次按照下标分配，最多为16个chunk，首先判断是否为using chunk，输入size后最大为0x1000，使用calloc分配空间（相较于malloc函数，calloc函数会自动将内存初始化为0）然后更新记录结构体的FL">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580313525795.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580113992227.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580114274572.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580114435473.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580115008365.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580295721778.png">
+<meta property="og:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580296367287.png">
+<meta property="article:published_time" content="2020-01-29T16:12:29.000Z">
+<meta property="article:modified_time" content="2020-01-29T16:16:49.156Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580313525795.png">
 
-<link rel="canonical" href="http://yoursite.com/">
+<link rel="canonical" href="http://yoursite.com/2020/01/29/0ctfbabyheap/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false
+    isHome: false,
+    isPost: true
   };
 </script>
 
-  <title>Coldshiel's blog</title>
+  <title>0ctfbabyheap | Coldshiel's blog</title>
   
 
 
@@ -161,10 +173,10 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/29/0ctfbabyheap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -178,8 +190,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/29/0ctfbabyheap/" class="post-title-link" itemprop="url">0ctfbabyheap</a>
+          0ctfbabyheap
         </h1>
 
         <div class="post-meta">
@@ -204,7 +215,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <hr>
+        <hr>
 <hr>
 <h1 id="0ctfbabyheap"><a href="#0ctfbabyheap" class="headerlink" title="0ctfbabyheap"></a>0ctfbabyheap</h1><p>寒假肝堆得加紧了，还想刷pwnable来着</p>
 <h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p><img src="/2020/01/29/0ctfbabyheap/.%5C0ctfbabyheap%5C1580313525795.png" alt="1580313525795"></p>
@@ -246,94 +257,33 @@
 
 
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/10/hello-world/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/10/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-01-10 23:42:02" itemprop="dateCreated datePublished" datetime="2020-01-10T23:42:02-08:00">2020-01-10</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/10/hello-world/" rel="prev" title="Hello World">
+      <i class="fa fa-chevron-left"></i> Hello World
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
   
 
   </div>
-
-  
-
 
 
           </div>
@@ -384,6 +334,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0ctfbabyheap"><span class="nav-number">1.</span> <span class="nav-text">0ctfbabyheap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序分析"><span class="nav-number">1.1.</span> <span class="nav-text">程序分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Allocate："><span class="nav-number">1.1.1.</span> <span class="nav-text">Allocate：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fill："><span class="nav-number">1.1.2.</span> <span class="nav-text">Fill：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Free："><span class="nav-number">1.1.3.</span> <span class="nav-text">Free：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dump："><span class="nav-number">1.1.4.</span> <span class="nav-text">Dump：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">1.2.</span> <span class="nav-text">Exploit:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完整EXP"><span class="nav-number">1.3.</span> <span class="nav-text">完整EXP</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
