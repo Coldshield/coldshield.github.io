@@ -189,7 +189,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-02-04 03:38:00" itemprop="dateCreated datePublished" datetime="2020-02-04T03:38:00-08:00">2020-02-04</time>
+              <time title="Created: 2020-02-04 03:39:27" itemprop="dateCreated datePublished" datetime="2020-02-04T03:39:27-08:00">2020-02-04</time>
             </span>
 
           
@@ -275,7 +275,7 @@
 
 <p>再次malloc的时候就可以把目标chunk malloc出来了，然后直接在<code>notice_ptr</code>处填入free函数的GOT表地址</p>
 <p>接着将system函数的实际地址填到free_GOT去</p>
-<p><em>ps：leaklibc的操作要放到后面，要不然前面leak之后再调用order会出错，以及这里free函数和fgets的GOT表项挨在一起，用 fgets 只填入 system 函数地址的话 fgets 的GOT表项会被损坏（具体见前面所写的fgets流程），程序往后运行会出错，所以这里填了两个</em></p>
+<p><em>ps：leaklibc的操作要放到后面，要不然前面 leak之后再调用 order会出错，以及这里 free函数和 fgets的 GOT表项挨在一起，用 fgets 只填入 system 函数地址的话 fgets 的 GOT表项会被损坏（具体见前面所写的 fgets流程），程序往后运行会出错，所以这里填了两个</em></p>
 <h4 id="getshell"><a href="#getshell" class="headerlink" title="getshell"></a>getshell</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="string">'/bin/sh'</span>,<span class="string">'/bin/sh'</span>)<span class="comment">#Set /bin/sh for system(linked list head)</span></span><br><span class="line">order()<span class="comment">#free(head_ptr)=system(binsh_ptr)</span></span><br></pre></td></tr></table></figure>
 
 <p>这个应该不用解释了</p>
