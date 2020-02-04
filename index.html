@@ -189,7 +189,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-02-04 03:29:06" itemprop="dateCreated datePublished" datetime="2020-02-04T03:29:06-08:00">2020-02-04</time>
+              <time title="Created: 2020-02-04 03:38:00" itemprop="dateCreated datePublished" datetime="2020-02-04T03:38:00-08:00">2020-02-04</time>
             </span>
 
           
@@ -235,7 +235,7 @@
 <h3 id="add"><a href="#add" class="headerlink" title="add"></a>add</h3><img src="/2020/02/04/how2heap-house-of-spirit-OREO/1580813832897.png" width="80%" height="80%">
 
 <p>具体就是一个链表添加、结构体填充的操作（先填<code>forward_ptr</code>，再输入），全局变量head_ptr存放链表头指针，每次malloc一个refle（fast chunk），然后从对应的位置用<code>fgets</code>输入。两处溢出：<code>refle_name</code>处的溢出可以覆盖到下一个chunk的0x19字节内容，<code>newL_to_zero</code>是将最后的换行符换成<code>\x00</code>，最后<code>++refle_num</code></p>
-<p><em>ps：<code>fgets(,n,)</code>时会读取n-1个字符，并且包括<code>\n</code>，如果输入字符的长度（不包括<code>\n</code>）大于等于n-1,则截取输入中前n-1个字符（此时没有<code>\n</code>）并把第n个字符处填充成<code>\x00</code>。当输入长度小于n-1时，会把<code>\n</code>也读入，并在<code>\n</code>后面一个字节处填充<code>\x00</code>（直接回车也会）</em></p>
+<p><em>ps：<code>fgets(,n,)</code>时会读取 n-1个字符，并且包括 <code>\n</code>，如果输入字符的长度（不包括 <code>\n</code>）大于等于 n-1,则截取输入中前 n-1个字符（此时没有 <code>\n</code>）并把第 n个字符处填充成 <code>\x00</code>。当输入长度小于 n-1时，会把 <code>\n</code>也读入，并在 <code>\n</code>后面一个字节处填充 <code>\x00</code>（直接回车也会）</em></p>
 <h3 id="Show-added-rifles"><a href="#Show-added-rifles" class="headerlink" title="Show added rifles"></a>Show added rifles</h3><img src="/2020/02/04/how2heap-house-of-spirit-OREO/1580813868490.png" width="80%" height="80%">
 
 <p>根据链表输出所有<code>refle</code>的内容</p>
