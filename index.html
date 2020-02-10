@@ -190,7 +190,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-02-10 06:54:41 / Modified: 06:58:37" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
+              <time title="Created: 2020-02-10 06:54:41 / Modified: 15:44:39" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
             </span>
 
           
@@ -449,7 +449,8 @@
 </tbody></table>
 <p>此时0x20的fastbin中是row key4-&gt;row key2</p>
 <p>然后通过DEL中没有free Enter chunk，申请两次，从而第二次可以在row key2处对data2造成off_by_one（既然能off_by_one，data2就肯定不是fastchunk了）</p>
-<p>但是还有一点，off_by_one发生之后，如果我们的目的是overlap，可是结点3是一个fastchunk，free的时候并不会向前合并，所以这个思路显然不行</p>
+<p>但是还有一点，off_by_one发生之后，如果我们的目的是用例子的那种overlap，这是结点3是一个fastchunk，free的时候并不会向前合并，所以这个思路显然不行</p>
+<p>ps：然而当我写完后面的再回来看的时候，这里又是我立的一个flag，如果是用free data2的方式来合并前面的chunk的话说不定又是一种新方法，主要是写后面的构造写着写着就忘了前面这个我想到的用DEL填充来溢出的方法</p>
 <hr>
 <h3 id="第二思路："><a href="#第二思路：" class="headerlink" title="第二思路："></a>第二思路：</h3><table>
 <thead>
