@@ -75,7 +75,7 @@
 <meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258784894.png">
 <meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581260525230.png">
 <meta property="article:published_time" content="2020-02-10T14:54:41.000Z">
-<meta property="article:modified_time" content="2020-02-10T23:44:39.662Z">
+<meta property="article:modified_time" content="2020-02-11T00:13:57.287Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064511575.png">
@@ -215,7 +215,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-02-10 06:54:41 / Modified: 15:44:39" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
+              <time title="Created: 2020-02-10 06:54:41 / Modified: 16:13:57" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
             </span>
 
           
@@ -475,7 +475,65 @@
 <p>此时0x20的fastbin中是row key4-&gt;row key2</p>
 <p>然后通过DEL中没有free Enter chunk，申请两次，从而第二次可以在row key2处对data2造成off_by_one（既然能off_by_one，data2就肯定不是fastchunk了）</p>
 <p>但是还有一点，off_by_one发生之后，如果我们的目的是用例子的那种overlap，这是结点3是一个fastchunk，free的时候并不会向前合并，所以这个思路显然不行</p>
-<p>ps：然而当我写完后面的再回来看的时候，这里又是我立的一个flag，如果是用free data2的方式来合并前面的chunk的话说不定又是一种新方法，主要是写后面的构造写着写着就忘了前面这个我想到的用DEL填充来溢出的方法</p>
+<p>ps：然而当我写完后面的再回来看的时候，这里又是我立的一个flag，或者说我当时写到这里的时候还对构造不太熟悉，如果把两个data chunk构造在一起好像也不是不行（只要删掉前面一个结点，就会在fastbin中腾出位置来，再申请一个有大于之前data块的结点就可以了），主要是写后面的构造方法写着写着就忘了前面这个我想到的用DEL填充来off_by_one然后合并前面的chunk的方法，如果用这种方式来构造的话可以这样构造：</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0xd0</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x100</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x40</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>rowkey2</td>
+<td>data2</td>
+<td>结点3</td>
+<td>rowkey3</td>
+<td>data3</td>
+<td></td>
+<td></td>
+<td>data5</td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin2</td>
+<td></td>
+</tr>
+</tbody></table>
 <hr>
 <h3 id="第二思路："><a href="#第二思路：" class="headerlink" title="第二思路："></a>第二思路：</h3><table>
 <thead>
