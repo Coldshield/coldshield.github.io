@@ -73,7 +73,7 @@
 <meta property="og:image" content="http://yoursite.com/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/1582413618572.png">
 <meta property="og:image" content="http://yoursite.com/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/1582413728779.png">
 <meta property="article:published_time" content="2020-02-23T02:42:29.000Z">
-<meta property="article:modified_time" content="2020-02-23T02:45:22.834Z">
+<meta property="article:modified_time" content="2020-02-25T06:36:52.020Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://yoursite.com/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/1582041965701.png">
@@ -211,10 +211,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-02-22 18:42:29 / Modified: 18:45:22" itemprop="dateCreated datePublished" datetime="2020-02-22T18:42:29-08:00">2020-02-22</time>
+              <time title="Created: 2020-02-22 18:42:29" itemprop="dateCreated datePublished" datetime="2020-02-22T18:42:29-08:00">2020-02-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-24 22:36:52" itemprop="dateModified" datetime="2020-02-24T22:36:52-08:00">2020-02-24</time>
+              </span>
 
           
 
@@ -248,7 +254,7 @@
 
 <p>可以看到pwndbg的脚本报错了，不过我们直接看地址偏移还是一样的</p>
 <p>然后<code>char *p2=malloc(0xFFFFFFFFFFFFF000-2*sizeof(size_t));</code>这一行的意思是传入一个<code>-0x1000-2*size_t</code>的值，计算nb时会补成<code>-0x1000</code>，通过两道检查后在源码中这里:<code>remainder = chunk_at_offset (victim, nb)</code>，remainder是用来设置新的top_chunk的，所以我们直接就把top_chunk往回放到我们之前申请的0x1000的chunk处去了。</p>
-<p>因为chunksize计算时会除去第三位，所以<code>remainder_size = size - nb;</code>这一步中的size实际上是<code>0xfffffffffffffff8</code><br>，减去nb(-0x1000)之后就变成了<code>0xff8</code>，如果我们想要之后的top_chunk能再大一些显然做不到了，因为要通过<code>(unsigned long) (size) &gt;= (unsigned long) (nb + MINSIZE)</code>这个检查</p>
+<p>因为chunksize计算时会除去低三位，所以<code>remainder_size = size - nb;</code>这一步中的size实际上是<code>0xfffffffffffffff8</code><br>，减去nb(-0x1000)之后就变成了<code>0xff8</code>，如果我们想要之后的top_chunk能再大一些显然做不到了，因为要通过<code>(unsigned long) (size) &gt;= (unsigned long) (nb + MINSIZE)</code>这个检查</p>
 <p>再就是设置top_chunk size的时候，虽然说计算size时低三位是没用的，但是最后一位必须为1，要不然在<code>_libc_malloc</code>里面的<code>arena_get</code>好像会出问题（待深入）</p>
 <p>以上内容执行时如下：</p>
 <img src="/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/1582042913527.png" width="90%" height="90%">
@@ -347,7 +353,10 @@
     <a href="/2020/02/17/how2heap-house-of-lore-overlapping-chunks-2/" rel="prev" title="how2heap - house_of_lore&overlapping_chunks_2">
       <i class="fa fa-chevron-left"></i> how2heap - house_of_lore&overlapping_chunks_2
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/25/FSOP-the-end/" rel="next" title="FSOP&the_end">
+      FSOP&the_end <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -421,7 +430,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
