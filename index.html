@@ -205,7 +205,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-04-01 02:11:44 / Modified: 02:13:03" itemprop="dateCreated datePublished" datetime="2020-04-01T02:11:44-07:00">2020-04-01</time>
+              <time title="Created: 2020-04-01 02:11:44 / Modified: 02:38:42" itemprop="dateCreated datePublished" datetime="2020-04-01T02:11:44-07:00">2020-04-01</time>
             </span>
 
           
@@ -219,9 +219,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="记录一次apt包误删后的恢复"><a href="#记录一次apt包误删后的恢复" class="headerlink" title="记录一次apt包误删后的恢复"></a>记录一次apt包误删后的恢复</h1><p>昨天本来是换ubuntu16 py3环境的，可惜脑残从网上复制命令的时候可能有一句autoremove之类的东西？我所有ubuntu原生apt包全被删完，当时在用的时候只是发现终端坏了，gedit没有了，然后在终端还仅存的时候装上了，现在想想都后怕，要是当时没装上还得在那个黑洞洞的Xterm里面重装</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401162540191.png" alt="image-20200401161311509"></p>
-<p>图形化界面全面崩盘，窗口也拖不动只有命令行和这个可怜的桌面上几个文件夹和我打交道（幸好终端滚动条还能用），开机可以正常开，不过此时可以看到网络是断开的：</p>
+          <h1 id="记录一次apt包误删后的恢复"><a href="#记录一次apt包误删后的恢复" class="headerlink" title="记录一次apt包误删后的恢复"></a>记录一次apt包误删后的恢复</h1><p>愚人节的第一个惊喜？？？</p>
+<p>昨天本来是换ubuntu16 py3环境的，先删掉了自己原生的py3，可惜脑残从网上复制命令的时候可能有一句autoremove之类的东西？我所有ubuntu原生与py3有关的apt包怕是全被删完…..当时删了600多M没在意，然后用的时候只是发现终端坏了，gedit没了，然后在终端还仅存的时候装上了gnome-terminal和gedit，现在想想都后怕，要是当时没装上还得在那个黑洞洞的Xterm里面重装</p>
+<p>然后今天来操作的时候偶然一个什么操作触发了崩盘</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401161311509.png" alt="image-20200401161311509"></p>
+<p>图形化界面几乎是崩了一半了，窗口也拖不动只有命令行和这个可怜的桌面上几个文件夹和我打交道（幸好终端滚动条还能用），开机可以正常开，不过此时可以看到网络是断开的：</p>
 <img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401162339042.png" alt="image-20200401162339042" style="zoom: 80%;">
 
 <h1 id="第一步：终端"><a href="#第一步：终端" class="headerlink" title="第一步：终端"></a>第一步：终端</h1><p>发现Ctrl+Alt+T没反应了，不清楚具体什么原因，但是右键桌面幸好还是可以开启terminal</p>
@@ -230,7 +232,7 @@
 <p>直接ifconfig看的话就是这样的，下面是我的解决方案</p>
 <p><code>sudo /sbin/dhclient</code>(在这条命令之前好像还尝试启动了一些服务之类的，由于是操作到一半来记录的所以前面几条可能就没有了，不过这条是最有效的，因为使用了之后我直接就可以ping通DNS和baidu了，重启之后也是和上面显示的一样，但是直接使用这条命令的话就可以瞬间通网，神奇)</p>
 <p><code>sudo service network-manager start</code></p>
-<p><code>sudo gedit /etc/NetworkManager/NetworkManager.conf</code> 把最后一行的false改成true</p>
+<p><code>sudo gedit /etc/NetworkManager/NetworkManager.conf</code> 把最后一行的false改成true，这下开机的时候就会自动有网了</p>
 <h1 id="第三步：开始琢磨apt包"><a href="#第三步：开始琢磨apt包" class="headerlink" title="第三步：开始琢磨apt包"></a>第三步：开始琢磨apt包</h1><h2 id="桌面apt包"><a href="#桌面apt包" class="headerlink" title="桌面apt包"></a>桌面apt包</h2><p>还是先<code>sudo apt update &amp;&amp; sudo apt upgrade</code></p>
 <p>之前换源的文件倒是没事，照样可用，但是upgrade的时候有内容不能fetch，所以先进行下面的操作</p>
 <p><code>sudo apt install compiz</code></p>
@@ -238,7 +240,7 @@
 <p><code>sudo apt install gdebi</code></p>
 <p><code>sudo apt install ubuntu-desktop</code></p>
 <p><code>sudo apt-get install --reinstall ubuntu-desktop</code>(这个reinstall是照着敲的，也没多想)</p>
-<p>然后这里还参考了知乎上的<a href="https://www.zhihu.com/question/41770698/answer/92270590" target="_blank" rel="noopener">这篇回答</a></p>
+<p>这里还参考了知乎上的<a href="https://www.zhihu.com/question/41770698/answer/92270590" target="_blank" rel="noopener">这篇回答</a></p>
 <p>然后桌面系统就恢复正常了</p>
 <p>重新启动一切正常，Ctrl+Alt+T也可以使用了</p>
 <h2 id="其他apt包（可能会长期更新）"><a href="#其他apt包（可能会长期更新）" class="headerlink" title="其他apt包（可能会长期更新）"></a>其他apt包（可能会长期更新）</h2><p>暂无，只是之前还没完全崩盘时装了gnome-terminal还有gedit</p>
