@@ -180,6 +180,346 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/libc-2-23-malloc-free-realloc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/17/libc-2-23-malloc-free-realloc/" class="post-title-link" itemprop="url">libc-2.23-malloc,free,realloc</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-17 21:06:34" itemprop="dateCreated datePublished" datetime="2020-02-17T21:06:34-08:00">2020-02-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-29 02:09:34" itemprop="dateModified" datetime="2020-02-29T02:09:34-08:00">2020-02-29</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/02/17/libc-2-23-malloc-free-realloc/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/17/libc-2-23-malloc-free-realloc/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="int-malloc-mstate-av-size-t-bytes"><a href="#int-malloc-mstate-av-size-t-bytes" class="headerlink" title="_int_malloc(mstate av, size_t bytes)"></a>_int_malloc(mstate av, size_t bytes)</h1><ul>
+<li>根据bytes参数计算要申请的chunk大小<code>nb</code></li>
+<li>判断av是否为空，不为空跳过这一步，进入之后的流程<ul>
+<li>直接通过nb和av用<code>sysmalloc</code>调用分配<ul>
+<li>分配成功，<strong>返回</strong>分配区对应指针</li>
+<li>分配失败，<strong>返回</strong>0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="fastbin↓"><a href="#fastbin↓" class="headerlink" title="fastbin↓"></a>fastbin↓</h2><ul>
+<li>调用<code>get_max_fast()</code>获得<code>global_max_fast</code>变量的值判断nb是否在fastchunk范围内，不是则略过这一步<ul>
+<li>通过位移忽略nb低位来计算fastbin中的index，然后获取要分配的bin链头</li>
+<li>判断链头是否为null，为null则<strong>跳出</strong>fastbin操作</li>
+<li>否则从单链表取下该victim chunk<ul>
+<li>判断<code>fastbin_index (chunksize (victim)) != idx</code>，如果该victim的index与本链不对应则<strong>报错结束</strong></li>
+<li>指针转换<code>chunk2mem</code>，然后<strong>返回</strong>该指针</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="smallbin↓"><a href="#smallbin↓" class="headerlink" title="smallbin↓"></a>smallbin↓</h2><ul>
+<li>判断nb是否&lt;MIN_LARGE_SIZE(Macro，非变量)<ul>
+<li><strong>是：</strong></li>
+<li>位移忽略nb低位来计算smallbin中的index，然后获取要分配的bin链头</li>
+<li>如果bin链头的bk指向的不是自身则赋值bk给victim并进行以下操作，否则跳过（这里可以看出smallbin是从链尾开始取chunk的）<ul>
+<li>如果判断victim为0则说明该arena需要初始化，调用<code>malloc_consolidate</code>，之后<strong>跳出</strong>该smallbin操作</li>
+<li>不为0说明该bin链有chunk，获取victim-&gt;bk指针bck<ul>
+<li><code>bck-&gt;fd != victim</code>，则<strong>报错结束</strong></li>
+<li>这里说明成功分配，根据victim和nb设置相邻前向chunk的prev_inuse位为1,然后从双向链表取下victim chunk，设置size字段然后chunk2mem，<strong>返回</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>不是：</strong></li>
+<li>位移忽略nb低位来计算对应largebin中的index</li>
+<li>如果fastbin中有chunk(通过av的标识位判断)，调用<code>malloc_consolidate</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="recently-freed-or-remaindered-chunks↓"><a href="#recently-freed-or-remaindered-chunks↓" class="headerlink" title="recently freed or remaindered chunks↓"></a>recently freed or remaindered chunks↓</h2><ul>
+<li>大循环###########################################################################<ul>
+<li>嵌套循环<strong>（由unsortedbin中是否有chunk和最大遍历chunk数决定次数）</strong>↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓<ul>
+<li>如果unsortedbin头bk指针不为自身则赋值victim(同样是从链尾取chunk)，否则<strong>退出第二层循环</strong></li>
+<li>获取victim chunk的bk指针bck</li>
+<li>判断victim的size字段是否满足<code>2*size_t &lt; victim-&gt;size &lt;= system_mem</code>，不满足则<strong>报错结束</strong></li>
+<li>如果满足<strong>(</strong>in_smallbin_range<strong>)(</strong>bck == unsorted_chunks ，即unsortedbin中只有一个chunk<strong>)(</strong>vicitm==last_remainder，即上次被切割的chunk<strong>)(</strong>size&gt;nb+MINSIZE，MINSIZE是能够分配的最小chunk<strong>)</strong>这四个条件则进行以下操作<strong>（这里只是为了从unsortedbin唯一chunk，而且还是last_remainder中切割出smallbin）</strong><ul>
+<li>设置新的remainder，并链入unsortedbin        <strong>※</strong></li>
+<li>如果remainder不是largebin需要将fd_nextsize和bk_nextsize清零</li>
+<li>设置victim的size字段（prev_inuse默认为1）</li>
+<li>设置remainder的size字段和更新前向chunk的prev_size字段</li>
+<li>chunk2mem，<strong>返回</strong>切割下来的vicitm</li>
+</ul>
+</li>
+<li>从unsorted chunk中取下该victim</li>
+<li>如果该victim的<code>size==nb</code>进行以下操作否则略过<strong>（刚好碰到unsortedbin中相等大小的chunk）</strong><ul>
+<li>设置victim前向chunk的prev_inuse为1</li>
+<li>设置vicitm的size字段</li>
+<li>chunk2mem，<strong>返回</strong>vicitm</li>
+</ul>
+</li>
+<li>通过<code>in_smallbin_range</code>判断victim的size（<strong>这个操作是为了将不满足的chunk链入bin链，判断只是在small chunk和large chunk上做不同的工作而已）</strong><ul>
+<li><strong>满足：</strong><ul>
+<li>计算对应smallbin中的index</li>
+</ul>
+</li>
+<li><strong>不满足：</strong><ul>
+<li>说明是largechunk</li>
+<li>找到largebin中对应的index和bin链中的位置</li>
+</ul>
+</li>
+<li>在binmap设置对应的index为1，说明该bin链有chunk</li>
+<li>将该chunk通过获得的fwd和bck链入bin链</li>
+</ul>
+</li>
+<li>嵌套循环结尾↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
+</ul>
+</li>
+<li>通过<code>in_smallbin_range</code>判断nb，不是则进行以下操作，是则跳过<strong>（这里是去largebin中对应的index切割出chunk来，small chunk和largebin中对应bin链没有chunk的还得等到下面binmap去找）</strong><ul>
+<li>获取对应largebin中的bin链头作为victim</li>
+<li>bin链中有chunk，并且victim的size大于等于nb则进行下一系列操作<ul>
+<li>反向遍历chunk size链表，直到找到第一个大于等于所需chunk大小的chunk </li>
+<li>如果从 large bin 链表中选取的 chunk victim 不是链表中的最后一个 chunk，并且与 victim大小相同的chunk不止一个，那么意味着victim为chunk size链表中的节点，为了不调整chunksize 链表，需要避免将 chunk size 链表中的节点取出，所以取 victim-&gt;fd 节点对应的 chunk作为候选 chunk。由于 large bin 链表中的 chunk 也是按大小排序，同一大小的 chunk 有多个时，这些 chunk 必定排在一起，所以 victim-&gt;fd 节点对应的 chunk 的大小必定与 victim 的大小一样（这段我直接复制的华庭，因为涉及largebin的概念太多了）</li>
+<li>计算victim切割后的大小，并调用 unlink()宏函数将 victim 从 bin 链中取出      <strong>※※</strong></li>
+<li>判断切割后的大小是否小于MINSIZE（判断返回chunk之前要不要切一下）<ul>
+<li>是，切割失败，不用切了，设置victim前向chunk的prev_inuse为1并设置victimsize字段</li>
+<li>否，切割成功，设置remainder<ul>
+<li>检查unsortedbin链表头是否正常，不正常则<strong>报错结束</strong></li>
+<li>重复将remainder链入unsortedbin中的操作（前面嵌套循环中打<strong>※</strong>处）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>chunk2mem，<strong>返回victim</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>到这里便开始使用binmap分配<strong>（largebin和smallbin中对应index都没有chunk的）</strong></li>
+<li>获取我们需要大小chunk对应bin的下一个bin的空闲chunk链表，并获取该bin对于binmap中的bit位的值 （开始从稍大的chunk中寻找）</li>
+<li>嵌套循环↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓<ul>
+<li>首先找到对应的binmap中对应的block<strong>（找不到则直接去use_top）</strong>，然后找到block中的对应bit位和对应的bin链</li>
+<li>判断此时 victim 与 bin 链表头是否相同<ul>
+<li><strong>是：</strong>表示该 bin 中没有空闲 chunk， binmap 中的相应位<strong>设置不准确</strong>（接着找），将 binmap 的相应 bit 位清零， 获取当前 bin 下一个 bin，将 bit 移到下一个 bit位，回到前面循环↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
+<li><strong>否：</strong>当前 bin 中的最后一个 chunk 满足要求<ul>
+<li>重复之前打<strong>※※</strong>处操作</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>嵌套循环结尾↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
+</ul>
+</li>
+<li>use_top:<ul>
+<li>前面的全部都没找到则直接使用topchunk，获取topchunk的size</li>
+<li>如果<code>size+MINSIZE&gt;nb</code>，则切出victim（此时不更改last_remainder），chunk2mem，<strong>返回victim</strong></li>
+<li>如果top_chunk都不满足，判断此时是否有fastchunk<ul>
+<li><strong>有</strong>：调用<code>malloc_consolidate</code>，并计算nb对应bin的index</li>
+<li><strong>没有</strong>：重复之前调用sysmalloc的流程</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>###########################################################################</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>Free就从封装函数开始吧</p>
+<h1 id="libc-free"><a href="#libc-free" class="headerlink" title="__libc_free"></a>__libc_free</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">__libc_free (<span class="keyword">void</span> *mem)</span><br><span class="line">&#123;</span><br><span class="line">  mstate ar_ptr;</span><br><span class="line">  mchunkptr p;                          <span class="comment">/* chunk corresponding to mem */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> (*hook) (<span class="keyword">void</span> *, <span class="keyword">const</span> <span class="keyword">void</span> *) = atomic_forced_read (__free_hook);</span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (hook != <span class="literal">NULL</span>, <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      (*hook)(mem, RETURN_ADDRESS (<span class="number">0</span>));		<span class="comment">//有hook就先调用hook，和其他函数一样</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (mem == <span class="number">0</span>)                              <span class="comment">/* free(0) has no effect ，0直接return */</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  p = mem2chunk (mem);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (chunk_is_mmapped (p))                       <span class="comment">/* release mmapped memory. */</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* see if the dynamic brk/mmap threshold needs adjusting */</span></span><br><span class="line">      <span class="keyword">if</span> (!mp_.no_dyn_threshold</span><br><span class="line">          &amp;&amp; p-&gt;<span class="built_in">size</span> &gt; mp_.mmap_threshold</span><br><span class="line">          &amp;&amp; p-&gt;<span class="built_in">size</span> &lt;= DEFAULT_MMAP_THRESHOLD_MAX)</span><br><span class="line">        &#123;</span><br><span class="line">          mp_.mmap_threshold = chunksize (p);</span><br><span class="line">          mp_.trim_threshold = <span class="number">2</span> * mp_.mmap_threshold;</span><br><span class="line">          LIBC_PROBE (memory_mallopt_free_dyn_thresholds, <span class="number">2</span>,</span><br><span class="line">                      mp_.mmap_threshold, mp_.trim_threshold);</span><br><span class="line">        &#125;</span><br><span class="line">      munmap_chunk (p);<span class="comment">//如果是mmap分配的chunk就使用munmap，不调用_int_free，暂时不深究</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//一般的free流程</span></span><br><span class="line">  ar_ptr = arena_for_chunk (p);</span><br><span class="line">  _int_free (ar_ptr, p, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="int-free-mstate-av-mchunkptr-p-int-have-lock"><a href="#int-free-mstate-av-mchunkptr-p-int-have-lock" class="headerlink" title="_int_free (mstate av, mchunkptr p, int have_lock)"></a>_int_free (mstate av, mchunkptr p, int have_lock)</h1><p>这里<code>have_lock</code>默认传入的是0</p>
+<ul>
+<li>先获取p的chunksize <code>size</code>，然后开始做检查</li>
+<li>检查1：p不能大于-size，p需要对齐，否则<code>free(): invalid pointer</code>，<strong>报错结束</strong></li>
+<li>检查2：size要大于MINSIZE，而且size要对齐，否则<code>free(): invalid size</code><strong>报错结束</strong></li>
+</ul>
+<p>#下面的三个大块是if..else if..else…结构</p>
+<ul>
+<li>通过<code>get_max_fast ()</code>获取<code>global_max_fast</code>变量判断是否为fastchunk，是则进行以下操作（如果存在宏TRIM_FASTBINS，靠近topchunk的fastbin不会进入该流程）<ul>
+<li>检查该chunk相邻的前向chunk的大小是否合法(是否满足<code>2*size_t &lt; size &lt; system_men</code>)<ul>
+<li>不合法则<code>free(): invalid next size (fast)</code><strong>报错结束</strong></li>
+</ul>
+</li>
+<li><code>set_fastchunks(av)</code>，设置av中对应标识，代表此时有fastchunk了</li>
+<li>将bin链上已存在的chunk赋值到old，检查old是否和本chunk相等<ul>
+<li>相等则<code>double free or corruption (fasttop)</code><strong>报错结束</strong></li>
+</ul>
+</li>
+<li><code>p-&gt;fd = old2 = old;</code>加入bin链，并存下old2为后续表头操作</li>
+<li>接下来在有锁(have_lock=1)的条件下，保证表头指向的chunk所属的bin链与当前chunk所属的bin链相同<ul>
+<li>不相同则<code>invalid fastbin entry (free)</code><strong>报错结束</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>这里，如果不是mmap分配的chunk则进行以下操作</p>
+<ul>
+<li><p>先加锁（free里面的锁操作好像很多，立个flag，以后要是碰到条件竞争的洞回来再撸一遍）</p>
+</li>
+<li><p>根据p和size计算nextchunk</p>
+</li>
+<li><p>如果p是top_chunk则<code>double free or corruption (top)</code><strong>报错结束</strong></p>
+</li>
+<li><p>如果nextchunk 的地址已经超过了 top chunk 的结束地址，超过了当前分配区的结束地址，<code>double free or corruption (out)</code><strong>报错结束</strong></p>
+</li>
+<li><p>如果nextchunk的prev_inuse为0，又因为此时不是fastchunk。<code>double free or corruption (!prev)</code><strong>报错结束</strong></p>
+</li>
+<li><p>获取nextchunk的nextsize，如果nextsize不满足<code>2*size_t &lt; nextsize &lt; system_men</code>，<code>free(): invalid next size (normal)</code>，<strong>报错结束</strong>（这一步在前面fastbin中也做了） </p>
+</li>
+<li><p>接着向后合并：</p>
+<ul>
+<li><pre><code class="c"><span class="keyword">if</span> (!prev_inuse(p)) {<span class="comment">//通过prev_inuse判断如果相邻的后向chunk不在使用态</span>
+      prevsize = p-&gt;prev_size;<span class="comment">//通过本chunk的prev_size段获取prevsize</span>
+      <span class="built_in">size</span> += prevsize;
+      p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));<span class="comment">//更新p到prevchunk</span>
+      unlink(av, p, bck, fwd);<span class="comment">//对prevchunk进行unlink</span>
+    }<span class="comment">//此处prev_size字段为0会怎么样？prev_size为负数会怎么样?修改偏移来实现任意unlink？</span>
+&lt;!--￼<span class="number">1</span>--&gt;</code></pre>
+</li>
+<li><p>检查unsortedbin中表头指针是否正常，不正常则<code>free(): corrupted unsorted chunks</code><strong>报错结束</strong></p>
+</li>
+<li><p>如果size属于largebin，则将fd_nextsize，bk_nextsize置零</p>
+</li>
+<li><p>将p加入unsortedbin头并设置size字段prev_inuse为1，并设置相邻前向chunk的prev_size为size</p>
+</li>
+<li><p><strong>是</strong></p>
+</li>
+<li><p>直接链入topchunk，设置size字段prev_inuse为1</p>
+</li>
+</ul>
+</li>
+<li><p>如果当前分配区为主分配区，并且 top chunk 的大小大于 heap 的收缩阈值，调用 systrim()函数收缩 heap，不是主分配区的话，调用 heap_trim()函数收缩非主分配区的 sub_heap </p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>这里说明是mmap分配的区域，调用<code>munmap</code></li>
+</ul>
+<hr>
+<p><code>_int_realloc</code>之前先做检查，如果传入的指针为NULL，就直接调用<code>_int_malloc</code></p>
+<p>如果传入的chunk不满足<code>(uintptr_t) oldp &gt; (uintptr_t) -oldsize</code>，且也不是16bit对齐，<strong>报错结束</strong></p>
+<h1 id="int-realloc-mstate-av-mchunkptr-oldp-INTERNAL-SIZE-T-oldsize-INTERNAL-SIZE-T-nb"><a href="#int-realloc-mstate-av-mchunkptr-oldp-INTERNAL-SIZE-T-oldsize-INTERNAL-SIZE-T-nb" class="headerlink" title="_int_realloc(mstate av, mchunkptr oldp, INTERNAL_SIZE_T oldsize, INTERNAL_SIZE_T nb)"></a>_int_realloc(mstate av, mchunkptr oldp, INTERNAL_SIZE_T oldsize, INTERNAL_SIZE_T nb)</h1><p>检查oldp的size字段是否满足<code>2*size_t &lt; oldp.size &lt; system_mem</code>，不满足则<strong>报错结束</strong></p>
+<p>oldchunk不能是mmapped，否则<strong>报错结束</strong></p>
+<p>通过oldp和oldsize计算next和next size</p>
+<p>检查next的size字段是否满足<code>2*size_t &lt; oldp.size &lt; system_mem</code>，不满足则<strong>报错结束</strong></p>
+<p>（下面开始if..else..流程）</p>
+<ul>
+<li>oldsize&gt;=nb？</li>
+<li><strong>是</strong>：<ul>
+<li>则准备从原chunk切割</li>
+<li>newp=oldp，newsize=oldsize</li>
+</ul>
+</li>
+<li><strong>否</strong>：(newsize=oldsize+nextsize)<ul>
+<li>如果前向chunk是topchunk且<code>oldsize+topsize&gt;nb+MINSIZE</code><ul>
+<li>直接从topchunk切割出一部分补上去，设置新topheap，chunk2mem(oldp)，<strong>完成退出</strong></li>
+</ul>
+</li>
+<li>如果前向chunk不是topchunk且未使用，并满足<code>oldsize+nextsize&gt;nb+MINSIZE</code><ul>
+<li>newp=oldp</li>
+<li>unlink前向chunk</li>
+</ul>
+</li>
+<li>前面两种情况都不是，则进行以下操作<ul>
+<li>调用<code>_int_malloc(av, nb - MALLOC_ALIGN_MASK)</code>，分配内存，这里nb - MALLOC_ALIGN_MASK是因为在<code>_int_malloc</code>里面还会再计算一遍nb。然后计算newp和newsize</li>
+<li>newp == next？</li>
+<li><strong>是</strong>：<ul>
+<li>直接设置newp=oldp，不用复制内容了，扩充就好</li>
+</ul>
+</li>
+<li><strong>否</strong>：<ul>
+<li>拷贝内容到新chunk</li>
+<li><code>_int_free(av,oldp,1)</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>检查newsize是否&gt;=nb，不满足则<strong>报错结束</strong></p>
+<p>计算<code>remainder_size = newsize - nb</code></p>
+<ul>
+<li>remainder_size&lt;MINSIZE?</li>
+<li><strong>是</strong>：<ul>
+<li>直接设置头部，不用分割了</li>
+</ul>
+</li>
+<li><strong>否</strong><ul>
+<li>分割出remainder，并设置其prev_inuse为1，接着调用<code>_int_free(av,remainder,1)</code></li>
+</ul>
+</li>
+</ul>
+<p>返回chunk2mem，<strong>完成退出</strong></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2398,14 +2738,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -2520,7 +2860,7 @@
 
 <script>
 NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
-  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
     var GUEST = ['nick', 'mail', 'link'];
     var guest = 'nick,mail,link';
     guest = guest.split(',').filter(item => {
@@ -2537,7 +2877,7 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       meta       : guest,
       pageSize   : '10' || 10,
       visitor    : false,
-      lang       : 'zn-cn' || 'zh-cn',
+      lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
       recordIP   : false,
       serverURLs : ''

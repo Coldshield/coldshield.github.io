@@ -180,6 +180,158 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/01/angr%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/01/angr%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">angr学习</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-01 21:58:23 / Modified: 21:59:16" itemprop="dateCreated datePublished" datetime="2020-04-01T21:58:23-07:00">2020-04-01</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/04/01/angr%E5%AD%A6%E4%B9%A0/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/01/angr%E5%AD%A6%E4%B9%A0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="自己学校新生杯一道逆向题引导的angr学习"><a href="#自己学校新生杯一道逆向题引导的angr学习" class="headerlink" title="自己学校新生杯一道逆向题引导的angr学习"></a>自己学校新生杯一道逆向题引导的angr学习</h1><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上学期在图书馆研究室偶然提到了自己协会办比赛可以给学弟学妹们拿学分的想法，我当时的想法是办可以办，就是题目可能得非常简单他们才能写，嘛不过事实确实是这样。可是有外校师傅一起加入之后就变的很活跃了，室友请了启奡师傅还有福州大学的师傅来出题，自己也在二进制方向放了一波签到题，举行了一次面向大一大二的新生杯，也拉了一些外校的师傅来打，整体办的还是蛮成功的，室友看上去也挺开心，这里专门用启奡师傅给的逆向来记一篇一直没有接触的angr的学习</p>
+<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>看来以后写博客得把题目链接也给上了，所以去github新建了一个用来放题目的仓库，<a href="https://github.com/Coldshield/CTF-Challenges/raw/master/ReverseLearning/funnyre" target="_blank" rel="noopener">题目链接</a></p>
+<p>拿到题目之后首先用IDA脚本去花指令，这里用的是IDApython</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ads = <span class="number">0x4005B0</span></span><br><span class="line"></span><br><span class="line">end = <span class="number">0x401DC0</span></span><br><span class="line"></span><br><span class="line">codes = get_bytes(ads, end-ads)</span><br><span class="line"></span><br><span class="line">codes = codes.replace(<span class="string">"\x74\x03\x75\x01\xe8\x90"</span>, <span class="string">"\x90\x90\x90\x90\x90\x90"</span>)</span><br><span class="line"></span><br><span class="line">patch_bytes(ads, codes)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"[+] patch ok"</span></span><br></pre></td></tr></table></figure>
+
+<p>得到函数之后可以发现是一个很长的线性执行流程，直接手动把整个流程一步步过肯定很麻烦了，当然要自己写脚本来简化</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/1585656430766.png" alt="1585656430766"></p>
+<p>出题人wp写的思路是：</p>
+<ol>
+<li>简单花指令的去除</li>
+<li>在有限域上运算的简化</li>
+</ol>
+<p>ps：在逆向的时候突然发现原来IDA可以按<code>=</code>映射变量，噗，我尼玛玩了这么久的IDA居然才知道</p>
+<h1 id="第一种解法：IDApython"><a href="#第一种解法：IDApython" class="headerlink" title="第一种解法：IDApython"></a>第一种解法：IDApython</h1><p>其中一种解题方法是用IDApython来解，这里也学习了一些IDApython脚本的用法，具体脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">trans</span><span class="params">(xx, kk)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> [(x-kk) &amp; <span class="number">0xFF</span> <span class="keyword">for</span> x <span class="keyword">in</span> xx]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">xor</span><span class="params">(xx, kk)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> [x^kk <span class="keyword">for</span> x <span class="keyword">in</span> xx]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">not_</span><span class="params">(xx)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> [~x <span class="keyword">for</span> x <span class="keyword">in</span> xx]</span><br><span class="line"></span><br><span class="line">dt = [<span class="number">0xd9</span>, <span class="number">0x2c</span>, <span class="number">0x27</span>, <span class="number">0xd6</span>, <span class="number">0xd8</span>, <span class="number">0x2a</span>, <span class="number">0xda</span>, <span class="number">0x2d</span>, <span class="number">0xd7</span>, <span class="number">0x2c</span>, <span class="number">0xdc</span>, <span class="number">0xe1</span>, <span class="number">0xdb</span>, <span class="number">0x2c</span>, <span class="number">0xd9</span>, <span class="number">0xdd</span>, <span class="number">0x27</span>, <span class="number">0x2d</span>, <span class="number">0x2a</span>, <span class="number">0xdc</span>, <span class="number">0xdb</span>, <span class="number">0x2c</span>, <span class="number">0xe1</span>, <span class="number">0x29</span>, <span class="number">0xda</span>, <span class="number">0xda</span>, <span class="number">0x2c</span>, <span class="number">0xda</span>, <span class="number">0x2a</span>, <span class="number">0xd9</span>, <span class="number">0x29</span>, <span class="number">0x2a</span>]</span><br><span class="line"></span><br><span class="line">ads = <span class="number">0x4005B0</span></span><br><span class="line">end = <span class="number">0x401DC0</span></span><br><span class="line">i = PrevHead(end)</span><br><span class="line"><span class="keyword">while</span> i &gt; ads:  <span class="comment">#获取不同的指令以及指令的操作数来进行求解</span></span><br><span class="line">    <span class="keyword">if</span> GetMnem(i) == <span class="string">'xor'</span> <span class="keyword">and</span> GetOpnd(i, <span class="number">0</span>) == <span class="string">'byte ptr [rdx+rax+5]'</span>:</span><br><span class="line">        k = int(GetOpnd(i, <span class="number">1</span>).rstrip(<span class="string">'h'</span>), <span class="number">16</span>)</span><br><span class="line">        dt = xor(dt, k)</span><br><span class="line">        print(<span class="string">"xor: &#123;&#125;"</span>.format(k))</span><br><span class="line">    <span class="keyword">if</span> GetMnem(i) == <span class="string">'add'</span> <span class="keyword">and</span> GetOpnd(i, <span class="number">0</span>) == <span class="string">'byte ptr [rdx+rax+5]'</span>:</span><br><span class="line">        k = int(GetOpnd(i, <span class="number">1</span>).rstrip(<span class="string">'h'</span>), <span class="number">16</span>)</span><br><span class="line">        dt = trans(dt, k)</span><br><span class="line">        print(<span class="string">"trans: &#123;&#125;"</span>.format(k))</span><br><span class="line">    <span class="keyword">if</span> GetMnem(i) == <span class="string">'not'</span> <span class="keyword">and</span> GetOpnd(i, <span class="number">0</span>) == <span class="string">'byte ptr [rdx+rax+5]'</span>:</span><br><span class="line">        dt = not_(dt)</span><br><span class="line">        print(<span class="string">"not: &#123;&#125;"</span>.format(k))</span><br><span class="line">    i = PrevHead(i)</span><br><span class="line"></span><br><span class="line">print(dt)</span><br></pre></td></tr></table></figure>
+
+<h1 id="第二种解法：angr"><a href="#第二种解法：angr" class="headerlink" title="第二种解法：angr"></a>第二种解法：angr</h1><p>当然我这这篇文章主要要说的就是第二种解法了：angr求解</p>
+<h2 id="What-is-angr"><a href="#What-is-angr" class="headerlink" title="What is angr"></a>What is angr</h2><p>首先angr是一个什么东西呢</p>
+<p>angr is a suite of Python 3 libraries that let you load a binary and do a lot of cool things to it:</p>
+<p>(angr是一个套用来加载二进制文件做一些很酷的事情的python3库)</p>
+<p>具体可以用来做以下的一些事（虽然不知道大佬们把这些翻译成什么中文了，大致看看先）</p>
+<ul>
+<li>Disassembly and intermediate-representation lifting</li>
+<li>Program instrumentation</li>
+<li>Symbolic execution</li>
+<li>Control-flow analysis</li>
+<li>Data-dependency analysis</li>
+<li>Value-set analysis (VSA)</li>
+<li>Decompilation</li>
+</ul>
+<p>在使用之前强烈建议多了解一下符号执行的概念，要不然官方文档中很多英文还有概念可能会看不懂，特别是那些带数学符号的概念名词，不过细心一点看不会很难懂的。但是毕竟有些词语有些学术化，我也懒得用那么多俗语来解释了，下文只在一些重要地方做一些注释</p>
+<p>例如：<a href="https://blog.csdn.net/omnispace/article/details/80248252" target="_blank" rel="noopener">这篇文章</a></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装环境：Ubuntu16.04</p>
+<ol>
+<li>安装之前首先把自己默认的python3.5换成了python 3.7.1(编译安装)</li>
+<li><code>sudo apt-get install python3-dev libffi-dev build-essential virtualenvwrapper</code></li>
+<li><code>mkvirtualenv --python=$(which python3) angr &amp;&amp; pip install angr</code></li>
+</ol>
+<p>其中virtualenvwrapper是一个Python虚拟环境，使用虚拟环境的主要原因是angr会修改libz3和libVEX</p>
+<p>创建虚拟环境之后每次使用<code>workon</code>和<code>deactivate</code>即可在真实与虚拟环境切换</p>
+<h3 id="使用-amp-examples"><a href="#使用-amp-examples" class="headerlink" title="使用&amp;examples"></a>使用&amp;examples</h3><p>这里用一个简单的例子来开始直接上手学习angr吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="keyword">char</span> *sneaky = <span class="string">"SOSNEAKY"</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">authenticate</span><span class="params">(<span class="keyword">char</span> *username, <span class="keyword">char</span> *password)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> stored_pw[<span class="number">9</span>];</span><br><span class="line">    stored_pw[<span class="number">8</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> pwfile;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// evil back d00r</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(password, sneaky) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    pwfile = <span class="built_in">open</span>(username, O_RDONLY);</span><br><span class="line">    <span class="built_in">read</span>(pwfile, stored_pw, <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(password, stored_pw) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">accepted</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Welcome to the admin console, trusted user!\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rejected</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Go away!"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> username[<span class="number">9</span>];</span><br><span class="line">    <span class="keyword">char</span> password[<span class="number">9</span>];</span><br><span class="line">    <span class="keyword">int</span> authed;</span><br><span class="line"></span><br><span class="line">    username[<span class="number">8</span>] = <span class="number">0</span>;</span><br><span class="line">    password[<span class="number">8</span>] = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Username: \n"</span>);</span><br><span class="line">    <span class="built_in">read</span>(<span class="number">0</span>, username, <span class="number">8</span>);</span><br><span class="line">    <span class="built_in">read</span>(<span class="number">0</span>, &amp;authed, <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Password: \n"</span>);</span><br><span class="line">    <span class="built_in">read</span>(<span class="number">0</span>, password, <span class="number">8</span>);</span><br><span class="line">    <span class="built_in">read</span>(<span class="number">0</span>, &amp;authed, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    authed = authenticate(username, password);</span><br><span class="line">    <span class="keyword">if</span> (authed) accepted();</span><br><span class="line">    <span class="keyword">else</span> rejected();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里程序给出了一个很简单的逻辑，具体是我们只要输入<code>password</code>为<code>&quot;SOSNEAKY&quot;</code>就可以直接认证通过</p>
+<p>然后这里是angr官网给出的<a href="https://github.com/angr/angr-doc/blob/master/examples/fauxware/solve.py" target="_blank" rel="noopener">solve.py</a>，我在其中注释处做了一些补充笔记</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># Look at fauxware.c! This is the source code for a "faux firmware" (@zardus</span></span><br><span class="line"><span class="comment"># really likes the puns) that's meant to be a simple representation of a</span></span><br><span class="line"><span class="comment"># firmware that can authenticate users but also has a backdoor - the backdoor</span></span><br><span class="line"><span class="comment"># is that anybody who provides the string "SOSNEAKY" as their password will be</span></span><br><span class="line"><span class="comment"># automatically authenticated.</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">basic_symbolic_execution</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># We can use this as a basic demonstration of using angr for symbolic</span></span><br><span class="line">    <span class="comment"># execution. First, we load the binary into an angr project.</span></span><br><span class="line">    <span class="comment"># 这里先展示了一个很基础的符号执行，首先把对应的binary文件名填进一个angr Project</span></span><br><span class="line">    p = angr.Project(<span class="string">'eg1'</span>,load_options=&#123;<span class="string">"auto_load_libs"</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">    <span class="comment"># 这里我加上了 "load_options=&#123;"auto_load_libs": False&#125;"</span></span><br><span class="line">    <span class="comment"># 在load了Project之后可以用p.loader.all_objects查看所有加载器已加载的对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Now, we want to construct a representation of symbolic program state.</span></span><br><span class="line">    <span class="comment"># SimState objects are what angr manipulates when it symbolically executes</span></span><br><span class="line">    <span class="comment"># binary code.</span></span><br><span class="line">    <span class="comment"># SimState对象也主要保存着程序运行到某一阶段的状态信息。通过这个对象可以操作某一运行状态的上下文信息</span></span><br><span class="line">    <span class="comment"># 比如内存，寄存器等</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 可以通过Project.factory这个容器中的任何一个方法来获取SimState对象,这个factory有多个构造函数</span></span><br><span class="line">    <span class="comment"># 如:block、entry_state等。这里使用entry_state返回一个初始化到二进制entry point的SimState对象</span></span><br><span class="line">    <span class="comment"># The entry_state constructor generates a SimState that is a very generic</span></span><br><span class="line">    <span class="comment"># representation of the possible program states at the program's entry</span></span><br><span class="line">    <span class="comment"># point.	 entry_state 主要是做一些初始化工作，然后在程序的入口处停下</span></span><br><span class="line">    <span class="comment"># There are more constructors, like blank_state, which constructs a</span></span><br><span class="line">    <span class="comment"># "blank slate" state that specifies as little concrete data as possible,</span></span><br><span class="line">    <span class="comment"># or full_init_state, which performs a slow and pedantic initialization of</span></span><br><span class="line">    <span class="comment"># program state as it would execute through the dynamic loader.</span></span><br><span class="line">    <span class="comment"># 其中 full_init_state 会从动态链接时开始就记录</span></span><br><span class="line"></span><br><span class="line">    state = p.factory.entry_state()</span><br><span class="line">    <span class="comment"># state对象一般是作为 符号执行开始前创建用来为后续的执行初始化一些数据，比如栈状态，寄存器值。</span></span><br><span class="line">    <span class="comment"># 或者在 路径探索结束后 返回一个 state 对象供用户提取需要的值或进行约束求解</span></span><br><span class="line">    <span class="comment"># 解出到达目标分支所使用的符号量的值。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 当然了解了符号执行的概念之后就知道为什么有时候要默认在程序入口点停下了，毕竟我们暂时要分析的是程序的执行流</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Now, in order to manage the symbolic execution process from a very high</span></span><br><span class="line">    <span class="comment"># level, we have a SimulationManager. SimulationManager is just collections</span></span><br><span class="line">    <span class="comment"># of states with various tags attached with a number of convenient</span></span><br><span class="line">    <span class="comment"># interfaces for managing them.</span></span><br><span class="line"></span><br><span class="line">    sm = p.factory.simulation_manager(state)</span><br><span class="line">    <span class="comment"># 根据state设置 Simulation Managers ，这是一个进行路径探索的对象</span></span><br><span class="line">    <span class="comment"># Uncomment the following line to spawn an IPython shell when the program</span></span><br><span class="line">    <span class="comment"># gets to this point so you can poke around at the four objects we just</span></span><br><span class="line">    <span class="comment"># constructed. Use tab-autocomplete and IPython's nifty feature where if</span></span><br><span class="line">    <span class="comment"># you stick a question mark after the name of a function or method and hit</span></span><br><span class="line">    <span class="comment"># enter, you are shown the documentation string for it.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># import IPython; IPython.embed()</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Now, we begin execution. This will symbolically execute the program until</span></span><br><span class="line">    <span class="comment"># we reach a branch statement for which both branches are satisfiable.</span></span><br><span class="line"></span><br><span class="line">    sm.run(until=<span class="keyword">lambda</span> sm_: len(sm_.active) &gt; <span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 此示例代码采用的方法是用Simulation Managers的run方法</span></span><br><span class="line">    <span class="comment"># 执行刚好出现 2个分支时就执行完毕，也就是我们后门函数的那个if条件被触发，此时程序产生两个执行分支，随即停止</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># If you look at the C code, you see that the first "if" statement that the</span></span><br><span class="line">    <span class="comment"># program can come across is comparing the result of the strcmp with the</span></span><br><span class="line">    <span class="comment"># backdoor password. So, we have halted execution with two states, each of</span></span><br><span class="line">    <span class="comment"># which has taken a different arm of that conditional branch. If you drop</span></span><br><span class="line">    <span class="comment"># an IPython shell here and examine sm.active[n].solver.constraints</span></span><br><span class="line">    <span class="comment"># you will see the encoding of the condition that was added to the state to</span></span><br><span class="line">    <span class="comment"># constrain it to going down this path, instead of the other one. These are</span></span><br><span class="line">    <span class="comment"># the constraints that will eventually be passed to our constraint solver</span></span><br><span class="line">    <span class="comment"># (z3) to produce a set of concrete inputs satisfying them.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># As a matter of fact, we'll do that now.</span></span><br><span class="line"></span><br><span class="line">    input_0 = sm.active[<span class="number">0</span>].posix.dumps(<span class="number">0</span>)</span><br><span class="line">    input_1 = sm.active[<span class="number">1</span>].posix.dumps(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># We have used a utility function on the state's posix plugin to perform a</span></span><br><span class="line">    <span class="comment"># quick and dirty concretization of the content in file descriptor zero,</span></span><br><span class="line">    <span class="comment"># stdin. One of these strings should contain the substring "SOSNEAKY"!</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 当然这里也可以选择把所有分支都打印出来看看,代码:</span></span><br><span class="line">    <span class="comment"># for i in range(len(pathgroup.active)):</span></span><br><span class="line">    <span class="comment">#    print "possible %d: " % i, pathgroup.active[i].state.posix.dumps(0)</span></span><br><span class="line">    <span class="comment"># 此时dump的就是字符串str</span></span><br><span class="line">    <span class="keyword">if</span> <span class="string">b'SOSNEAKY'</span> <span class="keyword">in</span> input_0:</span><br><span class="line">        <span class="keyword">return</span> input_0</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> input_1</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    r = basic_symbolic_execution()</span><br><span class="line">    <span class="keyword">assert</span> <span class="string">b'SOSNEAKY'</span> <span class="keyword">in</span> r</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    sys.stdout.buffer.write(basic_symbolic_execution())</span><br><span class="line"></span><br><span class="line"><span class="comment"># You should be able to run this script and pipe its output to fauxware and</span></span><br><span class="line"><span class="comment"># fauxware will authenticate you.</span></span><br></pre></td></tr></table></figure>
+
+<p>其中在创建Project时有这么一个点要注意一下</p>
+<blockquote>
+<p>auto_load_libs 设置是否自动载入依赖的库，如果设置为 True 的话会自动载入依赖的库，然后分析到库函数调用时也会进入库函数，这样会增加分析的工作量，也有能会跑挂</p>
+</blockquote>
+<p>eg1的第二个solve代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">proj = angr.Project(<span class="string">'eg1'</span>)</span><br><span class="line">state = proj.factory.entry_state()</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    succ = state.step()	<span class="comment"># 一次step记录一次执行分支的state</span></span><br><span class="line">    <span class="keyword">if</span> len(succ.successors) == <span class="number">2</span>:<span class="comment">#这个代码的意思也是在产生两个分支时停下，打印输出用上面代码的注释那段就好</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    state = succ.successors[<span class="number">0</span>]</span><br><span class="line">state1, state2 = succ.successors</span><br></pre></td></tr></table></figure>
+
+<p>这里step函数的返回值是 “an object called <a href="http://angr.io/api-doc/angr.html#module-angr.engines.successors" target="_blank" rel="noopener">SimSuccessors</a>“</p>
+<p>当然这里写法还有很多很多，具体强烈推荐参考<a href="https://docs.angr.io/core-concepts/pathgroups" target="_blank" rel="noopener">官方文档</a>，还有<a href="http://angr.io/api-doc/angr.html" target="_blank" rel="noopener">官方API文档</a>，本博客在文末板块会尽量更新一下CTF中碰到的用法，限于英语原因很多原文中的<code>core conception</code>可能本人理解会有误</p>
+<p>博主写到这里暂时感觉最好用的函数是这几个：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">simgr.step()<span class="comment">#这个就是上面代码中的，一个分支一个分支的记录也好像挺好用2333</span></span><br><span class="line"></span><br><span class="line">sm.explore(find=<span class="number">0x400591</span>) <span class="comment"># 这个是直接设置符号执行遍历到哪个代码块停下来，很好用</span></span><br><span class="line"></span><br><span class="line">simgr.explore(find=<span class="keyword">lambda</span> s: <span class="string">b"Congrats"</span> <span class="keyword">in</span> s.posix.dumps(<span class="number">1</span>))<span class="comment">#这个是用标准输出中输出了什么来判断，直接用起来也很无脑</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="此道逆向题的angr解法"><a href="#此道逆向题的angr解法" class="headerlink" title="此道逆向题的angr解法"></a>此道逆向题的angr解法</h2><p>中间这些state操作建议先参考文末的设置&amp;变量用法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="keyword">import</span> claripy</span><br><span class="line"></span><br><span class="line">p = angr.Project(<span class="string">"./funre"</span>, load_options=&#123;<span class="string">"auto_load_libs"</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">f = p.factory</span><br><span class="line">state = f.entry_state(addr=<span class="number">0x400605</span>) <span class="comment"># 设置state开始运行时运行到的地址</span></span><br><span class="line">flag = claripy.BVS(<span class="string">"flag"</span>, <span class="number">8</span>*<span class="number">32</span>) <span class="comment">#这里设置了一个flag VBS，长度是8*32bit</span></span><br><span class="line">state.memory.store(<span class="number">0x603055</span>+<span class="number">0x300</span>+<span class="number">5</span>, flag) <span class="comment">#因为程序没有输入，所以直接把字符串设置到内存</span></span><br><span class="line">state.regs.rdx = <span class="number">0x603055</span>+<span class="number">0x300</span> </span><br><span class="line">state.regs.rdi = <span class="number">0x603055</span>+<span class="number">0x300</span>+<span class="number">5</span> <span class="comment"># 然后设置两个寄存器</span></span><br><span class="line"></span><br><span class="line">sm = p.factory.simulation_manager(state) <span class="comment"># 准备从该state开始遍历执行路径</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">"[+] init ok"</span>)</span><br><span class="line"></span><br><span class="line">sm.explore(find=<span class="number">0x401DAE</span>) <span class="comment"># 遍历到成功的地址</span></span><br><span class="line"><span class="keyword">if</span> sm.found:</span><br><span class="line">    print(<span class="string">"[+] found!"</span>)</span><br><span class="line">    x = sm.found[<span class="number">0</span>].solver.eval(flag, cast_to=bytes)</span><br><span class="line">    print(x)</span><br></pre></td></tr></table></figure>
+
+<p>我跑下来大概只用了一两分钟时间不到？不过貌似还能加速，这里也介绍一下加速要用到的东西</p>
+<h2 id="加速模块安装"><a href="#加速模块安装" class="headerlink" title="加速模块安装"></a>加速模块安装</h2><hr>
+<p>注意这里安装的方法本人安装失败了…介于之前装崩python的原因就暂时不继续探究原因了了，只不过好像是一个什么版本的问题,具体参考<a href="https://www.secpulse.com/archives/83197.html" target="_blank" rel="noopener">这边文章</a>末尾</p>
+<ol>
+<li><code>sudo apt install pypy</code></li>
+<li><code>wget https://bootstrap.pypa.io/get-pip.py</code></li>
+<li><code>sudo pypy get-pip.py</code></li>
+</ol>
+<hr>
+<p>第二种方法就是在init_state时加上<code>add_options=angr.options.unicorn</code></p>
+<h1 id="angr中碰到的一些设置-amp-变量用法"><a href="#angr中碰到的一些设置-amp-变量用法" class="headerlink" title="angr中碰到的一些设置&amp;变量用法"></a>angr中碰到的一些设置&amp;变量用法</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">################## 设置操作</span></span><br><span class="line">state.solver.BVV(<span class="number">1</span>, <span class="number">64</span>) <span class="comment"># 设置一个Bitvector 第一个参数是初始值 第二个参数是长度 也可以用下面简单的写法</span></span><br><span class="line"></span><br><span class="line">args = claripy.BVS(<span class="string">"args"</span>, <span class="number">8</span> * <span class="number">16</span>) <span class="comment"># 用claripy包设置一个符号变量（十六进制字符串）</span></span><br><span class="line"></span><br><span class="line">weird_nine.zero_extend(<span class="number">64</span> - <span class="number">27</span>) <span class="comment"># Bitvector长度转换 这里示意是从27-&gt;64</span></span><br><span class="line"></span><br><span class="line">p.hook(addr=<span class="number">0x08048485</span>, hook=hook_demo, length=<span class="number">2</span>) <span class="comment"># 设置一个hook，address是执行到什么地方之后hook，hook_demo代表一个函数，length是hook_demo执行之后需要跳过的指令长度</span></span><br><span class="line"><span class="comment">#具体的hook操作在以后会慢慢写到</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">################## state操作</span></span><br><span class="line">state.regs.X		<span class="comment"># X代表要操作的寄存器，这里可以设置寄存器的值，此时寄存器的类型是一个Bitvector</span></span><br><span class="line"></span><br><span class="line">hex(state.se.eval(state.regs.X))	<span class="comment"># 想要获取寄存器Bitvector的int值需要使用eval函数来获取 BVS同理</span></span><br><span class="line"></span><br><span class="line">state.mem[state.regs.rsp].qword <span class="comment"># 获取某个寄存器指向的内存 可以看到这里mem的参数也是BVV</span></span><br><span class="line">							 <span class="comment"># 但是返回值是类似这种:&lt;uint64_t &lt;BV64 0xdeadbeefdeadbeef&gt; at 0x7fffffffffeff78&gt;</span></span><br><span class="line">state.se.eval(xxx.qword.resolved) <span class="comment"># 通过eval拿到此地址对应类型的确切值</span></span><br><span class="line"></span><br><span class="line">state.memory.store(state.regs.rsp,data) </span><br><span class="line">state.memory.load(state.regs.rsp, <span class="number">0x40</span>) <span class="comment"># 这里可以直接通过地址来进行存储不一定要寄存器，满足BVV的操作就行</span></span><br><span class="line"></span><br><span class="line">state.posix.dumps(<span class="number">0</span>) <span class="comment"># dump运行时标准输入</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#################  SimulationManager操作</span></span><br><span class="line">sm = p.factory.simgr(state)</span><br><span class="line">sm.explore(find=<span class="number">0x400591</span>)</span><br><span class="line">st = sm.found[<span class="number">0</span>] <span class="comment"># 通过found[0]拿到的是此时的state，可以再通过上面state的操作dump标准输入</span></span><br><span class="line"></span><br><span class="line">st.se.eval(args,cast_to=str) <span class="comment"># 当然如果用到了 BVS 的话就可以使用cast_to来转成普通字符串了</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>参考文章:<a href="https://www.secpulse.com/archives/83197.html" target="_blank" rel="noopener">https://www.secpulse.com/archives/83197.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/01/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%AF%AF%E5%88%A0apt%E5%8C%85%E5%90%8E%E7%9A%84%E9%87%8D%E6%96%B0%E6%81%A2%E5%A4%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1465,346 +1617,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/libc-2-23-malloc-free-realloc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Coldshield">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/17/libc-2-23-malloc-free-realloc/" class="post-title-link" itemprop="url">libc-2.23-malloc,free,realloc</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-17 21:06:34" itemprop="dateCreated datePublished" datetime="2020-02-17T21:06:34-08:00">2020-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-29 02:09:34" itemprop="dateModified" datetime="2020-02-29T02:09:34-08:00">2020-02-29</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/02/17/libc-2-23-malloc-free-realloc/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/02/17/libc-2-23-malloc-free-realloc/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="int-malloc-mstate-av-size-t-bytes"><a href="#int-malloc-mstate-av-size-t-bytes" class="headerlink" title="_int_malloc(mstate av, size_t bytes)"></a>_int_malloc(mstate av, size_t bytes)</h1><ul>
-<li>根据bytes参数计算要申请的chunk大小<code>nb</code></li>
-<li>判断av是否为空，不为空跳过这一步，进入之后的流程<ul>
-<li>直接通过nb和av用<code>sysmalloc</code>调用分配<ul>
-<li>分配成功，<strong>返回</strong>分配区对应指针</li>
-<li>分配失败，<strong>返回</strong>0</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="fastbin↓"><a href="#fastbin↓" class="headerlink" title="fastbin↓"></a>fastbin↓</h2><ul>
-<li>调用<code>get_max_fast()</code>获得<code>global_max_fast</code>变量的值判断nb是否在fastchunk范围内，不是则略过这一步<ul>
-<li>通过位移忽略nb低位来计算fastbin中的index，然后获取要分配的bin链头</li>
-<li>判断链头是否为null，为null则<strong>跳出</strong>fastbin操作</li>
-<li>否则从单链表取下该victim chunk<ul>
-<li>判断<code>fastbin_index (chunksize (victim)) != idx</code>，如果该victim的index与本链不对应则<strong>报错结束</strong></li>
-<li>指针转换<code>chunk2mem</code>，然后<strong>返回</strong>该指针</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="smallbin↓"><a href="#smallbin↓" class="headerlink" title="smallbin↓"></a>smallbin↓</h2><ul>
-<li>判断nb是否&lt;MIN_LARGE_SIZE(Macro，非变量)<ul>
-<li><strong>是：</strong></li>
-<li>位移忽略nb低位来计算smallbin中的index，然后获取要分配的bin链头</li>
-<li>如果bin链头的bk指向的不是自身则赋值bk给victim并进行以下操作，否则跳过（这里可以看出smallbin是从链尾开始取chunk的）<ul>
-<li>如果判断victim为0则说明该arena需要初始化，调用<code>malloc_consolidate</code>，之后<strong>跳出</strong>该smallbin操作</li>
-<li>不为0说明该bin链有chunk，获取victim-&gt;bk指针bck<ul>
-<li><code>bck-&gt;fd != victim</code>，则<strong>报错结束</strong></li>
-<li>这里说明成功分配，根据victim和nb设置相邻前向chunk的prev_inuse位为1,然后从双向链表取下victim chunk，设置size字段然后chunk2mem，<strong>返回</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>不是：</strong></li>
-<li>位移忽略nb低位来计算对应largebin中的index</li>
-<li>如果fastbin中有chunk(通过av的标识位判断)，调用<code>malloc_consolidate</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="recently-freed-or-remaindered-chunks↓"><a href="#recently-freed-or-remaindered-chunks↓" class="headerlink" title="recently freed or remaindered chunks↓"></a>recently freed or remaindered chunks↓</h2><ul>
-<li>大循环###########################################################################<ul>
-<li>嵌套循环<strong>（由unsortedbin中是否有chunk和最大遍历chunk数决定次数）</strong>↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓<ul>
-<li>如果unsortedbin头bk指针不为自身则赋值victim(同样是从链尾取chunk)，否则<strong>退出第二层循环</strong></li>
-<li>获取victim chunk的bk指针bck</li>
-<li>判断victim的size字段是否满足<code>2*size_t &lt; victim-&gt;size &lt;= system_mem</code>，不满足则<strong>报错结束</strong></li>
-<li>如果满足<strong>(</strong>in_smallbin_range<strong>)(</strong>bck == unsorted_chunks ，即unsortedbin中只有一个chunk<strong>)(</strong>vicitm==last_remainder，即上次被切割的chunk<strong>)(</strong>size&gt;nb+MINSIZE，MINSIZE是能够分配的最小chunk<strong>)</strong>这四个条件则进行以下操作<strong>（这里只是为了从unsortedbin唯一chunk，而且还是last_remainder中切割出smallbin）</strong><ul>
-<li>设置新的remainder，并链入unsortedbin        <strong>※</strong></li>
-<li>如果remainder不是largebin需要将fd_nextsize和bk_nextsize清零</li>
-<li>设置victim的size字段（prev_inuse默认为1）</li>
-<li>设置remainder的size字段和更新前向chunk的prev_size字段</li>
-<li>chunk2mem，<strong>返回</strong>切割下来的vicitm</li>
-</ul>
-</li>
-<li>从unsorted chunk中取下该victim</li>
-<li>如果该victim的<code>size==nb</code>进行以下操作否则略过<strong>（刚好碰到unsortedbin中相等大小的chunk）</strong><ul>
-<li>设置victim前向chunk的prev_inuse为1</li>
-<li>设置vicitm的size字段</li>
-<li>chunk2mem，<strong>返回</strong>vicitm</li>
-</ul>
-</li>
-<li>通过<code>in_smallbin_range</code>判断victim的size（<strong>这个操作是为了将不满足的chunk链入bin链，判断只是在small chunk和large chunk上做不同的工作而已）</strong><ul>
-<li><strong>满足：</strong><ul>
-<li>计算对应smallbin中的index</li>
-</ul>
-</li>
-<li><strong>不满足：</strong><ul>
-<li>说明是largechunk</li>
-<li>找到largebin中对应的index和bin链中的位置</li>
-</ul>
-</li>
-<li>在binmap设置对应的index为1，说明该bin链有chunk</li>
-<li>将该chunk通过获得的fwd和bck链入bin链</li>
-</ul>
-</li>
-<li>嵌套循环结尾↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
-</ul>
-</li>
-<li>通过<code>in_smallbin_range</code>判断nb，不是则进行以下操作，是则跳过<strong>（这里是去largebin中对应的index切割出chunk来，small chunk和largebin中对应bin链没有chunk的还得等到下面binmap去找）</strong><ul>
-<li>获取对应largebin中的bin链头作为victim</li>
-<li>bin链中有chunk，并且victim的size大于等于nb则进行下一系列操作<ul>
-<li>反向遍历chunk size链表，直到找到第一个大于等于所需chunk大小的chunk </li>
-<li>如果从 large bin 链表中选取的 chunk victim 不是链表中的最后一个 chunk，并且与 victim大小相同的chunk不止一个，那么意味着victim为chunk size链表中的节点，为了不调整chunksize 链表，需要避免将 chunk size 链表中的节点取出，所以取 victim-&gt;fd 节点对应的 chunk作为候选 chunk。由于 large bin 链表中的 chunk 也是按大小排序，同一大小的 chunk 有多个时，这些 chunk 必定排在一起，所以 victim-&gt;fd 节点对应的 chunk 的大小必定与 victim 的大小一样（这段我直接复制的华庭，因为涉及largebin的概念太多了）</li>
-<li>计算victim切割后的大小，并调用 unlink()宏函数将 victim 从 bin 链中取出      <strong>※※</strong></li>
-<li>判断切割后的大小是否小于MINSIZE（判断返回chunk之前要不要切一下）<ul>
-<li>是，切割失败，不用切了，设置victim前向chunk的prev_inuse为1并设置victimsize字段</li>
-<li>否，切割成功，设置remainder<ul>
-<li>检查unsortedbin链表头是否正常，不正常则<strong>报错结束</strong></li>
-<li>重复将remainder链入unsortedbin中的操作（前面嵌套循环中打<strong>※</strong>处）</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>chunk2mem，<strong>返回victim</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>到这里便开始使用binmap分配<strong>（largebin和smallbin中对应index都没有chunk的）</strong></li>
-<li>获取我们需要大小chunk对应bin的下一个bin的空闲chunk链表，并获取该bin对于binmap中的bit位的值 （开始从稍大的chunk中寻找）</li>
-<li>嵌套循环↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓<ul>
-<li>首先找到对应的binmap中对应的block<strong>（找不到则直接去use_top）</strong>，然后找到block中的对应bit位和对应的bin链</li>
-<li>判断此时 victim 与 bin 链表头是否相同<ul>
-<li><strong>是：</strong>表示该 bin 中没有空闲 chunk， binmap 中的相应位<strong>设置不准确</strong>（接着找），将 binmap 的相应 bit 位清零， 获取当前 bin 下一个 bin，将 bit 移到下一个 bit位，回到前面循环↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
-<li><strong>否：</strong>当前 bin 中的最后一个 chunk 满足要求<ul>
-<li>重复之前打<strong>※※</strong>处操作</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>嵌套循环结尾↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑</li>
-</ul>
-</li>
-<li>use_top:<ul>
-<li>前面的全部都没找到则直接使用topchunk，获取topchunk的size</li>
-<li>如果<code>size+MINSIZE&gt;nb</code>，则切出victim（此时不更改last_remainder），chunk2mem，<strong>返回victim</strong></li>
-<li>如果top_chunk都不满足，判断此时是否有fastchunk<ul>
-<li><strong>有</strong>：调用<code>malloc_consolidate</code>，并计算nb对应bin的index</li>
-<li><strong>没有</strong>：重复之前调用sysmalloc的流程</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>###########################################################################</li>
-</ul>
-</li>
-</ul>
-<hr>
-<p>Free就从封装函数开始吧</p>
-<h1 id="libc-free"><a href="#libc-free" class="headerlink" title="__libc_free"></a>__libc_free</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">__libc_free (<span class="keyword">void</span> *mem)</span><br><span class="line">&#123;</span><br><span class="line">  mstate ar_ptr;</span><br><span class="line">  mchunkptr p;                          <span class="comment">/* chunk corresponding to mem */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> (*hook) (<span class="keyword">void</span> *, <span class="keyword">const</span> <span class="keyword">void</span> *) = atomic_forced_read (__free_hook);</span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (hook != <span class="literal">NULL</span>, <span class="number">0</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      (*hook)(mem, RETURN_ADDRESS (<span class="number">0</span>));		<span class="comment">//有hook就先调用hook，和其他函数一样</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (mem == <span class="number">0</span>)                              <span class="comment">/* free(0) has no effect ，0直接return */</span></span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  p = mem2chunk (mem);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (chunk_is_mmapped (p))                       <span class="comment">/* release mmapped memory. */</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* see if the dynamic brk/mmap threshold needs adjusting */</span></span><br><span class="line">      <span class="keyword">if</span> (!mp_.no_dyn_threshold</span><br><span class="line">          &amp;&amp; p-&gt;<span class="built_in">size</span> &gt; mp_.mmap_threshold</span><br><span class="line">          &amp;&amp; p-&gt;<span class="built_in">size</span> &lt;= DEFAULT_MMAP_THRESHOLD_MAX)</span><br><span class="line">        &#123;</span><br><span class="line">          mp_.mmap_threshold = chunksize (p);</span><br><span class="line">          mp_.trim_threshold = <span class="number">2</span> * mp_.mmap_threshold;</span><br><span class="line">          LIBC_PROBE (memory_mallopt_free_dyn_thresholds, <span class="number">2</span>,</span><br><span class="line">                      mp_.mmap_threshold, mp_.trim_threshold);</span><br><span class="line">        &#125;</span><br><span class="line">      munmap_chunk (p);<span class="comment">//如果是mmap分配的chunk就使用munmap，不调用_int_free，暂时不深究</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//一般的free流程</span></span><br><span class="line">  ar_ptr = arena_for_chunk (p);</span><br><span class="line">  _int_free (ar_ptr, p, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="int-free-mstate-av-mchunkptr-p-int-have-lock"><a href="#int-free-mstate-av-mchunkptr-p-int-have-lock" class="headerlink" title="_int_free (mstate av, mchunkptr p, int have_lock)"></a>_int_free (mstate av, mchunkptr p, int have_lock)</h1><p>这里<code>have_lock</code>默认传入的是0</p>
-<ul>
-<li>先获取p的chunksize <code>size</code>，然后开始做检查</li>
-<li>检查1：p不能大于-size，p需要对齐，否则<code>free(): invalid pointer</code>，<strong>报错结束</strong></li>
-<li>检查2：size要大于MINSIZE，而且size要对齐，否则<code>free(): invalid size</code><strong>报错结束</strong></li>
-</ul>
-<p>#下面的三个大块是if..else if..else…结构</p>
-<ul>
-<li>通过<code>get_max_fast ()</code>获取<code>global_max_fast</code>变量判断是否为fastchunk，是则进行以下操作（如果存在宏TRIM_FASTBINS，靠近topchunk的fastbin不会进入该流程）<ul>
-<li>检查该chunk相邻的前向chunk的大小是否合法(是否满足<code>2*size_t &lt; size &lt; system_men</code>)<ul>
-<li>不合法则<code>free(): invalid next size (fast)</code><strong>报错结束</strong></li>
-</ul>
-</li>
-<li><code>set_fastchunks(av)</code>，设置av中对应标识，代表此时有fastchunk了</li>
-<li>将bin链上已存在的chunk赋值到old，检查old是否和本chunk相等<ul>
-<li>相等则<code>double free or corruption (fasttop)</code><strong>报错结束</strong></li>
-</ul>
-</li>
-<li><code>p-&gt;fd = old2 = old;</code>加入bin链，并存下old2为后续表头操作</li>
-<li>接下来在有锁(have_lock=1)的条件下，保证表头指向的chunk所属的bin链与当前chunk所属的bin链相同<ul>
-<li>不相同则<code>invalid fastbin entry (free)</code><strong>报错结束</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><p>这里，如果不是mmap分配的chunk则进行以下操作</p>
-<ul>
-<li><p>先加锁（free里面的锁操作好像很多，立个flag，以后要是碰到条件竞争的洞回来再撸一遍）</p>
-</li>
-<li><p>根据p和size计算nextchunk</p>
-</li>
-<li><p>如果p是top_chunk则<code>double free or corruption (top)</code><strong>报错结束</strong></p>
-</li>
-<li><p>如果nextchunk 的地址已经超过了 top chunk 的结束地址，超过了当前分配区的结束地址，<code>double free or corruption (out)</code><strong>报错结束</strong></p>
-</li>
-<li><p>如果nextchunk的prev_inuse为0，又因为此时不是fastchunk。<code>double free or corruption (!prev)</code><strong>报错结束</strong></p>
-</li>
-<li><p>获取nextchunk的nextsize，如果nextsize不满足<code>2*size_t &lt; nextsize &lt; system_men</code>，<code>free(): invalid next size (normal)</code>，<strong>报错结束</strong>（这一步在前面fastbin中也做了） </p>
-</li>
-<li><p>接着向后合并：</p>
-<ul>
-<li><pre><code class="c"><span class="keyword">if</span> (!prev_inuse(p)) {<span class="comment">//通过prev_inuse判断如果相邻的后向chunk不在使用态</span>
-      prevsize = p-&gt;prev_size;<span class="comment">//通过本chunk的prev_size段获取prevsize</span>
-      <span class="built_in">size</span> += prevsize;
-      p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));<span class="comment">//更新p到prevchunk</span>
-      unlink(av, p, bck, fwd);<span class="comment">//对prevchunk进行unlink</span>
-    }<span class="comment">//此处prev_size字段为0会怎么样？prev_size为负数会怎么样?修改偏移来实现任意unlink？</span>
-&lt;!--￼<span class="number">1</span>--&gt;</code></pre>
-</li>
-<li><p>检查unsortedbin中表头指针是否正常，不正常则<code>free(): corrupted unsorted chunks</code><strong>报错结束</strong></p>
-</li>
-<li><p>如果size属于largebin，则将fd_nextsize，bk_nextsize置零</p>
-</li>
-<li><p>将p加入unsortedbin头并设置size字段prev_inuse为1，并设置相邻前向chunk的prev_size为size</p>
-</li>
-<li><p><strong>是</strong></p>
-</li>
-<li><p>直接链入topchunk，设置size字段prev_inuse为1</p>
-</li>
-</ul>
-</li>
-<li><p>如果当前分配区为主分配区，并且 top chunk 的大小大于 heap 的收缩阈值，调用 systrim()函数收缩 heap，不是主分配区的话，调用 heap_trim()函数收缩非主分配区的 sub_heap </p>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>这里说明是mmap分配的区域，调用<code>munmap</code></li>
-</ul>
-<hr>
-<p><code>_int_realloc</code>之前先做检查，如果传入的指针为NULL，就直接调用<code>_int_malloc</code></p>
-<p>如果传入的chunk不满足<code>(uintptr_t) oldp &gt; (uintptr_t) -oldsize</code>，且也不是16bit对齐，<strong>报错结束</strong></p>
-<h1 id="int-realloc-mstate-av-mchunkptr-oldp-INTERNAL-SIZE-T-oldsize-INTERNAL-SIZE-T-nb"><a href="#int-realloc-mstate-av-mchunkptr-oldp-INTERNAL-SIZE-T-oldsize-INTERNAL-SIZE-T-nb" class="headerlink" title="_int_realloc(mstate av, mchunkptr oldp, INTERNAL_SIZE_T oldsize, INTERNAL_SIZE_T nb)"></a>_int_realloc(mstate av, mchunkptr oldp, INTERNAL_SIZE_T oldsize, INTERNAL_SIZE_T nb)</h1><p>检查oldp的size字段是否满足<code>2*size_t &lt; oldp.size &lt; system_mem</code>，不满足则<strong>报错结束</strong></p>
-<p>oldchunk不能是mmapped，否则<strong>报错结束</strong></p>
-<p>通过oldp和oldsize计算next和next size</p>
-<p>检查next的size字段是否满足<code>2*size_t &lt; oldp.size &lt; system_mem</code>，不满足则<strong>报错结束</strong></p>
-<p>（下面开始if..else..流程）</p>
-<ul>
-<li>oldsize&gt;=nb？</li>
-<li><strong>是</strong>：<ul>
-<li>则准备从原chunk切割</li>
-<li>newp=oldp，newsize=oldsize</li>
-</ul>
-</li>
-<li><strong>否</strong>：(newsize=oldsize+nextsize)<ul>
-<li>如果前向chunk是topchunk且<code>oldsize+topsize&gt;nb+MINSIZE</code><ul>
-<li>直接从topchunk切割出一部分补上去，设置新topheap，chunk2mem(oldp)，<strong>完成退出</strong></li>
-</ul>
-</li>
-<li>如果前向chunk不是topchunk且未使用，并满足<code>oldsize+nextsize&gt;nb+MINSIZE</code><ul>
-<li>newp=oldp</li>
-<li>unlink前向chunk</li>
-</ul>
-</li>
-<li>前面两种情况都不是，则进行以下操作<ul>
-<li>调用<code>_int_malloc(av, nb - MALLOC_ALIGN_MASK)</code>，分配内存，这里nb - MALLOC_ALIGN_MASK是因为在<code>_int_malloc</code>里面还会再计算一遍nb。然后计算newp和newsize</li>
-<li>newp == next？</li>
-<li><strong>是</strong>：<ul>
-<li>直接设置newp=oldp，不用复制内容了，扩充就好</li>
-</ul>
-</li>
-<li><strong>否</strong>：<ul>
-<li>拷贝内容到新chunk</li>
-<li><code>_int_free(av,oldp,1)</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>检查newsize是否&gt;=nb，不满足则<strong>报错结束</strong></p>
-<p>计算<code>remainder_size = newsize - nb</code></p>
-<ul>
-<li>remainder_size&lt;MINSIZE?</li>
-<li><strong>是</strong>：<ul>
-<li>直接设置头部，不用分割了</li>
-</ul>
-</li>
-<li><strong>否</strong><ul>
-<li>分割出remainder，并设置其prev_inuse为1，接着调用<code>_int_free(av,remainder,1)</code></li>
-</ul>
-</li>
-</ul>
-<p>返回chunk2mem，<strong>完成退出</strong></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1877,14 +1689,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1999,7 +1811,7 @@
 
 <script>
 NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
-  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
     var GUEST = ['nick', 'mail', 'link'];
     var guest = 'nick,mail,link';
     guest = guest.split(',').filter(item => {
@@ -2016,7 +1828,7 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       meta       : guest,
       pageSize   : '10' || 10,
       visitor    : false,
-      lang       : 'zn-cn' || 'zh-cn',
+      lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
       recordIP   : false,
       serverURLs : ''
