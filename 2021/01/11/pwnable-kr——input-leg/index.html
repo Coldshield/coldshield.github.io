@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="这个寒假好好把一些pwnable.kr的题刷一刷，加上学学基础知识 pwnable.kr —— input先看看题目代码   stage1要求argc值为100，就是除文件名外还需要99个参数，argv[&#39;A&#39;]&#x3D;&quot;\x00&quot;，argv[&#39;B&#39;]&#x3D;&quot;\x20\x0a\x0d&quot;，要满足最后argv[argc]&#x3D;NULL stag">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr——input+leg">
+<meta property="og:url" content="http://yoursite.com/2021/01/11/pwnable-kr%E2%80%94%E2%80%94input-leg/index.html">
+<meta property="og:site_name" content="Coldshield&#39;s blog">
+<meta property="og:description" content="这个寒假好好把一些pwnable.kr的题刷一刷，加上学学基础知识 pwnable.kr —— input先看看题目代码   stage1要求argc值为100，就是除文件名外还需要99个参数，argv[&#39;A&#39;]&#x3D;&quot;\x00&quot;，argv[&#39;B&#39;]&#x3D;&quot;\x20\x0a\x0d&quot;，要满足最后argv[argc]&#x3D;NULL stag">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210103152433405.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210103153255873.png">
+<meta property="og:image" content="http://images.cnblogs.com/cnblogs_com/skynet/201012/201012122157467258.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210104202957472.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210111000847458.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210111163416232.png">
+<meta property="article:published_time" content="2021-01-11T11:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-11T11:09:38.003Z">
+<meta property="article:author" content="Coldshield">
+<meta property="article:tag" content="pwnable.kr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210103152433405.png">
+
+<link rel="canonical" href="http://yoursite.com/2021/01/11/pwnable-kr%E2%80%94%E2%80%94input-leg/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>pwnable.kr——input+leg | Coldshield's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Coldshield's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Mostly PWN & RE</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/11/pwnable-kr%E2%80%94%E2%80%94input-leg/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="分享一些bin学习日常的菜鸡">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshield's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pwnable.kr——input+leg
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-01-11 19:00:00 / Modified: 19:09:38" itemprop="dateCreated datePublished" datetime="2021-01-11T19:00:00+08:00">2021-01-11</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/11/pwnable-kr%E2%80%94%E2%80%94input-leg/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/11/pwnable-kr%E2%80%94%E2%80%94input-leg/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这个寒假好好把一些pwnable.kr的题刷一刷，加上学学基础知识</p>
+<h1 id="pwnable-kr-——-input"><a href="#pwnable-kr-——-input" class="headerlink" title="pwnable.kr —— input"></a>pwnable.kr —— input</h1><p>先看看题目代码</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210103152433405.png" alt="image-20210103152433405" style="zoom:80%;">
+
+<h2 id="stage1"><a href="#stage1" class="headerlink" title="stage1"></a>stage1</h2><p>要求argc值为100，就是除文件名外还需要99个参数，<code>argv[&#39;A&#39;]=&quot;\x00&quot;</code>，<code>argv[&#39;B&#39;]=&quot;\x20\x0a\x0d&quot;</code>，要满足最后<code>argv[argc]=NULL</code></p>
+<h2 id="stage2"><a href="#stage2" class="headerlink" title="stage2"></a>stage2</h2><p>要求从fd:0（stdin）处读出4字节<code>\x00\x0a\x00\xff</code>，从fd:2（stderr）处读出四字节<code>\x00\x0a\x02\xff</code>，这里直接读是读不了的，要使用dup2函数将文件描述符克隆到 0和2 </p>
+<h2 id="stage3"><a href="#stage3" class="headerlink" title="stage3"></a>stage3</h2><p>设置一个环境变量，好说</p>
+<h2 id="stage4"><a href="#stage4" class="headerlink" title="stage4"></a>stage4</h2><p>打开一个文件名是回车的文件，读四字节<code>\x00\x00\x00\x00</code></p>
+<h2 id="stage5"><a href="#stage5" class="headerlink" title="stage5"></a>stage5</h2><img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210103153255873.png" alt="image-20210103153255873" style="zoom:80%;">
+
+<p>这里好好学一下网络编程的一些东西，之前一直喜欢忽略</p>
+<h3 id="socket函数（返回socke描述符）"><a href="#socket函数（返回socke描述符）" class="headerlink" title="socket函数（返回socke描述符）"></a>socket函数（返回socke描述符）</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> family,<span class="keyword">int</span> type,<span class="keyword">int</span> protocol)</span></span>;</span><br><span class="line"><span class="comment">//返回：若成功则为非负描述符，若出错则为-1</span></span><br></pre></td></tr></table></figure>
+
+<p>family参数指明协议簇，决定了socket的地址类型，如AF_INET决定了要用IPv4地址(32位的)与端口号(16位的)的组合、AF_UNIX要使用一个绝对路径名作为地址</p>
+<table>
+<thead>
+<tr>
+<th>family</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AF_INET (一般用)</td>
+<td>IPv4协议</td>
+</tr>
+<tr>
+<td>AF_INET6</td>
+<td>IPv6协议</td>
+</tr>
+<tr>
+<td>AF_LOCAL</td>
+<td>Unix域协议</td>
+</tr>
+<tr>
+<td>AF_ROUTE</td>
+<td>路由套接字</td>
+</tr>
+<tr>
+<td>AF_KEY</td>
+<td>密钥套接字</td>
+</tr>
+</tbody></table>
+<p>type参数指明socket类型</p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SOCK_STREAM</td>
+<td>字节流套接字</td>
+</tr>
+<tr>
+<td>SOCK_DGRAM</td>
+<td>数据报套接字</td>
+</tr>
+<tr>
+<td>SOCK_SEGPACKET</td>
+<td>有序分组套接字</td>
+</tr>
+<tr>
+<td>SOCK_RAW</td>
+<td>原始套接字</td>
+</tr>
+</tbody></table>
+<p>protocol指协议，一般赋值0让系统自动选择</p>
+<p>（这三个参数更详细的内容可以在<a href="https://binhack.readthedocs.io/zh/latest/os/linux/syscall/socket.html" target="_blank" rel="noopener">这里</a>找到）</p>
+<h3 id="sockaddr-in结构体"><a href="#sockaddr-in结构体" class="headerlink" title="sockaddr_in结构体"></a>sockaddr_in结构体</h3><p>用来设置具体地址给bind函数当做参数，因为一些字节序的原因不直接使用sockaddr，但两者目的等价；设置好协议簇之后，IP地址的sin_addr.s_addr可以用INADDR_ANY表示本机，也可以用具体的IP地址，如<code>inet_addr(&quot;192.168.1.1&quot;)</code>；然后端口号使用<code>hton()</code>封装，转换字节序</p>
+<p><strong>这里题目的意思就是将我们<code>argv[&#39;C&#39;]</code>处的值作为绑定的端口号</strong></p>
+<h3 id="bind、listen、accept、recv"><a href="#bind、listen、accept、recv" class="headerlink" title="bind、listen、accept、recv"></a>bind、listen、accept、recv</h3><p>设置好结构体后此程序作为服务端程序，bind对应端口，然后监听，listen函数的第一个参数即为监听的socket描述字，第二个参数为相应socket可以排队的最大连接个数。socket()函数创建的socket默认是一个主动类型的，listen函数将socket变为被动类型的，等待客户的连接请求。</p>
+<p>这里accept返回的是新的已连接的socket描述字，和前面的监听socket描述字不一样，监听socket描述字一直存在，而当服务器完成某服务后已连接的socket描述字就会被关闭</p>
+<p>之后使用recv接受四字节内容</p>
+<p>更加具体的描述可以看<a href="http://images.cnblogs.com/cnblogs_com/skynet/201012/201012122157467258.png" target="_blank" rel="noopener">这篇文章</a>，同时这里还有一张图表示建立连接与TCP三次握手的关系</p>
+<img src="http://images.cnblogs.com/cnblogs_com/skynet/201012/201012122157467258.png">
+
+
+
+<h2 id="solution"><a href="#solution" class="headerlink" title="solution"></a>solution</h2><p>直接上代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *P=<span class="string">"/home/pwner/Desktop/pwnable.kr/input2/input"</span>;<span class="comment">//写题时换成pwnable.kr那边的路径</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> *Argv[<span class="number">101</span>];</span><br><span class="line">    <span class="keyword">char</span> *Envp[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">//argv</span></span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">100</span>;i++)Argv[i]=<span class="string">"\x20"</span>;</span><br><span class="line">    Argv[<span class="string">'A'</span>]=<span class="string">"\x00"</span>;</span><br><span class="line">    Argv[<span class="string">'B'</span>]=<span class="string">"\x20\x0a\x0d"</span>;</span><br><span class="line">    Argv[<span class="number">100</span>]=<span class="literal">NULL</span>;<span class="comment">//设置参数</span></span><br><span class="line">    <span class="comment">//env</span></span><br><span class="line">    Envp[<span class="number">0</span>]=<span class="string">"\xde\xad\xbe\xef=\xca\xfe\xba\xbe"</span>;</span><br><span class="line">    Envp[<span class="number">1</span>]=<span class="literal">NULL</span>;<span class="comment">//设置环境变量</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> fd1=<span class="built_in">open</span>(<span class="string">"./infile"</span> ,  O_CREAT | O_RDWR , S_IRWXU | S_IRWXO | S_IRWXG);</span><br><span class="line">    <span class="keyword">int</span> fd2=<span class="built_in">open</span>(<span class="string">"./errfile"</span>,  O_CREAT | O_RDWR , S_IRWXU | S_IRWXO | S_IRWXG);</span><br><span class="line">    <span class="comment">//这里创建两个文件打开后用于将0,2文件描述符覆盖</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">write</span>(fd1,<span class="string">"\x00\x0a\x00\xff"</span>,<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">write</span>(fd2,<span class="string">"\x00\x0a\x02\xff"</span>,<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    dup2(fd1,<span class="number">0</span>);</span><br><span class="line">    dup2(fd2,<span class="number">2</span>);</span><br><span class="line">    lseek(fd1,<span class="number">0</span>,SEEK_SET);<span class="comment">//写文件之后要调用lseek将文件指针重置一下</span></span><br><span class="line">    lseek(fd2,<span class="number">0</span>,SEEK_SET);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(fd1);<span class="built_in">close</span>(fd2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> fd3=<span class="built_in">open</span>(<span class="string">"./\x0a"</span>,  O_CREAT | O_RDWR , S_IRWXU | S_IRWXO | S_IRWXG);<span class="comment">//这里创建需要的“回车”文件</span></span><br><span class="line">    <span class="built_in">write</span>(fd3,<span class="string">"\x00\x00\x00\x00"</span>,<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">close</span>(fd3);</span><br><span class="line"></span><br><span class="line">    Argv[<span class="string">'C'</span>]=<span class="string">"8888"</span>;</span><br><span class="line"></span><br><span class="line">    execve(P,Argv,Envp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我解题的具体做法是进入pwnable服务器之后，cd /tmp ，mkdir ljc ，cd ljc ，touch solu.c , vim solu.c</p>
+<p>然后把这段代码写进去，修改一下可执行文件的路径保存，再 ln -s flag /home/input2/flag 为了最后一步cat flag，gcc编译之后运行，此时就会等待stage5，再从一个新的命令行用python输入就行</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210104202957472.png" alt="image-20210104202957472" style="zoom: 67%;">
+
+<h1 id="pwnable-kr-——-leg"><a href="#pwnable-kr-——-leg" class="headerlink" title="pwnable.kr —— leg"></a>pwnable.kr —— leg</h1><p>一道ARM汇编的题目，来入门一下arm的汇编</p>
+<h2 id="ARM学习"><a href="#ARM学习" class="headerlink" title="ARM学习"></a>ARM学习</h2><p><a href="https://azeria-labs.com/writing-arm-assembly-part-1/" target="_blank" rel="noopener">从这个教程开始</a></p>
+<p>搭环境我创了一个全新的ubuntu 20 虚拟机…装了大概一天的各种依赖等等，把python2装上去了，还有什么re2c，Ninja，meson，编译安装了一个qemu，东西还挺多的，然后又琢磨了一晚上qemu树莓派虚拟机的网络问题….照着<a href="https://wiki.qemu.org/Features/HelperNetworking" target="_blank" rel="noopener">这里</a>（这里的helper最后还是没用，琢磨了一个下午也没琢磨出来。。tcl）还是用<a href="https://azeria-labs.com/emulate-raspberry-pi-with-qemu/" target="_blank" rel="noopener">教程的指导</a>把树莓派虚拟机网络问题解决了，我起qemu的命令是这样的</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">stty intr ^]</span><br><span class="line">qemu-system-arm -kernel /home/coldshield/qemu_vms/kernel-qemu-4.4.34-jessie \</span><br><span class="line">		-cpu arm1176 \</span><br><span class="line">		-m 256 \</span><br><span class="line">		-M versatilepb \</span><br><span class="line">		-serial stdio \</span><br><span class="line">		-net nic \</span><br><span class="line">		-nic tap,ifname=tap0,script=no,downscript=no\</span><br><span class="line">		-append <span class="string">"root=/dev/sda2 rootfstype=ext4 rw console=ttyAMA0,115200"</span> \</span><br><span class="line">		-hda /home/coldshield/qemu_vms/2017-03-02-raspbian-jessie.img \</span><br><span class="line">		-no-reboot</span><br></pre></td></tr></table></figure>
+
+<p>进去之后我是设置静态DNS还有网络，然后让虚拟机和host还有外网都能ping通，（参照过<a href="https://blog.csdn.net/mculover666/article/details/105664454" target="_blank" rel="noopener">这里</a>，后来自己又谷歌了一下静态配置，用了一个静态的IP还有DNS连上我的tap），然后因为镜像的磁盘空间不够又给手动扩了个容….参照<a href="https://yushulx.medium.com/how-to-resize-raspbian-image-for-qemu-on-windows-ac0b44075d8f" target="_blank" rel="noopener">这里</a>。还有树莓派虚拟机里面的gdb只能支持python2的gef，那个教程没更新了吧可能，用<a href="https://github.com/hugsy/gef-legacy" target="_blank" rel="noopener">gef-legacy</a>就行，反正全部弄清楚是啥然后搭起来断断续续搞了两三天的样子….</p>
+<p>随手记一些教程上的东西，可能会特别粗略</p>
+<h3 id="常见访存指令-amp-后缀"><a href="#常见访存指令-amp-后缀" class="headerlink" title="常见访存指令&amp;后缀"></a>常见访存指令&amp;后缀</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ldr &#x3D; Load Word</span><br><span class="line">ldrh &#x3D; Load unsigned Half Word</span><br><span class="line">ldrsh &#x3D; Load signed Half Word</span><br><span class="line">ldrb &#x3D; Load unsigned Byte</span><br><span class="line">ldrsb &#x3D; Load signed Bytes</span><br><span class="line"></span><br><span class="line">str &#x3D; Store Word</span><br><span class="line">strh &#x3D; Store unsigned Half Word</span><br><span class="line">strsh &#x3D; Store signed Half Word</span><br><span class="line">strb &#x3D; Store unsigned Byte</span><br><span class="line">strsb &#x3D; Store signed Byte</span><br></pre></td></tr></table></figure>
+
+<h3 id="一些寄存器"><a href="#一些寄存器" class="headerlink" title="一些寄存器"></a>一些寄存器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">R0	–	 General purpose</span><br><span class="line">R1	–	 General purpose</span><br><span class="line">R2	–	 General purpose</span><br><span class="line">R3	–	 General purpose</span><br><span class="line">R4	–	 General purpose</span><br><span class="line">R5	–	 General purpose</span><br><span class="line">R6	–	 General purpose</span><br><span class="line">R7	–	Holds Syscall Number  系统调用号</span><br><span class="line">R8	–	 General purpose</span><br><span class="line">R9	–	 General purpose</span><br><span class="line">R10	–	 General purpose</span><br><span class="line">R11	FP	Frame Pointer         类似EBP</span><br><span class="line">R12	IP	Intra Procedural Call </span><br><span class="line">R13	SP	Stack Pointer         类似ESP,以字节为单位</span><br><span class="line">R14	LR	Link Register         函数返回时存放返回地址</span><br><span class="line">R15	PC	Program Counter       类似EIP，但实际内容不是存放next的地址，而是存放当前执行指令+2指令的地址（ARM模式值+8，Thumb模式值+4，这里应该是跟指令流水线有关？）</span><br><span class="line">CPSR	–	Current Program Status Register</span><br><span class="line"></span><br><span class="line">函数调用时前四个参数存在 r0-r3</span><br></pre></td></tr></table></figure>
+
+<h3 id="Thumb"><a href="#Thumb" class="headerlink" title="Thumb"></a>Thumb</h3><p>When writing ARM shellcode, we need to get rid of NULL bytes and using 16-bit Thumb instructions instead of 32-bit ARM instructions reduces the chance of having them</p>
+<p>可以用BX还有BLX指令设置寄存器最低位为1来切换ARM和Thumb模式，执行的时候最低位会被忽略所以不会产生地址对齐问题</p>
+<p>具体的指令格式相关还是看<a href="https://azeria-labs.com/arm-instruction-set-part-3/" target="_blank" rel="noopener">教程</a>吧….这里记一个大概</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">MNEMONIC&#123;S&#125;&#123;condition&#125; &#123;Rd&#125;, Operand1, Operand2</span><br><span class="line">MNEMONIC     - 指令助记符</span><br><span class="line">&#123;S&#125;          - 可选后缀，如果设置S，flags将根据操作结果进行更新</span><br><span class="line">&#123;condition&#125;  - 执行指令所需的条件</span><br><span class="line">&#123;Rd&#125;         - 目的寄存器，用于存储指令结果（不过后续提到的ldm不是）</span><br><span class="line">Operand1     - 寄存器或者立即数 </span><br><span class="line">Operand2     - 立即数或寄存器（可用于增加、偏移）</span><br></pre></td></tr></table></figure>
+
+<h3 id="几种寻址方式"><a href="#几种寻址方式" class="headerlink" title="几种寻址方式"></a>几种寻址方式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ldr r2, [r0]         最普通的，有效地址就是r0的值(r0)</span><br><span class="line">ldr r1, [pc, #12]    这里有效地址是(PC)+12(arm模式 4单位对齐)，不是当前执行指令地址加12</span><br><span class="line"></span><br><span class="line">str r2, [r1, #2]     这里有效地址是(r1)+2，r1不发生更改，offset</span><br><span class="line">str r2, [r1, #4]!    这里有效地址是(r1)+4，第一操作数有感叹号，所以r1发生更改 r1&#x3D;r1+4 ，pre-indexed</span><br><span class="line">ldr r3, [r1], #4     这里有效地址是(r1)，r1发生更改 r1&#x3D;r1+4 ，post-indexed</span><br><span class="line"></span><br><span class="line">str r2, [r1, r2]</span><br><span class="line">str r2, [r1, r2]!</span><br><span class="line">ldr r3, [r1], r2</span><br><span class="line">这三种跟上面比较相似，只不过是把立即数换成了r2寄存器的值，更改的依然是r1(用r2的值相加)</span><br><span class="line"></span><br><span class="line">str r2, [r1, r2, LSL#2]   有效地址是(r1) + ((r2)&lt;&lt;2)，offset</span><br><span class="line">str r2, [r1, r2, LSL#2]!  有效地址是(r1) + ((r2)&lt;&lt;2)，r1发生更改 r1&#x3D; (r1) + ((r2)&lt;&lt;2) ，pre-indexed</span><br><span class="line">ldr r3, [r1], r2, LSL#2   有效地址是(r1)，r1发生更改 r1&#x3D; (r1) + ((r2)&lt;&lt;2) ，post-indexed</span><br></pre></td></tr></table></figure>
+
+<p>ARM中的立即数是最后操作数12中的，前8位（n）和后4位（r）的组合表示， v = n ror 2*r，循环右移得到，用于12位表示32位数</p>
+<h3 id="访存指令-Multiple-amp-后缀"><a href="#访存指令-Multiple-amp-后缀" class="headerlink" title="访存指令(Multiple)&amp;后缀"></a>访存指令(Multiple)&amp;后缀</h3><p>这里有一串类似猝发式传送的指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">adr r0, words+12             &#x2F;* address of words[3] -&gt; r0 ，adr是取地址的指令*&#x2F;</span><br><span class="line">ldr r1, array_buff_bridge    &#x2F;* address of array_buff[0] -&gt; r1 *&#x2F;</span><br><span class="line">ldr r2, array_buff_bridge+4  &#x2F;* address of array_buff[2] -&gt; r2 *&#x2F;</span><br><span class="line"></span><br><span class="line">ldm r0, &#123;r4,r5&#125;              &#x2F;* words[3] -&gt; r4 &#x3D; 0x03; words[4] -&gt; r5 &#x3D; 0x04 *&#x2F;</span><br><span class="line">&#x2F;&#x2F;ldm：load多个数据到目的寄存器，这里是将r0指向的连续内存数据分别load到r4 r5，默认情况下是r0增加的连续方向，此时执行后r0的值不会变</span><br><span class="line">stm r1, &#123;r4,r5&#125;              &#x2F;* r4 -&gt; array_buff[0] &#x3D; 0x03; r5 -&gt; array_buff[1] &#x3D; 0x04 *&#x2F;</span><br><span class="line">&#x2F;&#x2F;stm则是将r4 45中的内容存到r1所指的连续内存，默认也是r0增加方向，此时r1值不改变</span><br><span class="line"></span><br><span class="line">ldmia r0, &#123;r4-r6&#125;            &#x2F;* words[3] -&gt; r4 &#x3D; 0x03, words[4] -&gt; r5 &#x3D; 0x04; words[5] -&gt; r6 &#x3D; 0x05; *&#x2F;</span><br><span class="line">stmia r1, &#123;r4-r6&#125;            &#x2F;* r4 -&gt; array_buff[0] &#x3D; 0x03; r5 -&gt; array_buff[1] &#x3D; 0x04; r6 -&gt; array_buff[2] &#x3D; 0x05 *&#x2F;</span><br><span class="line">&#x2F;&#x2F;这里是后缀的介绍还有指令写法可以写成r4-46，这样就是存3个了</span><br><span class="line">&#x2F;&#x2F;后缀具体代表 -IA (increase after), -IB (increase before), -DA (decrease after), -DB (decrease before)</span><br><span class="line"></span><br><span class="line">ldmib r0, &#123;r4-r6&#125;            &#x2F;* words[4] -&gt; r4 &#x3D; 0x04; words[5] -&gt; r5 &#x3D; 0x05; words[6] -&gt; r6 &#x3D; 0x06 *&#x2F;</span><br><span class="line">stmib r1, &#123;r4-r6&#125;            &#x2F;* r4 -&gt; array_buff[1] &#x3D; 0x04; r5 -&gt; array_buff[2] &#x3D; 0x05; r6 -&gt; array_buff[3] &#x3D; 0x06 *&#x2F;</span><br><span class="line">ldmda r0, &#123;r4-r6&#125;            &#x2F;* words[3] -&gt; r6 &#x3D; 0x03; words[2] -&gt; r5 &#x3D; 0x02; words[1] -&gt; r4 &#x3D; 0x01 *&#x2F;</span><br><span class="line">ldmdb r0, &#123;r4-r6&#125;            &#x2F;* words[2] -&gt; r6 &#x3D; 0x02; words[1] -&gt; r5 &#x3D; 0x01; words[0] -&gt; r4 &#x3D; 0x00 *&#x2F;</span><br><span class="line">stmda r2, &#123;r4-r6&#125;            &#x2F;* r6 -&gt; array_buff[2] &#x3D; 0x02; r5 -&gt; array_buff[1] &#x3D; 0x01; r4 -&gt; array_buff[0] &#x3D; 0x00 *&#x2F;</span><br><span class="line">stmdb r2, &#123;r4-r5&#125;            &#x2F;* r5 -&gt; array_buff[1] &#x3D; 0x01; r4 -&gt; array_buff[0] &#x3D; 0x00; *&#x2F;</span><br><span class="line">&#x2F;&#x2F;后缀的不同用法，I(x)时指令后面的寄存器操作顺序是顺着来的，D(x)时指令后面的寄存器操作顺序是逆着来的，要注意差别。这里第一个寄存器都不会发生改变</span><br><span class="line"></span><br><span class="line">bx lr</span><br></pre></td></tr></table></figure>
+
+<h3 id="push-amp-pop"><a href="#push-amp-pop" class="headerlink" title="push&amp;pop"></a>push&amp;pop</h3><p>ARM中虽然直接写stmdb sp!, {r0, r1}    ldmia sp!, {r4, r5} 在汇编会被翻译为 push {r0, r1}    pop {r4, r5}<br>但push , pop本质上是stmdb sp!和ldmia sp!的代名词</p>
+<p>所以push操作时是先push r1再push r0，从右到左；pop操作时是先pop r4再pop r5，从左到右；</p>
+<h3 id="条件执行相关"><a href="#条件执行相关" class="headerlink" title="条件执行相关"></a>条件执行相关</h3><p>下表列出了ARM中可用的条件代码，它们的含义以及测试的标志，条件码跟着指令助记符满足指令格式就行，比如addlt,addsne</p>
+<table>
+<thead>
+<tr>
+<th>Condition Code</th>
+<th>Meaning (for cmp or subs)</th>
+<th>Status of Flags</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EQ</td>
+<td>Equal</td>
+<td>Z==1</td>
+</tr>
+<tr>
+<td>NE</td>
+<td>Not Equal</td>
+<td>Z==0</td>
+</tr>
+<tr>
+<td>GT</td>
+<td>Signed Greater Than</td>
+<td>(Z==0) &amp;&amp; (N==V)</td>
+</tr>
+<tr>
+<td>LT</td>
+<td>Signed Less Than</td>
+<td>N!=V</td>
+</tr>
+<tr>
+<td>GE</td>
+<td>Signed Greater Than or Equal</td>
+<td>N==V</td>
+</tr>
+<tr>
+<td>LE</td>
+<td>Signed Less Than or Equal</td>
+<td>(Z==1) || (N!=V)</td>
+</tr>
+<tr>
+<td>CS or HS</td>
+<td>Unsigned Higher or Same (or Carry Set)</td>
+<td>C==1</td>
+</tr>
+<tr>
+<td>CC or LO</td>
+<td>Unsigned Lower (or Carry Clear)</td>
+<td>C==0</td>
+</tr>
+<tr>
+<td>MI</td>
+<td>Negative (or Minus)</td>
+<td>N==1</td>
+</tr>
+<tr>
+<td>PL</td>
+<td>Positive (or Plus)</td>
+<td>N==0</td>
+</tr>
+<tr>
+<td>AL</td>
+<td>Always executed</td>
+<td>–</td>
+</tr>
+<tr>
+<td>NV</td>
+<td>Never executed</td>
+<td>–</td>
+</tr>
+<tr>
+<td>VS</td>
+<td>Signed Overflow</td>
+<td>V==1</td>
+</tr>
+<tr>
+<td>VC</td>
+<td>No signed Overflow</td>
+<td>V==0</td>
+</tr>
+<tr>
+<td>HI</td>
+<td>Unsigned Higher</td>
+<td>(C==1) &amp;&amp; (Z==0)</td>
+</tr>
+<tr>
+<td>LS</td>
+<td>Unsigned Lower or same</td>
+<td>(C==0) || (Z==0)</td>
+</tr>
+</tbody></table>
+<p>Thumb模式下有分支条件执行，语法格式是这样的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Syntax: IT&#123;x&#123;y&#123;z&#125;&#125;&#125; cond  ,IT指令之后会跟一个条件执行块，最多四条指令，这四条指令的条件都由这条IT指令指出</span><br><span class="line"></span><br><span class="line">cond specifies the condition for the first instruction in the IT block（cond指出第一条指令的执行条件）</span><br><span class="line">x specifies the condition switch for the second instruction in the IT block（x指出第二条指令执行的条件是不是和cond一样，如果x是T，那么第二条指令和cond条件相同；如果是E，那么第二条指令和cond条件相反）</span><br><span class="line">y specifies the condition switch for the third instruction in the IT block（同上）</span><br><span class="line">z specifies the condition switch for the fourth instruction in the IT block（同上）</span><br></pre></td></tr></table></figure>
+
+<p>所以Thumb模式下的条件执行指令块看起来就是这样的（这里直接偷图了）：</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210111000847458.png" alt="image-20210111000847458" style="zoom:80%;">
+
+<p>里面每个指令都是带条件的，并且符合IT指令的声明，常见的条件和相反条件有如下几个</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EQ</td>
+<td>Equal</td>
+<td>NE</td>
+<td>Not Equal</td>
+</tr>
+<tr>
+<td>HS (or CS)</td>
+<td>Unsigned higher or same (or carry set)</td>
+<td>LO (or CC)</td>
+<td>Unsigned lower (or carry clear)</td>
+</tr>
+<tr>
+<td>MI</td>
+<td>Negative</td>
+<td>PL</td>
+<td>Positive or Zero</td>
+</tr>
+<tr>
+<td>VS</td>
+<td>Signed Overflow</td>
+<td>VC</td>
+<td>No Signed Overflow</td>
+</tr>
+<tr>
+<td>HI</td>
+<td>Unsigned Higher</td>
+<td>LS</td>
+<td>Unsigned Lower or Same</td>
+</tr>
+<tr>
+<td>GE</td>
+<td>Signed Greater Than or Equal</td>
+<td>LT</td>
+<td>Signed Less Than</td>
+</tr>
+<tr>
+<td>GT</td>
+<td>Signed Greater Than</td>
+<td>LE</td>
+<td>Signed Less Than or Equal</td>
+</tr>
+<tr>
+<td>AL (or omitted)</td>
+<td>Always Executed</td>
+<td>(There is no opposite to AL)</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>这里还有一段比较典型的将ARM切换成Thumb模式的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.syntax unified    @ this is important!</span><br><span class="line">.text</span><br><span class="line">.global _start</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line">    .code 32</span><br><span class="line">    add r3, pc, #1   @ increase value of PC by 1 and add it to R3，执行到这里时PC指向cmp指令</span><br><span class="line">    bx r3            @ branch + exchange to the address in R3 -&gt; switch to Thumb state because LSB &#x3D; 1</span><br><span class="line"></span><br><span class="line">    .code 16         @ Thumb state</span><br><span class="line">    cmp r0, #10      </span><br><span class="line">    ite eq           @ if R0 is equal 10...</span><br><span class="line">    addeq r1, #2     @ ... then R1 &#x3D; R1 + 2</span><br><span class="line">    addne r1, #3     @ ... else R1 &#x3D; R1 + 3</span><br><span class="line">    bkpt</span><br></pre></td></tr></table></figure>
+
+<h3 id="分支指令（跳转）"><a href="#分支指令（跳转）" class="headerlink" title="分支指令（跳转）"></a>分支指令（跳转）</h3><p>三种分支指令：</p>
+<ul>
+<li>Branch (B)<ul>
+<li>简单跳转</li>
+</ul>
+</li>
+<li>Branch link (BL)<ul>
+<li>将(当前执行指令地址+4)存入LR寄存器再跳转</li>
+</ul>
+</li>
+<li>Branch exchange (BX) and Branch link exchange (BLX)<ul>
+<li>和B/BL指令一样步骤 然后最低位为1时会切换模式 (ARM &lt;-&gt; Thumb)</li>
+<li>必须用寄存器作为操作数</li>
+</ul>
+</li>
+</ul>
+<p>然后就是加上条件执行变成条件跳转了（跳转之后由于PC特性，会多读跳转目的处两条指令，实现自动PC+8？）</p>
+<h3 id="函数栈"><a href="#函数栈" class="headerlink" title="函数栈"></a>函数栈</h3><p>先来看一个函数代码对应的汇编</p>
+<p>main函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line"> <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line"> <span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line"> res = <span class="built_in">max</span>(a, b);</span><br><span class="line"> <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function main:</span><br><span class="line">&#x3D;&gt; 0x000103e8 &lt;+0&gt;:		push	&#123;r11, lr&#125;  @最开始执行到main时，lr存放的是&lt;__libc_start_main+276&gt; bl 0xb6ea4b28 &lt;__GI_exit&gt;，就是说这里将本函数的返回地址先存到了栈上</span><br><span class="line">@然后r11存放的是前一个函数的栈帧地址（作用等于rbp吧）</span><br><span class="line">   0x000103ec &lt;+4&gt;:		add	r11, sp, #4 @新栈帧地址 直接sp+4得到，指向存放的lr</span><br><span class="line">   0x000103f0 &lt;+8&gt;:		sub	sp, sp, #16 @开辟了4*4字节大小的栈帧</span><br><span class="line">   0x000103f4 &lt;+12&gt;:	mov	r3, #0</span><br><span class="line">   0x000103f8 &lt;+16&gt;:	str	r3, [r11, #-8] @r11-8处存放0（res）</span><br><span class="line">   0x000103fc &lt;+20&gt;:	mov	r3, #1</span><br><span class="line">   0x00010400 &lt;+24&gt;:	str	r3, [r11, #-12] @r11-12处存放1（a）</span><br><span class="line">   0x00010404 &lt;+28&gt;:	mov	r3, #2</span><br><span class="line">   0x00010408 &lt;+32&gt;:	str	r3, [r11, #-16] @r11-16处存放2（b）</span><br><span class="line">   0x0001040c &lt;+36&gt;:	ldr	r0, [r11, #-12] @开始给要调用的函数赋值参数，把1给r0</span><br><span class="line">   0x00010410 &lt;+40&gt;:	ldr	r1, [r11, #-16] @把2给r1，这里可以看出来参数传递顺序</span><br><span class="line">   0x00010414 &lt;+44&gt;:	bl	0x1042c &lt;max&gt;   @把下个函数的返回地址存到lr后调用函数</span><br><span class="line">   0x00010418 &lt;+48&gt;:	str	r0, [r11, #-8]  @(返回值赋给res，然后再给r0)</span><br><span class="line">   0x0001041c &lt;+52&gt;:	ldr	r3, [r11, #-8]</span><br><span class="line">   0x00010420 &lt;+56&gt;:	mov	r0, r3</span><br><span class="line">   0x00010424 &lt;+60&gt;:	sub	sp, r11, #4</span><br><span class="line">   0x00010428 &lt;+64&gt;:	pop	&#123;r11, pc&#125; @这里由于PC的特性，感觉将之前的lr内容给到PC之后，PC自己又会自动+8多读两条指令</span><br></pre></td></tr></table></figure>
+
+<p>上面代码中执行到+32处时栈帧看起来就是这样的（我这里sp指向栈顶后一个单元，可能有些实现会有不同）：</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210111163416232.png" alt="image-20210111163416232" style="zoom:80%;">
+
+<p>再来看max：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">max</span><span class="params">(<span class="keyword">int</span> a,<span class="keyword">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> do_nothing();</span><br><span class="line"> <span class="keyword">if</span>(a&lt;b) <span class="keyword">return</span> b;</span><br><span class="line"> <span class="keyword">else</span> <span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function max:	@这里就不一行行解释了</span><br><span class="line">&#x3D;&gt; 0x0001042c &lt;+0&gt;:		push	&#123;r11, lr&#125;</span><br><span class="line">   0x00010430 &lt;+4&gt;:		add	r11, sp, #4</span><br><span class="line">   0x00010434 &lt;+8&gt;:		sub	sp, sp, #8</span><br><span class="line">   0x00010438 &lt;+12&gt;:	str	r0, [r11, #-8]</span><br><span class="line">   0x0001043c &lt;+16&gt;:	str	r1, [r11, #-12]</span><br><span class="line">   0x00010440 &lt;+20&gt;:	bl	0x1046c &lt;do_nothing&gt; @lr存入下一条指令地址然后跳转到do_nothing</span><br><span class="line">   0x00010444 &lt;+24&gt;:	ldr	r2, [r11, #-8]</span><br><span class="line">   0x00010448 &lt;+28&gt;:	ldr	r3, [r11, #-12]</span><br><span class="line">   0x0001044c &lt;+32&gt;:	cmp	r2, r3</span><br><span class="line">   0x00010450 &lt;+36&gt;:	bge	0x1045c &lt;max+48&gt;</span><br><span class="line">   0x00010454 &lt;+40&gt;:	ldr	r3, [r11, #-12]</span><br><span class="line">   0x00010458 &lt;+44&gt;:	b	0x10460 &lt;max+52&gt;</span><br><span class="line">   0x0001045c &lt;+48&gt;:	ldr	r3, [r11, #-8]</span><br><span class="line">   0x00010460 &lt;+52&gt;:	mov	r0, r3</span><br><span class="line">   0x00010464 &lt;+56&gt;:	sub	sp, r11, #4</span><br><span class="line">   0x00010468 &lt;+60&gt;:	pop	&#123;r11, pc&#125;</span><br></pre></td></tr></table></figure>
+
+<p>do_nothing：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">do_nothing</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function do_nothing:	@由于do_nothing没有再调用其他函数，所以没有push lr，返回时也是直接bx lr</span><br><span class="line">&#x3D;&gt; 0x0001046c &lt;+0&gt;:		push	&#123;r11&#125;		; (str r11, [sp, #-4]!)</span><br><span class="line">   0x00010470 &lt;+4&gt;:		add	r11, sp, #0</span><br><span class="line">   0x00010474 &lt;+8&gt;:		mov	r3, #0</span><br><span class="line">   0x00010478 &lt;+12&gt;:	mov	r0, r3</span><br><span class="line">   0x0001047c &lt;+16&gt;:	sub	sp, r11, #0</span><br><span class="line">   0x00010480 &lt;+20&gt;:	pop	&#123;r11&#125;		; (ldr r11, [sp], #4)</span><br><span class="line">   0x00010484 &lt;+24&gt;:	bx	lr</span><br></pre></td></tr></table></figure>
+
+<p>把函数调用看做一个树形结构的话，这里也可以看出叶子函数和非叶子函数的区别</p>
+<p>OK到此为止对ARM的一些基础就知道的差不多了，来写题吧</p>
+<h2 id="leg"><a href="#leg" class="headerlink" title="leg"></a>leg</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;                                      </span><br><span class="line">        <span class="keyword">int</span> key=<span class="number">0</span>;                               </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Daddy has very strong arm! : "</span>); </span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;key);                       </span><br><span class="line">        <span class="keyword">if</span>( (key1()+key2()+key3()) == key )&#123;     </span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Congratz!\n"</span>);           </span><br><span class="line">                <span class="keyword">int</span> fd = <span class="built_in">open</span>(<span class="string">"flag"</span>, O_RDONLY); </span><br><span class="line">                <span class="keyword">char</span> buf[<span class="number">100</span>];                   </span><br><span class="line">                <span class="keyword">int</span> r = <span class="built_in">read</span>(fd, buf, <span class="number">100</span>);      </span><br><span class="line">                <span class="built_in">write</span>(<span class="number">0</span>, buf, r);                </span><br><span class="line">        &#125;                                        </span><br><span class="line">        <span class="keyword">else</span>&#123;                                    </span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"I have strong leg :P\n"</span>);</span><br><span class="line">        &#125;                                        </span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;                                </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从c语言内容可以看出来，主要就是看key1、key2、key3的汇编然后计算和即可，先来看key1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function key1:                          </span><br><span class="line">   0x00008cd4 &lt;+0&gt;:     push    &#123;r11&#125;       ; (str r11, [sp, #-4]!)</span><br><span class="line">   0x00008cd8 &lt;+4&gt;:     add r11, sp, #0                            </span><br><span class="line">   0x00008cdc &lt;+8&gt;:     mov r3, pc                                 </span><br><span class="line">   0x00008ce0 &lt;+12&gt;:    mov r0, r3                                 </span><br><span class="line">   0x00008ce4 &lt;+16&gt;:    sub sp, r11, #0                            </span><br><span class="line">   0x00008ce8 &lt;+20&gt;:    pop &#123;r11&#125;       ; (ldr r11, [sp], #4)      </span><br><span class="line">   0x00008cec &lt;+24&gt;:    bx  lr</span><br></pre></td></tr></table></figure>
+
+<p>这里就是考PC的特性，指向后两条指令处，即<code>0x00008ce4</code>，再来看key2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function key2:                      </span><br><span class="line">   0x00008cf0 &lt;+0&gt;: 	push    &#123;r11&#125;       ; (str r11, [sp, #-4]!)</span><br><span class="line">   0x00008cf4 &lt;+4&gt;: 	add r11, sp, #0</span><br><span class="line">   0x00008cf8 &lt;+8&gt;: 	push    &#123;r6&#125;        ; (str r6, [sp, #-4]!)</span><br><span class="line">   0x00008cfc &lt;+12&gt;:    add r6, pc, #1</span><br><span class="line">   0x00008d00 &lt;+16&gt;:    bx  r6</span><br><span class="line">   0x00008d04 &lt;+20&gt;:    mov r3, pc     @跳转到这里的时候切成了Thumb模式，然后将r3赋值0x00008d08</span><br><span class="line">   0x00008d06 &lt;+22&gt;:    adds    r3, #4 @ r3&#x3D;0x00008d0C</span><br><span class="line">   0x00008d08 &lt;+24&gt;:    push    &#123;r3&#125;</span><br><span class="line">   0x00008d0a &lt;+26&gt;:    pop &#123;pc&#125;       @这里就是类似花指令的操作，接着执行</span><br><span class="line">   0x00008d0c &lt;+28&gt;:    pop &#123;r6&#125;        ; (ldr r6, [sp], #4)</span><br><span class="line">   0x00008d10 &lt;+32&gt;:    mov r0, r3     @此时r3&#x3D;0x00008d0C</span><br><span class="line">   0x00008d14 &lt;+36&gt;:    sub sp, r11, #0</span><br><span class="line">   0x00008d18 &lt;+40&gt;:    pop &#123;r11&#125;       ; (ldr r11, [sp], #4)</span><br><span class="line">   0x00008d1c &lt;+44&gt;:    bx  lr</span><br></pre></td></tr></table></figure>
+
+<p>所以key2返回<code>0x00008d0C</code>，再来看key3</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function key3:                      </span><br><span class="line">   0x00008d20 &lt;+0&gt;: 	push    &#123;r11&#125;       ; (str r11, [sp, #-4]!)</span><br><span class="line">   0x00008d24 &lt;+4&gt;: 	add r11, sp, #0</span><br><span class="line">   0x00008d28 &lt;+8&gt;: 	mov r3, lr</span><br><span class="line">   0x00008d2c &lt;+12&gt;:    mov r0, r3</span><br><span class="line">   0x00008d30 &lt;+16&gt;:    sub sp, r11, #0</span><br><span class="line">   0x00008d34 &lt;+20&gt;:    pop &#123;r11&#125;       ; (ldr r11, [sp], #4)</span><br><span class="line">   0x00008d38 &lt;+24&gt;:    bx  lr</span><br></pre></td></tr></table></figure>
+
+<p>这里lr存的是在main里面的返回地址，去main里面看就知道是<code>0x00008d80</code></p>
+<p>所以加起来就是0x1A770→108400，ssh过去就可以得到flag</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/08/ret2dl/" rel="prev" title="ret2dl">
+      <i class="fa fa-chevron-left"></i> ret2dl
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pwnable-kr-——-input"><span class="nav-number">1.</span> <span class="nav-text">pwnable.kr —— input</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#stage1"><span class="nav-number">1.1.</span> <span class="nav-text">stage1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage2"><span class="nav-number">1.2.</span> <span class="nav-text">stage2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage3"><span class="nav-number">1.3.</span> <span class="nav-text">stage3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage4"><span class="nav-number">1.4.</span> <span class="nav-text">stage4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stage5"><span class="nav-number">1.5.</span> <span class="nav-text">stage5</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#socket函数（返回socke描述符）"><span class="nav-number">1.5.1.</span> <span class="nav-text">socket函数（返回socke描述符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sockaddr-in结构体"><span class="nav-number">1.5.2.</span> <span class="nav-text">sockaddr_in结构体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bind、listen、accept、recv"><span class="nav-number">1.5.3.</span> <span class="nav-text">bind、listen、accept、recv</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#solution"><span class="nav-number">1.6.</span> <span class="nav-text">solution</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pwnable-kr-——-leg"><span class="nav-number">2.</span> <span class="nav-text">pwnable.kr —— leg</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM学习"><span class="nav-number">2.1.</span> <span class="nav-text">ARM学习</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常见访存指令-amp-后缀"><span class="nav-number">2.1.1.</span> <span class="nav-text">常见访存指令&amp;后缀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一些寄存器"><span class="nav-number">2.1.2.</span> <span class="nav-text">一些寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thumb"><span class="nav-number">2.1.3.</span> <span class="nav-text">Thumb</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几种寻址方式"><span class="nav-number">2.1.4.</span> <span class="nav-text">几种寻址方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访存指令-Multiple-amp-后缀"><span class="nav-number">2.1.5.</span> <span class="nav-text">访存指令(Multiple)&amp;后缀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#push-amp-pop"><span class="nav-number">2.1.6.</span> <span class="nav-text">push&amp;pop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#条件执行相关"><span class="nav-number">2.1.7.</span> <span class="nav-text">条件执行相关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分支指令（跳转）"><span class="nav-number">2.1.8.</span> <span class="nav-text">分支指令（跳转）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数栈"><span class="nav-number">2.1.9.</span> <span class="nav-text">函数栈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#leg"><span class="nav-number">2.2.</span> <span class="nav-text">leg</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Coldshield"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">Coldshield</p>
+  <div class="site-description" itemprop="description">分享一些bin学习日常的菜鸡</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Coldshield</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : true,
+      notify     : false,
+      appId      : 'APq34QYuAOTUtOPWMtySvyvt-gzGzoHsz',
+      appKey     : 'xRjoMerK1OFN4Lad4pyXT0Bs',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
