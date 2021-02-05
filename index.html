@@ -213,7 +213,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-02-05 16:29:23 / Modified: 16:30:49" itemprop="dateCreated datePublished" datetime="2021-02-05T16:29:23+08:00">2021-02-05</time>
+              <time title="Created: 2021-02-05 16:29:23 / Modified: 22:14:45" itemprop="dateCreated datePublished" datetime="2021-02-05T16:29:23+08:00">2021-02-05</time>
             </span>
 
           
@@ -296,7 +296,7 @@
 
 
 <h3 id="init-forkserver"><a href="#init-forkserver" class="headerlink" title="init_forkserver"></a>init_forkserver</h3><p><code>calibrate_case</code>中的函数，<code>init_forkserver</code>的代码不难懂建议直接看，又因为比较长这里就不写太多了，主要就是打开了两个pipe（一个用于forkserver发送状态、一个用于fuzzer发送命令，管道描述符分别设置值为198和199，对应之前的<code>afl_maybe_log</code>）之后fork出一个fuzzer子进程并setsid，把子进程的stdout、stderr全关、做了一些设置之后用execv替换成目标文件的进程映象，正式成为供fuzzer控制的forkserver。对于这个结构师傅们给出了图，对应的操作点一边是前面的afl-as.h分析中可以看到，还有一边在fuzzer中的run_target函数(下文分析)</p>
-<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210203145001.png" alt="img" style="zoom:80%;">
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210203145002.png" alt="image-20210203145001" style="zoom:80%;">
 
 <img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210203145001.png" alt="QQ图片20210203145001" style="zoom:80%;">
 
