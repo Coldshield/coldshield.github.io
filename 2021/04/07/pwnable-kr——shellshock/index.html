@@ -20,17 +20,24 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="分享一些bin学习日常">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Coldshield&#39;s blog">
-<meta property="og:url" content="http://yoursite.com/archives/page/2/index.html">
+  <meta name="description" content="pwnable.kr —— shellshock题目有这样一串代码（shellshock.c） 1234567#include &lt;stdio.h&gt;int main()&amp;#123;	setresuid(getegid(), getegid(), getegid());	setresgid(getegid(), getegid(), getegid());	system(&quot;&#x2F;home&#x2F;sh">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr——shellshock">
+<meta property="og:url" content="http://yoursite.com/2021/04/07/pwnable-kr%E2%80%94%E2%80%94shellshock/index.html">
 <meta property="og:site_name" content="Coldshield&#39;s blog">
-<meta property="og:description" content="分享一些bin学习日常">
+<meta property="og:description" content="pwnable.kr —— shellshock题目有这样一串代码（shellshock.c） 1234567#include &lt;stdio.h&gt;int main()&amp;#123;	setresuid(getegid(), getegid(), getegid());	setresgid(getegid(), getegid(), getegid());	system(&quot;&#x2F;home&#x2F;sh">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407125845099.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407232747355.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407233151874.png">
+<meta property="article:published_time" content="2021-04-07T15:35:35.000Z">
+<meta property="article:modified_time" content="2021-04-07T15:36:21.663Z">
 <meta property="article:author" content="Coldshield">
+<meta property="article:tag" content="pwnable.kr">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407125845099.png">
 
-<link rel="canonical" href="http://yoursite.com/archives/page/2/">
+<link rel="canonical" href="http://yoursite.com/2021/04/07/pwnable-kr%E2%80%94%E2%80%94shellshock/">
 
 
 <script id="page-configurations">
@@ -38,11 +45,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false
+    isPost : true
   };
 </script>
 
-  <title>Archive | Coldshield's blog</title>
+  <title>pwnable.kr——shellshock | Coldshield's blog</title>
   
 
 
@@ -183,236 +190,129 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/07/pwnable-kr%E2%80%94%E2%80%94shellshock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Coldshield">
+      <meta itemprop="description" content="分享一些bin学习日常">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coldshield's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pwnable.kr——shellshock
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-04-07 23:35:35 / Modified: 23:36:21" itemprop="dateCreated datePublished" datetime="2021-04-07T23:35:35+08:00">2021-04-07</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
   
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 22 posts in total. Keep on posting.</span>
-      </div>
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/04/07/pwnable-kr%E2%80%94%E2%80%94shellshock/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/04/07/pwnable-kr%E2%80%94%E2%80%94shellshock/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
-    </div>
+        <h1 id="pwnable-kr-——-shellshock"><a href="#pwnable-kr-——-shellshock" class="headerlink" title="pwnable.kr —— shellshock"></a>pwnable.kr —— shellshock</h1><p>题目有这样一串代码（shellshock.c）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	setresuid(getegid(), getegid(), getegid());</span><br><span class="line">	setresgid(getegid(), getegid(), getegid());</span><br><span class="line">	system(<span class="string">"/home/shellshock/bash -c 'echo shock_me'"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p>因为有些知识记的不太清了这里就再复习一下euid，ruid，suid什么的</p>
+<ul>
+<li>ruid（real）：用于在系统中标识用户，当用户成功登录一个UNIX系统后就唯一确定</li>
+<li>euid（effective）：用于系统决定用户对系统资源的访问权限，通常情况下等于ruid。当碰上程序属主设置了setuid位的时候，执行该程序会将euid改为文件属主</li>
+</ul>
+<p>gid同理，所以这里执行到system的时候已经有对应的组权限了（flag在对应组可读）</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407125845099.png" alt="image-20210407125845099" style="zoom:80%;">
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-29T23:30:16+08:00"
-              content="2020-02-29">
-          02-29
-        </time>
-      </div>
+<p>然后就是构造触发shellshock漏洞的语句</p>
+<p><a href="https://en.wikipedia.org/wiki/Shellshock_(software_bug)" target="_blank" rel="noopener">wiki上面有链接</a>，原理跟linux环境变量相关，bash中可以通过环境变量来导入function，此时的function也会当做普通环境变量来处理，具体就是<code>函数名=&#39;(){ ...; };&#39;</code>，这样子的键值对，而在处理这个function变量的时候，有漏洞的bash版本只检查了前几个字符</p>
+<p><code>STREQN (&quot;() {&quot;, string, 4)</code></p>
+<p>然后将整条字符串全部当做脚本代码处理了，本意应该是起子实例的时候，将这个函数的代码字符串直接跑到子实例bash中，供后续调用。但是这里并没有做语法检查或者结尾检查之类的，所以如果函数后面跟了命令也会被跑出来</p>
+<p>所以利用流程就是export一个函数类型的环境变量，然后再起一个bash就会触发后续命令</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407232747355.png" alt="image-20210407232747355" style="zoom:80%;">
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/29/how2heap-large-bin-attack-heapstorm2/" itemprop="url">
-            <span itemprop="name">how2heap - large_bin_attack&heapstorm2</span>
-          </a>
-      </h2>
+<p>原理大致如下，再结合我们的程序代码，可以看到程序刚好用system起了一个bash，所以export我们的构造语句之后再跑程序就可以直接cat flag了</p>
+<p>如图：</p>
+<img src="https://cdn.jsdelivr.net/gh/Coldshield/image_stored/image-20210407233151874.png" alt="image-20210407233151874" style="zoom:80%;">
 
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-26T20:59:45+08:00"
-              content="2020-02-26">
-          02-26
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/26/how2heap-unsorted-bin-zerostorage/" itemprop="url">
-            <span itemprop="name">how2heap - unsorted_bin&zerostorage</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-25T22:00:08+08:00"
-              content="2020-02-25">
-          02-25
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/25/FSOP-the-end/" itemprop="url">
-            <span itemprop="name">FSOP&the_end</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-22T18:42:29+08:00"
-              content="2020-02-22">
-          02-22
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/22/how2heap-house-of-force-cookbook%E3%80%81bcloud/" itemprop="url">
-            <span itemprop="name">how2heap - house_of_force&cookbook、bcloud</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-17T22:42:21+08:00"
-              content="2020-02-17">
-          02-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/17/how2heap-house-of-lore-overlapping-chunks-2/" itemprop="url">
-            <span itemprop="name">how2heap - house_of_lore&overlapping_chunks_2</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-17T21:06:34+08:00"
-              content="2020-02-17">
-          02-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/17/libc-2-23-malloc-free-realloc/" itemprop="url">
-            <span itemprop="name">libc-2.23-malloc,free,realloc</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-17T20:04:10+08:00"
-              content="2020-02-17">
-          02-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/17/how2heap-overlapping-chunks-bookstore-night-deamonic-heap/" itemprop="url">
-            <span itemprop="name">how2heap - overlapping_chunks&bookstore,night-deamonic-heap</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-10T06:54:41+08:00"
-              content="2020-02-10">
-          02-10
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/10/how2heap-poison-null-byte-plaiddb/" itemprop="url">
-            <span itemprop="name">how2heap - poison_null_byte&plaiddb</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-06T23:30:16+08:00"
-              content="2020-02-06">
-          02-06
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/06/how2heap-house-of-spirit-OREO/" itemprop="url">
-            <span itemprop="name">how2heap - house_of_spirit&OREO</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-02-02T23:30:16+08:00"
-              content="2020-02-02">
-          02-02
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/02/02/how2heap-unsafe-unlink-stkof%E3%80%81Wheel-of-Robots/" itemprop="url">
-            <span itemprop="name">how2heap - unsafe_unlink&stkof、Wheel of Robots</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
+<p>好像后续有些版本export就会加前后缀什么的了，修复的方式这里不深究，以后需要再看</p>
 
     </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/05/alf-fuzz-source-code-partly/" rel="prev" title="alf-fuzz source code(partly)">
+      <i class="fa fa-chevron-left"></i> alf-fuzz source code(partly)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
-  
-  
-  
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
 
 
           </div>
           
+    <div class="comments" id="valine-comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -459,6 +359,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pwnable-kr-——-shellshock"><span class="nav-number">1.</span> <span class="nav-text">pwnable.kr —— shellshock</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
